@@ -1,25 +1,45 @@
-import logo from './logo.svg';
 import './App.css';
+import {Button, Pane, Text, majorScale, Autocomplete, TextInput} from 'evergreen-ui'
+import TabCmpt from "./TabCmpt";
+import React from "react";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <div className="App">
+            <Autocomplete
+                title="Custom title"
+                onChange={changedItem => console.log(changedItem)}
+                items={['Apple', 'Apricot', 'Banana', 'Cherry', 'Cucumber']}
+            >
+                {({
+                      key,
+                      getInputProps,
+                      getToggleButtonProps,
+                      getRef,
+                      inputValue,
+                      openMenu,
+                      toggleMenu
+                  }) => (
+                    <Pane key={key} ref={getRef} display="flex">
+                        <TextInput
+                            flex="1"
+                            placeholder="Many Options!"
+                            value={inputValue}
+                            onFocus={openMenu}
+                            {...getInputProps()}
+                        />
+                        <Button onClick={toggleMenu} {...getToggleButtonProps()}>
+                            Search
+                        </Button>
+                    </Pane>
+                )}
+            </Autocomplete>
+
+           <div className="tab">
+               <TabCmpt></TabCmpt>
+           </div>
+        </div>
+    );
 }
 
 export default App;
