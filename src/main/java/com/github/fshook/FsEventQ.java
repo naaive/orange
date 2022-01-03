@@ -36,8 +36,10 @@ public class FsEventQ {
     public List<FsLog> poll(int size) {
         List<FsLog> fsLogs0 = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            FsLog take = fsLogs.take();
-            fsLogs0.add(take);
+            FsLog take = fsLogs.poll(200, TimeUnit.MILLISECONDS);
+            if (take != null) {
+                fsLogs0.add(take);
+            }
         }
         return fsLogs0;
     }

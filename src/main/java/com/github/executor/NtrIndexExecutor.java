@@ -45,13 +45,13 @@ public class NtrIndexExecutor implements Runnable {
     }
 
     private void doWork(FsEventQ q) {
-        List<FsLog> fsLogs = q.poll(1).stream()
+        List<FsLog> fsLogs = q.poll(24).stream()
                 .filter(x -> !x.getPath().contains("$RECYCLE.BIN"))
                 .collect(Collectors.toList());
         log.info("sync {} to index", fsLogs);
         for (FsLog fsLog : fsLogs) {
             Cmd cmd = fsLog.getCmd();
-            String absPath = formatPath(fsLog.getPath());
+            String absPath = fsLog.getPath();
 
             if (cmd == Cmd.D) {
                 dbAccessor.del(absPath);
@@ -78,7 +78,5 @@ public class NtrIndexExecutor implements Runnable {
         }
     }
 
-    private String formatPath(String logPath) {
-        return Paths.get(logPath).normalize().toAbsolutePath().toString();
-    }
+
 }

@@ -69,7 +69,7 @@ public class OrangeServer {
 
             System.err.println("Open your web browser and navigate to " + ("http") + "://127.0.0.1:" + PORT + '/');
 
-//            runTasks();
+            runTasks();
 
             ch.closeFuture().sync();
         } finally {
