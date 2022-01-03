@@ -51,7 +51,7 @@ public class IndexAccessor {
     @SneakyThrows
     public List<FileView> search(String kw) {
         Query src = parser.parse(kw);
-        TopDocs search = indexSearcher.search(src, 100);
+        TopDocs search = indexSearcher.search(src, 50);
         ScoreDoc[] docs = search.scoreDocs;
         return Arrays.stream(docs).map(this::buildFileView).collect(Collectors.toList());
     }

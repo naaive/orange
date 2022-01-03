@@ -10,6 +10,8 @@
     "evergreen-ui": "^6.6.4",
     "express": "^4.17.2",
     "http-proxy-middleware": "^2.0.1",
+    "loadsh": "^0.0.4",
+    "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "ramda": "^0.27.1",
     "react": "^17.0.2",

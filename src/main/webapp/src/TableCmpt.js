@@ -1,14 +1,18 @@
-import {DuplicateIcon, FolderOpenIcon, IconButton, majorScale, Pane, Table} from 'evergreen-ui'
+import {Pane, Table} from 'evergreen-ui'
 import React from "react";
 import './TableCmpt.css'
 import moment from 'moment';
+import File from './file.svg'
+import Folder from './folder.svg'
+import OpenFolder from './open_folder.svg'
+import Copy from './copy.svg'
 
 const R = require('ramda');
 
 function TableCmpt({items}) {
     function bytesToSize(bytes) {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        if (bytes == 0) return '0 Byte';
+        if (bytes === 0) return '0 Byte';
         const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
         return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
     }
@@ -27,13 +31,19 @@ function TableCmpt({items}) {
             <Table.Body>
                 {
                     R.map(x => {
+                        let isDir = R.prop('isDir')(x);
                         let prop = R.prop('absPath')(x);
                         let split = R.split('\\')(prop);
                         let tail = R.last(split);
                         return <>
                             <Table.Row>
                                 <Table.TextCell>
-                                    {tail}
+                                    <div className="icon">
+                                        {isDir ? <img src={Folder}/> :
+                                            <img src={File}/>}
+                                        {tail}
+                                    </div>
+
                                 </Table.TextCell>
                                 <Table.TextCell flexShrink={0} flexGrow={3}>
                                     {R.prop('absPath', x)}
@@ -42,8 +52,12 @@ function TableCmpt({items}) {
                                 <Table.TextCell>{bytesToSize(R.prop('size', x))}</Table.TextCell>
                                 <Table.TextCell>
                                     <Pane display="flex" alignItems="center">
-                                        <IconButton size={"small"} icon={DuplicateIcon} marginRight={majorScale(2)}/>
-                                        <IconButton size={"small"} icon={FolderOpenIcon} intent="success"/>
+                                        <div className="icon">
+                                            <img src={OpenFolder} alt={'openfolder'}/>}
+                                        </div>
+                                        <div className="icon">
+                                            <img src={Copy} alt={'openfolder'}/>}
+                                        </div>
                                     </Pane>
                                 </Table.TextCell>
                             </Table.Row>

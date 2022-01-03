@@ -1,38 +1,56 @@
 import './App.css';
-import {Autocomplete, Button, Pane, TextInput} from 'evergreen-ui'
+import {Autocomplete, Pane, TextInput} from 'evergreen-ui'
 import TabCmpt from "./TabCmpt";
-import React, {useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
+import _ from "lodash";
 
 const R = require('ramda');
+
 
 function App() {
     const [items, setItems] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [kw, setKw] = useState('');
 
+    useEffect(() => {
+        doTxtChange('c')
+    },[]);
+
+    function top6(json) {
+        return R.pipe(R.map(R.prop('absPath')), R.take(6))(json);
+    }
+
+    async function doTxtChange(v) {
+        let resp = await fetch(`http://localhost:3001/api/q?kw=${v}`);
+        let json = await resp.json();
+        setItems(json);
+        setSuggestions(top6(json));
+    }
+
+    let debouncedTxtChange = useCallback(_.debounce(doTxtChange, 300), []);
+
+    function onTextChange(v) {
+        setKw(v);
+        console.log(v)
+        debouncedTxtChange(v);
+    }
+
+
     async function handleClick(toggleMenu) {
         toggleMenu();
         let resp = await fetch(`http://localhost:3001/api/q?kw=${kw}`);
         let json = await resp.json();
-        setItems(json)
-        let map = R.map(R.prop('absPath'), json);
-        setSuggestions(map)
+        setItems(json);
+        setSuggestions(top6(json));
     }
 
-    async function handleTxtChange(v) {
-        setKw(v)
-        let resp = await fetch(`http://localhost:3001/api/q?kw=${kw}`);
-        let json = await resp.json();
-        let map = R.map(R.prop('absPath'), json);
-        setSuggestions(map)
-    }
 
     return (
         <div className="App">
             <Autocomplete
                 title=""
-                onChange={changedItem => handleTxtChange(changedItem)}
-                items={ suggestions}
+                onChange={changedItem => onTextChange(changedItem)}
+                items={suggestions}
             >
                 {({
                       key,
@@ -45,12 +63,12 @@ function App() {
                             flex="1"
                             placeholder="Many Options!"
                             value={kw}
-                            onChange={e => handleTxtChange(e.target.value)}
+                            onChange={e => onTextChange(e.target.value)}
                             onFocus={openMenu}
                         />
-                        <Button onClick={() => handleClick(toggleMenu)}>
-                            Search
-                        </Button>
+                        {/*<Button onClick={() => handleClick(toggleMenu)}>*/}
+                        {/*    Search*/}
+                        {/*</Button>*/}
                     </Pane>
                 )}
             </Autocomplete>

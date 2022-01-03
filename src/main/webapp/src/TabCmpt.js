@@ -7,20 +7,20 @@ function TabCmpt({items}) {
     const [selectedIndex, setSelectedIndex] = React.useState(0)
     const [tabs] = React.useState(['All', 'Video', 'Music'])
     return (
-        <Pane height={120}>
-            <Tablist marginBottom={16} flexBasis={240} marginRight={24}>
-                {tabs.map((tab, index) => (
-                    <Tab
-                        key={tab}
-                        id={tab}
-                        onSelect={() => setSelectedIndex(index)}
-                        isSelected={index === selectedIndex}
-                        aria-controls={`panel-${tab}`}
-                    >
-                        {tab}
-                    </Tab>
-                ))}
-            </Tablist>
+        <Pane >
+            {/*<Tablist marginBottom={16} flexBasis={240} marginRight={24}>*/}
+            {/*    {tabs.map((tab, index) => (*/}
+            {/*        <Tab*/}
+            {/*            key={tab}*/}
+            {/*            id={tab}*/}
+            {/*            onSelect={() => setSelectedIndex(index)}*/}
+            {/*            isSelected={index === selectedIndex}*/}
+            {/*            aria-controls={`panel-${tab}`}*/}
+            {/*        >*/}
+            {/*            {tab}*/}
+            {/*        </Tab>*/}
+            {/*    ))}*/}
+            {/*</Tablist>*/}
             <Pane padding={16} background="tint1" flex="1" >
                 {tabs.map((tab, index) => (
                     <Pane
