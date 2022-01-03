@@ -43,8 +43,9 @@ public class OrangeServer {
     private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(4);
 
     public static void main(String[] args) {
-        new OrangeServer().start();
+        System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
 
+        new OrangeServer().start();
     }
 
     @SneakyThrows
@@ -52,35 +53,38 @@ public class OrangeServer {
 
         this.dbAccessor = new DbAccessor(dataPath);
         this.indexAccessor = new IndexAccessor(indexPath, dbAccessor);
-        FsStatExecutor statExecutor = new FsStatExecutor(
-                monitorPath,
-                new String[] {"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
-                dbAccessor,
-                indexAccessor);
-
         // Configure the server.
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.option(ChannelOption.SO_BACKLOG, 1024);
-            b.option(ChannelOption.TCP_NODELAY, true);
+            b.childOption(ChannelOption.TCP_NODELAY, true);
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                                        .handler(new LoggingHandler(String.valueOf(LogLevel.INFO)))
+                    .handler(new LoggingHandler(String.valueOf(LogLevel.INFO)))
                     .childHandler(new OrangeInitializer(indexAccessor));
 
             Channel ch = b.bind(PORT).sync().channel();
 
             System.err.println("Open your web browser and navigate to " + ("http") + "://127.0.0.1:" + PORT + '/');
 
-            executors.scheduleAtFixedRate(statExecutor, 0, 2, TimeUnit.SECONDS);
-            executors.submit(new NtrIndexExecutor(dbAccessor, indexAccessor));
+//            runTasks();
 
             ch.closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
+    }
+
+    private void runTasks() {
+        FsStatExecutor statExecutor = new FsStatExecutor(
+                monitorPath,
+                new String[]{"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
+                dbAccessor,
+                indexAccessor);
+        executors.scheduleAtFixedRate(statExecutor, 0, 2, TimeUnit.SECONDS);
+        executors.submit(new NtrIndexExecutor(dbAccessor, indexAccessor));
     }
 }

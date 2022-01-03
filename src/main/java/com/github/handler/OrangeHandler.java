@@ -8,6 +8,7 @@ import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import lombok.SneakyThrows;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -18,8 +19,9 @@ import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
-public class OrangeHandler extends SimpleChannelInboundHandler<HttpObject> {
+public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private final IndexAccessor indexAccessor;
+    private static final String SEARCH_PATH = "/q";
 
     public OrangeHandler(IndexAccessor indexAccessor) {
         this.indexAccessor = indexAccessor;
@@ -32,44 +34,48 @@ public class OrangeHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     @SneakyThrows
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
-        if (msg instanceof HttpRequest) {
-            HttpRequest req = (HttpRequest) msg;
-            boolean keepAlive = HttpUtil.isKeepAlive(req);
-            URL url = new URL("http://localhost" + req.uri());
-            FullHttpResponse response = genResp(ctx, req, url);
+    public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) {
+        boolean keepAlive = HttpUtil.isKeepAlive(msg);
+        URL url = genUrl(msg.uri());
 
-            response.headers()
-                    .set(CONTENT_TYPE, TEXT_PLAIN)
-                    .setInt(CONTENT_LENGTH, response.content().readableBytes());
+        if (!Objects.equals(url.getPath(), SEARCH_PATH)) {
+            msg.content().retain();
+            ctx.fireChannelRead(msg);
+            return;
+        }
 
-            if (keepAlive) {
-                if (!req.protocolVersion().isKeepAliveDefault()) {
-                    response.headers().set(CONNECTION, KEEP_ALIVE);
-                }
-            } else {
-                // Tell the client we're going to close the connection.
-                response.headers().set(CONNECTION, CLOSE);
+        String query = url.getQuery();
+        String[] split = query.split("=");
+        String keyword = split[1];
+        List<FileView> docs = indexAccessor.search(keyword);
+        ByteBuf byteBuf =
+                ctx.alloc().buffer().writeBytes(JSON.toJSONString(docs).getBytes(StandardCharsets.UTF_8));
+        FullHttpResponse response = new DefaultFullHttpResponse(msg.protocolVersion(), OK, byteBuf);
+        response.headers()
+                .set(CONTENT_TYPE, TEXT_PLAIN)
+                .setInt(CONTENT_LENGTH, response.content().readableBytes());
+
+        if (keepAlive) {
+            if (!msg.protocolVersion().isKeepAliveDefault()) {
+                response.headers().set(CONNECTION, KEEP_ALIVE);
             }
+        } else {
+            // Tell the client we're going to close the connection.
+            response.headers().set(CONNECTION, CLOSE);
+        }
+        ChannelFuture f = ctx.write(response);
 
-            ChannelFuture f = ctx.write(response);
-
-            if (!keepAlive) {
-                f.addListener(ChannelFutureListener.CLOSE);
-            }
+        if (!keepAlive) {
+            f.addListener(ChannelFutureListener.CLOSE);
         }
     }
 
+    private URL genUrl(String uri) throws MalformedURLException {
+        return new URL("http://localhost" + uri);
+    }
+
     private FullHttpResponse genResp(ChannelHandlerContext ctx, HttpRequest req, URL url) {
-        if (Objects.equals(url.getPath(), "/q")) {
-            String query = url.getQuery();
-            String[] split = query.split("=");
-            String keyword = split[1];
-            List<FileView> docs = indexAccessor.search(keyword);
-            ByteBuf byteBuf =
-                    ctx.alloc().buffer().writeBytes(JSON.toJSONString(docs).getBytes(StandardCharsets.UTF_8));
-            return new DefaultFullHttpResponse(req.protocolVersion(), OK, byteBuf);
-        }
+
         return new DefaultFullHttpResponse(req.protocolVersion(), OK);
     }
 

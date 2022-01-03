@@ -79,6 +79,6 @@ public class NtrIndexExecutor implements Runnable {
     }
 
     private String formatPath(String logPath) {
-        return Paths.get(logPath).toAbsolutePath().toString();
+        return Paths.get(logPath).normalize().toAbsolutePath().toString();
     }
 }
