@@ -1,8 +1,9 @@
 import {Pane, Tab, Tablist} from 'evergreen-ui'
 import React from 'react';
 import TableCmpt from "./TableCmpt";
+const R = require('ramda');
 
-function TabCmpt() {
+function TabCmpt({items}) {
     const [selectedIndex, setSelectedIndex] = React.useState(0)
     const [tabs] = React.useState(['All', 'Video', 'Music'])
     return (
@@ -31,7 +32,7 @@ function TabCmpt() {
                         display={index === selectedIndex ? 'block' : 'none'}
                     >
                         {/*<Paragraph>Panel {ftab}</Paragraph>*/}
-                            <TableCmpt></TableCmpt>
+                            <TableCmpt items={items}/>
 
                     </Pane>
                 ))}

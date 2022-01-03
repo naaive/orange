@@ -16,4 +16,10 @@ class IndexAccessorTest {
         List<FileView> chrome = indexAccessor.search("chrome");
         System.out.println(chrome);
     }
+
+    @Test
+    void suggest() {
+
+
+    }
 }

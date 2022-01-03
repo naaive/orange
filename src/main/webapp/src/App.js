@@ -1,22 +1,42 @@
 import './App.css';
-import {Button, Pane, Text, majorScale, Autocomplete, TextInput} from 'evergreen-ui'
+import {Autocomplete, Button, Pane, TextInput} from 'evergreen-ui'
 import TabCmpt from "./TabCmpt";
-import React from "react";
+import React, {useState} from "react";
+
+const R = require('ramda');
 
 function App() {
+    const [items, setItems] = useState([]);
+    const [suggestions, setSuggestions] = useState([]);
+    const [kw, setKw] = useState('');
+
+    async function handleClick(toggleMenu) {
+        toggleMenu();
+        let resp = await fetch(`http://localhost:3001/api/q?kw=${kw}`);
+        let json = await resp.json();
+        setItems(json)
+        let map = R.map(R.prop('absPath'), json);
+        setSuggestions(map)
+    }
+
+    async function handleTxtChange(v) {
+        setKw(v)
+        let resp = await fetch(`http://localhost:3001/api/q?kw=${kw}`);
+        let json = await resp.json();
+        let map = R.map(R.prop('absPath'), json);
+        setSuggestions(map)
+    }
+
     return (
         <div className="App">
             <Autocomplete
-                title="Custom title"
-                onChange={changedItem => console.log(changedItem)}
-                items={['Apple', 'Apricot', 'Banana', 'Cherry', 'Cucumber']}
+                title=""
+                onChange={changedItem => handleTxtChange(changedItem)}
+                items={ suggestions}
             >
                 {({
                       key,
-                      getInputProps,
-                      getToggleButtonProps,
                       getRef,
-                      inputValue,
                       openMenu,
                       toggleMenu
                   }) => (
@@ -24,20 +44,20 @@ function App() {
                         <TextInput
                             flex="1"
                             placeholder="Many Options!"
-                            value={inputValue}
+                            value={kw}
+                            onChange={e => handleTxtChange(e.target.value)}
                             onFocus={openMenu}
-                            {...getInputProps()}
                         />
-                        <Button onClick={toggleMenu} {...getToggleButtonProps()}>
+                        <Button onClick={() => handleClick(toggleMenu)}>
                             Search
                         </Button>
                     </Pane>
                 )}
             </Autocomplete>
 
-           <div className="tab">
-               <TabCmpt></TabCmpt>
-           </div>
+            <div className="tab">
+                <TabCmpt items={items}/>
+            </div>
         </div>
     );
 }
