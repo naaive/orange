@@ -48,7 +48,7 @@ public class NtrIndexExecutor implements Runnable {
         List<FsLog> fsLogs = q.poll(1).stream()
                 .filter(x -> !x.getPath().contains("$RECYCLE.BIN"))
                 .collect(Collectors.toList());
-        log.info("sync {} to index",fsLogs);
+        log.info("sync {} to index", fsLogs);
         for (FsLog fsLog : fsLogs) {
             Cmd cmd = fsLog.getCmd();
             String absPath = formatPath(fsLog.getPath());
@@ -61,7 +61,7 @@ public class NtrIndexExecutor implements Runnable {
                 try {
                     attrs = Files.readAttributes(Paths.get(absPath), BasicFileAttributes.class);
                 } catch (IOException e) {
-                   continue;
+                    continue;
                 }
                 dbAccessor.put(
                         absPath,

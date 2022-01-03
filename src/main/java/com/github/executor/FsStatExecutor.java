@@ -26,12 +26,12 @@ public class FsStatExecutor implements Runnable {
     private final String monitorPath;
     private final Set<String> excludePaths;
     private int addCnt;
-    private DbAccessor dbAccessor;
-    private IndexAccessor indexAccessor;
+    private final DbAccessor dbAccessor;
+    private final IndexAccessor indexAccessor;
     private boolean aBoolean;
 
 
-    public FsStatExecutor(String monitorPath, String[] excludePaths,DbAccessor dbAccessor,IndexAccessor indexAccessor) {
+    public FsStatExecutor(String monitorPath, String[] excludePaths, DbAccessor dbAccessor, IndexAccessor indexAccessor) {
         this.monitorPath = monitorPath;
         this.excludePaths = Arrays.stream(excludePaths).collect(Collectors.toSet());
         this.dbAccessor = dbAccessor;

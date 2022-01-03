@@ -57,7 +57,7 @@ public class IndexAccessor {
     }
 
     @SneakyThrows
-    public synchronized  void del(String path) {
+    public synchronized void del(String path) {
         indexWriter.deleteDocuments(new Term(FileDoc.ABS_PATH, path));
     }
 

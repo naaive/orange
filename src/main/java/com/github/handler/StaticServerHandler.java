@@ -10,6 +10,7 @@ import io.netty.util.CharsetUtil;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 
 public class StaticServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
@@ -22,7 +23,7 @@ public class StaticServerHandler extends SimpleChannelInboundHandler<FullHttpReq
 
         if (!request.decoderResult().isSuccess()) {
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST,
-                    Unpooled.copiedBuffer("请求失败", CharsetUtil.UTF_8));
+                    Unpooled.copiedBuffer("Request failed", CharsetUtil.UTF_8));
 
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain;charset=UTF-8");
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -31,7 +32,7 @@ public class StaticServerHandler extends SimpleChannelInboundHandler<FullHttpReq
         if (request.method() != HttpMethod.GET) {
             DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
 
-            ByteBuf byteBuf = Unpooled.copiedBuffer("只允许GET请求", CharsetUtil.UTF_8);
+            ByteBuf byteBuf = Unpooled.copiedBuffer("Only allow GET requests", CharsetUtil.UTF_8);
             response.content().writeBytes(byteBuf);
             byteBuf.release();
 
@@ -45,7 +46,7 @@ public class StaticServerHandler extends SimpleChannelInboundHandler<FullHttpReq
 
         if (!file.exists()) {
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND,
-                    Unpooled.copiedBuffer("访问路径错误", CharsetUtil.UTF_8));
+                    ctx.alloc().buffer().writeBytes("404".getBytes(StandardCharsets.UTF_8)));
 
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain;charset=UTF-8");
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);

@@ -4,8 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.github.accessor.FileView;
 import com.github.accessor.IndexAccessor;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
-import io.netty.handler.codec.http.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpUtil;
 import lombok.SneakyThrows;
 
 import java.net.MalformedURLException;
@@ -20,8 +26,8 @@ import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
-    private final IndexAccessor indexAccessor;
     private static final String SEARCH_PATH = "/q";
+    private final IndexAccessor indexAccessor;
 
     public OrangeHandler(IndexAccessor indexAccessor) {
         this.indexAccessor = indexAccessor;
@@ -72,11 +78,6 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
 
     private URL genUrl(String uri) throws MalformedURLException {
         return new URL("http://localhost" + uri);
-    }
-
-    private FullHttpResponse genResp(ChannelHandlerContext ctx, HttpRequest req, URL url) {
-
-        return new DefaultFullHttpResponse(req.protocolVersion(), OK);
     }
 
     @Override

@@ -10,13 +10,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class FsEventQ {
 
-    private final ArrayBlockingQueue<FsLog> fsLogs = new ArrayBlockingQueue<>(1024);
     private static final String EXE = "C:\\Users\\Administrator\\PycharmProjects\\pythonProject\\main.dist\\main.exe ";
+    private final ArrayBlockingQueue<FsLog> fsLogs = new ArrayBlockingQueue<>(1024);
 
     public FsEventQ(String... roots) {
         int len = roots.length;

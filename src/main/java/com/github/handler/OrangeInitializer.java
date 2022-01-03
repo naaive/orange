@@ -6,13 +6,12 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 
 public class OrangeInitializer extends ChannelInitializer<SocketChannel> {
 
-    private IndexAccessor indexAccessor;
+    private final IndexAccessor indexAccessor;
 
     public OrangeInitializer(IndexAccessor indexAccessor) {
         this.indexAccessor = indexAccessor;

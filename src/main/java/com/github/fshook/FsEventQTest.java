@@ -13,7 +13,6 @@ public class FsEventQTest {
 
         while (true) {
             List<FsLog> poll = q.poll(4);
-            ;
             System.out.println(poll);
         }
     }

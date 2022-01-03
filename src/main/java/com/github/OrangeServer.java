@@ -27,12 +27,9 @@ public class OrangeServer {
 
     public static final String indexPath =
             "C:\\Users\\Administrator\\IdeaProjects\\orange\\src\\main\\resources\\.orange\\index";
-    private static String dataPath =
-            "C:\\Users\\Administrator\\IdeaProjects\\orange\\src\\main\\resources\\.orange\\data";
-    private final String monitorPath = "C:\\Users\\Administrator\\WebstormProjects\\untitled";
-    private DbAccessor dbAccessor;
-    private IndexAccessor indexAccessor;
     static final int PORT = Integer.parseInt(System.getProperty("port", "8080"));
+    private static final String dataPath =
+            "C:\\Users\\Administrator\\IdeaProjects\\orange\\src\\main\\resources\\.orange\\data";
 
     static {
         ch.qos.logback.classic.Logger rootLogger =
@@ -40,7 +37,10 @@ public class OrangeServer {
         rootLogger.setLevel(Level.DEBUG);
     }
 
+    private final String monitorPath = "C:\\Users\\Administrator\\WebstormProjects\\untitled";
     private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(4);
+    private DbAccessor dbAccessor;
+    private IndexAccessor indexAccessor;
 
     public static void main(String[] args) {
         System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
