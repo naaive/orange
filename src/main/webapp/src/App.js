@@ -21,7 +21,7 @@ function App() {
     }
 
     async function doTxtChange(v) {
-        let resp = await fetch(`http://localhost:3001/api/q?kw=${v}`);
+        let resp = await fetch(`http://localhost:8080/q?kw=${v}`);
         let json = await resp.json();
         setItems(json);
         setSuggestions(top6(json));
@@ -38,7 +38,7 @@ function App() {
 
     async function handleClick(toggleMenu) {
         toggleMenu();
-        let resp = await fetch(`http://localhost:3001/api/q?kw=${kw}`);
+        let resp = await fetch(`http://localhost:8080/q?kw=${kw}`);
         let json = await resp.json();
         setItems(json);
         setSuggestions(top6(json));

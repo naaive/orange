@@ -22,9 +22,10 @@
   },
   "scripts": {
     "tauri": "tauri",
-    "dev": "tauri dev",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start1": "react-scripts start",
+    "start2": "tauri dev",
+    "build1": "react-scripts build",
+    "build2": "tauri build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
