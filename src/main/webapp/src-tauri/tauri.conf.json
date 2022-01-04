@@ -49,11 +49,11 @@
       "active": false
     },
     "allowlist": {
-      "all": true
+      "all": false
     },
     "windows": [
       {
-        "title": "orange",
+        "title": "Orange",
         "width": 800,
         "height": 600,
         "resizable": true,

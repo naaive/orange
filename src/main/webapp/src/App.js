@@ -1,22 +1,27 @@
 import './App.css';
-import React, {useCallback, useEffect, useState} from "react";
+import React, {createRef, useCallback, useEffect, useState} from "react";
 import _ from "lodash";
 
-
+import {Sticky,} from 'semantic-ui-react'
 import SearchExampleStandard from "./SearchExampleStandard";
 import TableExampleCollapsing from "./TableExampleCollapsing";
+import StickyExampleAboveContent from "./StickyExampleAboveContent";
 
 const R = require('ramda');
 
 
 function App() {
+
+
+    const [ref, setRef] = useState();
     const [items, setItems] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [kw, setKw] = useState('');
 
     useEffect(() => {
         doTxtChange('c')
-    },[]);
+        setRef(createRef());
+    }, []);
 
     function top6(json) {
         return R.pipe(R.map(R.prop('absPath')), R.take(6))(json);
@@ -50,9 +55,9 @@ function App() {
 
     return (
         <div className="App">
-            <div className="search">
-                <SearchExampleStandard/>
-            </div>
+                <div className="search">
+                    <SearchExampleStandard/>
+                </div>
             <div className="result">
                 <TableExampleCollapsing items={items}/>
             </div>

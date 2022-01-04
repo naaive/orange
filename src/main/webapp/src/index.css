@@ -1,6 +1,17 @@
 .search-bar {
     padding: 0 10px;
 }
+.search>.twelve {
+    background: white;
+
+}
+.search {
+    z-index: 100;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+}
+
 
 .search-bar .input {
     width: 100%;
