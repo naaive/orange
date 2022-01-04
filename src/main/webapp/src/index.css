@@ -1,0 +1,24 @@
+.search-bar {
+    padding: 0 10px;
+}
+
+.search-bar .input {
+    width: 100%;
+    margin: 16px 0;
+}
+
+.result {
+    margin: 20px 10px 0 10px;
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    width: 30px;
+    margin: 16px;
+}
+
+.icon > img {
+    width: 35px;
+    margin-right: 5px;
+}

@@ -3,20 +3,3 @@
     padding: 0 5px;
     margin: 0 auto;
 }
-
-.tab {
-    margin: 15px 0 ;
-}
-.icon {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-.icon {
-    color: transparent;
-}
-.icon >img {
-    height: 12px;
-    width: 12px;
-    margin-right: 5px;
-}
