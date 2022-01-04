@@ -16,7 +16,7 @@ function bytesToSize(bytes) {
 const TableExampleCollapsing = ({items}) => (
 
 
-    <Table basic='very' >
+    <Table basic='very'  size='small' >
         <Table.Header>
             <Table.Row>
                 <Table.HeaderCell>Name</Table.HeaderCell>

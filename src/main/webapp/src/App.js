@@ -1,11 +1,7 @@
-import './App.css';
 import React, {createRef, useCallback, useEffect, useState} from "react";
 import _ from "lodash";
-
-import {Sticky,} from 'semantic-ui-react'
 import SearchExampleStandard from "./SearchExampleStandard";
 import TableExampleCollapsing from "./TableExampleCollapsing";
-import StickyExampleAboveContent from "./StickyExampleAboveContent";
 
 const R = require('ramda');
 
@@ -58,7 +54,7 @@ function App() {
                 <div className="search">
                     <SearchExampleStandard/>
                 </div>
-            <div className="result">
+            <div className="oitems">
                 <TableExampleCollapsing items={items}/>
             </div>
         </div>

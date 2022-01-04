@@ -1,10 +1,12 @@
 .search-bar {
     padding: 0 10px;
 }
-.search>.twelve {
+
+.search > .twelve {
     background: white;
 
 }
+
 .search {
     z-index: 100;
     position: -webkit-sticky;
@@ -12,10 +14,24 @@
     top: 0;
 }
 
+.App {
+    /*max-width:800px ;*/
+    padding: 0 5px;
+    margin: 0 auto;
+}
+
+
+.search-bar.search {
+    padding: 16px 0 0 0;
+}
+
+.oitems {
+    margin: 16px 10px 0 10px;
+}
 
 .search-bar .input {
     width: 100%;
-    margin: 16px 0;
+    margin: 0px 0;
 }
 
 .result {
@@ -32,4 +48,8 @@
 .icon > img {
     width: 35px;
     margin-right: 5px;
+}
+
+.oitems {
+    margin: 16px 10px 0 10px;
 }
