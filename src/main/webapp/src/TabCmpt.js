@@ -21,22 +21,7 @@ function TabCmpt({items}) {
             {/*        </Tab>*/}
             {/*    ))}*/}
             {/*</Tablist>*/}
-            <Pane padding={16} background="tint1" flex="1" >
-                {tabs.map((tab, index) => (
-                    <Pane
-                        key={tab}
-                        id={`panel-${tab}`}
-                        role="tabpanel"
-                        aria-labelledby={tab}
-                        aria-hidden={index !== selectedIndex}
-                        display={index === selectedIndex ? 'block' : 'none'}
-                    >
-                        {/*<Paragraph>Panel {ftab}</Paragraph>*/}
-                            <TableCmpt items={items}/>
-
-                    </Pane>
-                ))}
-            </Pane>
+            <TableCmpt items={items}/>
         </Pane>
     )
 }
