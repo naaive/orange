@@ -7,6 +7,7 @@ import com.github.accessor.IndexAccessor;
 import com.github.fshook.Cmd;
 import com.github.fshook.FsEventQ;
 import com.github.fshook.FsLog;
+import com.github.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -63,6 +64,18 @@ public class NtrIndexExecutor implements Runnable {
                 } catch (IOException e) {
                     continue;
                 }
+                String name = FileUtil.absPath2name(absPath);
+                String ext = FileUtil.name2ext(name);
+                indexAccessor.add(new FileDoc()
+                        .setName(name)
+                        .setExt(ext)
+                        .setSize(attrs.size())
+                        .setCreatedAt(attrs.creationTime().toMillis())
+                        .setModifiedAt(attrs.lastModifiedTime().toMillis())
+                        .setAbsPath(absPath)
+                        .setIsDir(attrs.isDirectory() ? 1 : 0)
+                        .setIsSymbolicLink(attrs.isSymbolicLink() ? 1 : 0));
+
                 dbAccessor.put(
                         absPath,
                         FileMsg.File.newBuilder()
@@ -70,10 +83,6 @@ public class NtrIndexExecutor implements Runnable {
                                 .setSize(attrs.size())
                                 .setCreatedAt(attrs.creationTime().toMillis())
                                 .build());
-                indexAccessor.add(new FileDoc()
-                        .setAbsPath(absPath)
-                        .setIsDir(attrs.isDirectory() ? 1 : 0)
-                        .setIsSymbolicLink(attrs.isSymbolicLink() ? 1 : 0));
             }
         }
     }

@@ -5,6 +5,8 @@ import lombok.experimental.Accessors;
 
 import java.nio.file.Paths;
 
+import static com.github.utils.FileUtil.formatPath;
+
 @Data
 @Accessors(chain = true)
 public class FsLog {
@@ -16,7 +18,5 @@ public class FsLog {
         return this;
     }
 
-    public static String formatPath(String logPath) {
-        return Paths.get(logPath).normalize().toAbsolutePath().toString();
-    }
+
 }

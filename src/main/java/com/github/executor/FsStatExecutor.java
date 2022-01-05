@@ -12,9 +12,13 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.github.utils.FileUtil.absPath2name;
+import static com.github.utils.FileUtil.name2ext;
 
 /**
  * @author jeff
@@ -28,7 +32,6 @@ public class FsStatExecutor implements Runnable {
     private int addCnt;
     private final DbAccessor dbAccessor;
     private final IndexAccessor indexAccessor;
-    private boolean aBoolean;
 
 
     public FsStatExecutor(String monitorPath, String[] excludePaths, DbAccessor dbAccessor, IndexAccessor indexAccessor) {
@@ -100,8 +103,15 @@ public class FsStatExecutor implements Runnable {
 
     @SneakyThrows
     private void addDoc(BasicFileAttributes attrs, String absPath, boolean isDir) {
+        String name = absPath2name(absPath);
+        String ext = name2ext(name);
         indexAccessor.add(new FileDoc()
+                .setName(name)
+                .setExt(ext)
                 .setAbsPath(absPath)
+                .setCreatedAt(attrs.creationTime().toMillis())
+                .setModifiedAt(attrs.lastModifiedTime().toMillis())
+                .setSize(attrs.size())
                 .setIsDir(isDir ? 1 : 0)
                 .setIsSymbolicLink(attrs.isSymbolicLink() ? 1 : 0));
 
@@ -116,4 +126,6 @@ public class FsStatExecutor implements Runnable {
             addCnt = 0;
         }
     }
+
+
 }

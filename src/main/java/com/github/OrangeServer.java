@@ -52,7 +52,7 @@ public class OrangeServer {
     private void start() {
 
         this.dbAccessor = new DbAccessor(dataPath);
-        this.indexAccessor = new IndexAccessor(indexPath, dbAccessor);
+        this.indexAccessor = new IndexAccessor(indexPath,dbAccessor);
         // Configure the server.
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();

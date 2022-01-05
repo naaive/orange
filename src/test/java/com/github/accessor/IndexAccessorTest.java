@@ -13,7 +13,16 @@ class IndexAccessorTest {
     void search() {
         DbAccessor dbAccessor = new DbAccessor(dataPath);
         IndexAccessor indexAccessor = new IndexAccessor(indexPath,dbAccessor);
-        List<FileView> chrome = indexAccessor.search("chrome");
+        FileDoc fileDoc = new FileDoc();
+        fileDoc.setName("jeff hello wrold");
+        fileDoc.setExt("hi");
+        fileDoc.setAbsPath("jeff/hello/wrold");
+        fileDoc.setSize(1L);
+        fileDoc.setCreatedAt(12312L);
+        fileDoc.setModifiedAt(231L);
+//        indexAccessor.add(fileDoc);
+
+        List<FileView> chrome = indexAccessor.search("index");
         System.out.println(chrome);
     }
 

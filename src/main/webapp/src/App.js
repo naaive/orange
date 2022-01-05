@@ -13,11 +13,11 @@ function App() {
     const [kw, setKw] = useState('');
 
     useEffect(() => {
-        doTxtChange('c')
+        doTxtChange('log')
     }, []);
 
     function top6(json) {
-        return R.pipe(R.map(R.prop('absPath')), R.take(6))(json);
+        return R.pipe(R.map(R.prop('name')), R.take(6))(json);
     }
 
     async function doTxtChange(v) {

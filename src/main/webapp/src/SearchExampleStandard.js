@@ -34,7 +34,7 @@ function exampleReducer(state, action) {
 }
 
 function top6(json) {
-    return R.pipe(R.map(R.prop('absPath')), R.take(6))(json);
+    return R.pipe(R.map(R.prop('name')), R.take(6))(json);
 }
 
 function SearchExampleStandard({setItems, doTxtChange}) {

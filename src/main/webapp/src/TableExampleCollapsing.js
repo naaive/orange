@@ -16,7 +16,7 @@ function bytesToSize(bytes) {
 const TableExampleCollapsing = ({items}) => (
 
 
-    <Table basic='very'  size='small' >
+    <Table basic='very' size='small'>
         <Table.Header>
             <Table.Row>
                 <Table.HeaderCell>Name</Table.HeaderCell>
@@ -30,37 +30,27 @@ const TableExampleCollapsing = ({items}) => (
             {
                 R.map(x => {
                     let isDir = R.prop('isDir')(x);
-                    let prop = R.prop('absPath')(x);
-                    let split = R.split('\\')(prop);
-                    let tail = R.last(split);
-                    let exsplit = R.split(".")(tail);
-                    let ext = R.length(exsplit) > 1 ? R.last(exsplit) : '';
-                    return <>
-                        <Table.Row>
-                            <Table.Cell>
-                                <Header as='h4' image>
-                                    <div className="icon">
-                                        {
-                                            isDir ? <img src={Folder}/> :
-                                                <FileIcon extension={ext} {...defaultStyles[ext]} />
-                                        }
+                    let ext = R.prop('ext')(x)
+                    let absPath = R.prop('absPath', x);
+                    return <Table.Row key={absPath}>
+                        <Table.Cell>
+                            <Header as='h4' image>
+                                <div className="icon">
+                                    {
+                                        isDir ? <img src={Folder}/> :
+                                            <FileIcon extension={ext} {...defaultStyles[ext]} />
+                                    }
 
-                                    </div>
-                                    <Header.Content>
-                                        {tail}
-                                        {/*<Header.Subheader>*/}
-                                        {/*    {'size: ' +bytesToSize( R.prop('size')(x))}*/}
-                                        {/*    <br/>*/}
-                                        {/*    {'modifiedAt: ' + moment(R.prop('modifiedAt', x)).format("YYYY-MM-DD h:mm:ss")}*/}
-                                        {/*</Header.Subheader>*/}
-                                    </Header.Content>
-                                </Header>
-                            </Table.Cell>
-                            <Table.Cell>{bytesToSize(R.prop('size')(x))}</Table.Cell>
-                            <Table.Cell>{moment(R.prop('modifiedAt', x)).format("YYYY-MM-DD h:mm:ss")}</Table.Cell>
-                            <Table.Cell>  {R.prop('absPath', x)}</Table.Cell>
-                        </Table.Row>
-                    </>
+                                </div>
+                                <Header.Content>
+                                    {R.prop("name")(x)}
+                                </Header.Content>
+                            </Header>
+                        </Table.Cell>
+                        <Table.Cell>{bytesToSize(R.prop('size')(x))}</Table.Cell>
+                        <Table.Cell>{moment(R.prop('modifiedAt', x)).format("YYYY-MM-DD h:mm:ss")}</Table.Cell>
+                        <Table.Cell>  {absPath}</Table.Cell>
+                    </Table.Row>
 
                 })(items)
             }
