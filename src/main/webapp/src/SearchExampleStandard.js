@@ -1,13 +1,12 @@
 import _ from 'lodash'
 import faker from 'faker'
 import React from 'react'
-import {Search,GridColumn,Grid} from 'semantic-ui-react'
+import {Grid, Search} from 'semantic-ui-react'
+import * as R from "ramda";
 
 const source = _.times(5, () => ({
     title: faker.company.companyName(),
-    description: faker.company.catchPhrase(),
-    image: faker.internet.avatar(),
-    price: faker.finance.amount(0, 100, 2, '$'),
+    // description: faker.company.catchPhrase()
 }))
 
 const initialState = {
@@ -25,14 +24,20 @@ function exampleReducer(state, action) {
         case 'FINISH_SEARCH':
             return {...state, loading: false, results: action.results}
         case 'UPDATE_SELECTION':
-            return {...state, value: action.selection}
+            let value = action.selection.title;
+            action.selection.doTxtChange(value)
+            return {...state, value: value}
 
         default:
             throw new Error()
     }
 }
 
-function SearchExampleStandard() {
+function top6(json) {
+    return R.pipe(R.map(R.prop('absPath')), R.take(6))(json);
+}
+
+function SearchExampleStandard({setItems, doTxtChange}) {
     const [state, dispatch] = React.useReducer(exampleReducer, initialState)
     const {loading, results, value} = state
 
@@ -41,7 +46,7 @@ function SearchExampleStandard() {
         clearTimeout(timeoutRef.current)
         dispatch({type: 'START_SEARCH', query: data.value})
 
-        timeoutRef.current = setTimeout(() => {
+        timeoutRef.current = setTimeout(async () => {
             if (data.value.length === 0) {
                 dispatch({type: 'CLEAN_QUERY'})
                 return
@@ -50,15 +55,23 @@ function SearchExampleStandard() {
             const re = new RegExp(_.escapeRegExp(data.value), 'i')
             const isMatch = (result) => re.test(result.title)
 
+            let resp = await fetch(`http://localhost:8080/q?kw=${data.value}`);
+            let json = await resp.json();
+            let titles = R.map(
+                x => ({title: x})
+            )(top6(json));
             dispatch({
                 type: 'FINISH_SEARCH',
-                results: _.filter(source, isMatch),
+                results: _.filter(titles, isMatch),
             })
         }, 300)
     }, [])
+
+
     React.useEffect(() => {
         return () => {
             clearTimeout(timeoutRef.current)
+
         }
     }, [])
 
@@ -69,8 +82,14 @@ function SearchExampleStandard() {
                     className="search-bar"
                     fluid={true}
                     loading={loading}
-                    onResultSelect={(e, data) =>
-                        dispatch({ type: 'UPDATE_SELECTION', selection: data.result.title })
+                    onResultSelect={(e, data) => {
+                        console.log(123)
+                        dispatch({
+                            type: 'UPDATE_SELECTION',
+                            selection: {doTxtChange: doTxtChange, title: data.result.title}
+                        })
+                    }
+
                     }
                     onSearchChange={handleSearchChange}
                     results={results}

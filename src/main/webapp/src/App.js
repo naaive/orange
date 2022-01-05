@@ -1,22 +1,19 @@
-import React, {createRef, useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import _ from "lodash";
 import SearchExampleStandard from "./SearchExampleStandard";
 import TableExampleCollapsing from "./TableExampleCollapsing";
 
-const R = require('ramda');
-
+import * as R from "ramda";
 
 function App() {
 
 
-    const [ref, setRef] = useState();
     const [items, setItems] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [kw, setKw] = useState('');
 
     useEffect(() => {
         doTxtChange('c')
-        setRef(createRef());
     }, []);
 
     function top6(json) {
@@ -51,9 +48,9 @@ function App() {
 
     return (
         <div className="App">
-                <div className="search">
-                    <SearchExampleStandard/>
-                </div>
+            <div className="search">
+                <SearchExampleStandard setItems={setItems} doTxtChange={doTxtChange}/>
+            </div>
             <div className="oitems">
                 <TableExampleCollapsing items={items}/>
             </div>
