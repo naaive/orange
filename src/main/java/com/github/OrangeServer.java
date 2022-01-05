@@ -20,16 +20,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.github.conf.IndexConf.*;
 
 @Slf4j
 public class OrangeServer {
-
-    public static final String indexPath =
-            "C:\\Users\\Administrator\\IdeaProjects\\orange\\src\\main\\resources\\.orange\\index";
-    static final int PORT = Integer.parseInt(System.getProperty("port", "8080"));
-    private static final String dataPath =
-            "C:\\Users\\Administrator\\IdeaProjects\\orange\\src\\main\\resources\\.orange\\data";
 
     static {
         ch.qos.logback.classic.Logger rootLogger =
@@ -37,7 +37,6 @@ public class OrangeServer {
         rootLogger.setLevel(Level.INFO);
     }
 
-    private final String monitorPath = "C:\\Users\\Administrator\\WebstormProjects\\untitled";
     private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(4);
     private DbAccessor dbAccessor;
     private IndexAccessor indexAccessor;
@@ -51,8 +50,8 @@ public class OrangeServer {
     @SneakyThrows
     private void start() {
 
-        this.dbAccessor = new DbAccessor(dataPath);
-        this.indexAccessor = new IndexAccessor(indexPath,dbAccessor,executors);
+        this.dbAccessor = new DbAccessor(DATA_PATH);
+        this.indexAccessor = new IndexAccessor(INDEX_PATH, dbAccessor, executors);
         // Configure the server.
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -78,13 +77,19 @@ public class OrangeServer {
         }
     }
 
+    @SneakyThrows
     private void runTasks() {
-        FsStatExecutor statExecutor = new FsStatExecutor(
-                monitorPath,
-                new String[]{"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
-                dbAccessor,
-                indexAccessor);
-        executors.scheduleAtFixedRate(statExecutor, 0, 2, TimeUnit.SECONDS);
-        executors.submit(new NtrIndexExecutor(dbAccessor, indexAccessor));
+
+        //        FileSystemView fsv = FileSystemView.getFileSystemView();
+                Arrays.stream(File.listRoots()).map(x -> new FsStatExecutor(
+                        x.getAbsolutePath(),
+                        new String[]{"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
+                        dbAccessor,
+                        indexAccessor)).forEach(x -> {
+                    executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
+                });
+
+        executors.submit(new NtrIndexExecutor(
+                dbAccessor, indexAccessor, executors, Stream.of(ORANGE_PATH).collect(Collectors.toSet())));
     }
 }

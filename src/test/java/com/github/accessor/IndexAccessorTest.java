@@ -2,9 +2,17 @@ package com.github.accessor;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 class IndexAccessorTest {
+
+    @Test
+    public void t1() {
+        File[] files = File.listRoots();
+        System.out.println(Arrays.toString(files));
+    }
     private static final String indexPath =
             "C:\\Users\\Administrator\\IdeaProjects\\orange\\src\\main\\resources\\.orange\\index";
     private static String dataPath =

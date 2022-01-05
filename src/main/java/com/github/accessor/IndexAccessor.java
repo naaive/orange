@@ -28,8 +28,7 @@ public class IndexAccessor {
     private volatile IndexSearcher indexSearcher;
     private volatile DirectoryReader reader;
     private IndexWriter indexWriter;
-    private int addCnt;
-    private static final int COMMIT_THRESHOLD = 50;
+
     private final ReentrantLock lock = new ReentrantLock();
 
 
@@ -64,15 +63,7 @@ public class IndexAccessor {
             }
 
         }, 5, 5, TimeUnit.SECONDS);
-        executors.scheduleAtFixedRate(() -> {
-            try {
-                log.info(" commit {} file(s) to index", addCnt);
-                addCnt = 0;
-                indexWriter.commit();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }, 5, 5, TimeUnit.SECONDS);
+
     }
 
     @SneakyThrows
@@ -82,15 +73,14 @@ public class IndexAccessor {
             return;
         }
         indexWriter.addDocument(fileDoc.toDocument());
-        addCnt++;
-        if (addCnt % COMMIT_THRESHOLD == 0) {
-            indexWriter.commit();
-            log.info("commit {} file(s) to index", addCnt);
-            addCnt = 0;
-        }
+
     }
 
-    //todo lock
+    @SneakyThrows
+    public void commit() {
+        indexWriter.commit();
+    }
+
     @SneakyThrows
     public List<FileView> search(String kw) {
         lock.lock();
