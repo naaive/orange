@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,6 +30,7 @@ public class IndexAccessor {
     private IndexWriter indexWriter;
     private int addCnt;
     private static final int COMMIT_THRESHOLD = 50;
+    private final ReentrantLock lock = new ReentrantLock();
 
 
     public IndexAccessor(String indexPath, DbAccessor dbAccessor, DefaultEventLoopGroup executors) {
@@ -49,9 +51,14 @@ public class IndexAccessor {
         executors.scheduleAtFixedRate(() -> {
             log.info("rebuild index searcher");
             try {
-                reader.close();
-                reader = DirectoryReader.open(directory);
-                indexSearcher = new IndexSearcher(reader);
+                lock.lock();
+                try {
+                    reader.close();
+                    reader = DirectoryReader.open(directory);
+                    indexSearcher = new IndexSearcher(reader);
+                } finally {
+                    lock.unlock();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -86,13 +93,18 @@ public class IndexAccessor {
     //todo lock
     @SneakyThrows
     public List<FileView> search(String kw) {
-        BooleanQuery query = new BooleanQuery.Builder()
-                .add(new BoostQuery(new TermQuery(new Term(FileDoc.NAME, kw)), 4), BooleanClause.Occur.SHOULD)
-                .add(new BoostQuery(new TermQuery(new Term(FileDoc.ABS_PATH_INDEXED, kw)), 1), BooleanClause.Occur.SHOULD)
-                .build();
-        TopDocs search = indexSearcher.search(query, 50);
-        ScoreDoc[] docs = search.scoreDocs;
-        return Arrays.stream(docs).map(this::buildFileView).collect(Collectors.toList());
+        lock.lock();
+        try {
+            BooleanQuery query = new BooleanQuery.Builder()
+                    .add(new BoostQuery(new TermQuery(new Term(FileDoc.NAME, kw)), 4), BooleanClause.Occur.SHOULD)
+                    .add(new BoostQuery(new TermQuery(new Term(FileDoc.ABS_PATH_INDEXED, kw)), 1), BooleanClause.Occur.SHOULD)
+                    .build();
+            TopDocs search = indexSearcher.search(query, 50);
+            ScoreDoc[] docs = search.scoreDocs;
+            return Arrays.stream(docs).map(this::buildFileView).collect(Collectors.toList());
+        } finally {
+            lock.unlock();
+        }
     }
 
     @SneakyThrows
