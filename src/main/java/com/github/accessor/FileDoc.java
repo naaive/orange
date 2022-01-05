@@ -9,6 +9,7 @@ import org.apache.lucene.document.*;
 public class FileDoc {
     public static final String IS_DIR = "isDir";
     public static final String ABS_PATH = "absPath";
+    public static final String ABS_PATH_INDEXED = "absPathIndexed";
     public static final String IS_SYMBOLICLINK = "isSymbolicLink";
     public static final String EXT = "ext";
     public static final String NAME = "name";
@@ -16,6 +17,7 @@ public class FileDoc {
     public static final String MODIFIED_AT = "modifiedAt";
     public static final String SIZE = "size";
     private String absPath;
+    private String absPathIndexed;
     private String ext;
     private String name;
     private int isDir;
@@ -27,6 +29,7 @@ public class FileDoc {
     public Document toDocument() {
         Document document = new Document();
         document.add(new StringField(ABS_PATH, absPath, Field.Store.YES));
+        document.add(new TextField(ABS_PATH_INDEXED, absPathIndexed, Field.Store.YES));
 
         document.add(new StringField(EXT, ext, Field.Store.YES));
         document.add(new TextField(NAME, name, Field.Store.YES));

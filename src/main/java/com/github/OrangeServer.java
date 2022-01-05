@@ -34,7 +34,7 @@ public class OrangeServer {
     static {
         ch.qos.logback.classic.Logger rootLogger =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        rootLogger.setLevel(Level.DEBUG);
+        rootLogger.setLevel(Level.INFO);
     }
 
     private final String monitorPath = "C:\\Users\\Administrator\\WebstormProjects\\untitled";
@@ -52,7 +52,7 @@ public class OrangeServer {
     private void start() {
 
         this.dbAccessor = new DbAccessor(dataPath);
-        this.indexAccessor = new IndexAccessor(indexPath,dbAccessor);
+        this.indexAccessor = new IndexAccessor(indexPath,dbAccessor,executors);
         // Configure the server.
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();

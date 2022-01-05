@@ -55,14 +55,14 @@ function SearchExampleStandard({setItems, doTxtChange}) {
             const re = new RegExp(_.escapeRegExp(data.value), 'i')
             const isMatch = (result) => re.test(result.title)
 
-            let resp = await fetch(`http://localhost:8080/q?kw=${data.value}`);
+            let resp = await fetch(`http://localhost:8080/q?kw=${encodeURI(data.value)}`);
             let json = await resp.json();
             let titles = R.map(
                 x => ({title: x})
             )(top6(json));
             dispatch({
                 type: 'FINISH_SEARCH',
-                results: _.filter(titles, isMatch),
+                results: titles,
             })
         }, 300)
     }, [])

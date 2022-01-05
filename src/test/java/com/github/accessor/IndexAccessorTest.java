@@ -12,7 +12,7 @@ class IndexAccessorTest {
     @Test
     void search() {
         DbAccessor dbAccessor = new DbAccessor(dataPath);
-        IndexAccessor indexAccessor = new IndexAccessor(indexPath,dbAccessor);
+        IndexAccessor indexAccessor = new IndexAccessor(indexPath,dbAccessor, null);
         FileDoc fileDoc = new FileDoc();
         fileDoc.setName("jeff hello wrold");
         fileDoc.setExt("hi");

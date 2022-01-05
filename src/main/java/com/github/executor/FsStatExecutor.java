@@ -5,6 +5,7 @@ import com.github.accessor.DbAccessor;
 import com.github.accessor.FileDoc;
 import com.github.accessor.IndexAccessor;
 import com.github.accessor.StatProcess;
+import com.github.utils.FileUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,9 +17,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.github.utils.FileUtil.absPath2name;
-import static com.github.utils.FileUtil.name2ext;
 
 /**
  * @author jeff
@@ -103,12 +101,13 @@ public class FsStatExecutor implements Runnable {
 
     @SneakyThrows
     private void addDoc(BasicFileAttributes attrs, String absPath, boolean isDir) {
-        String name = absPath2name(absPath);
-        String ext = name2ext(name);
+        String name = FileUtil.absPath2name(absPath);
+        String ext = FileUtil.name2ext(name);
         indexAccessor.add(new FileDoc()
                 .setName(name)
                 .setExt(ext)
                 .setAbsPath(absPath)
+                .setAbsPathIndexed(FileUtil.absPath2absPathIndexed(absPath))
                 .setCreatedAt(attrs.creationTime().toMillis())
                 .setModifiedAt(attrs.lastModifiedTime().toMillis())
                 .setSize(attrs.size())

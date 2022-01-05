@@ -2,37 +2,38 @@ package com.github.accessor;
 
 
 import com.github.FileMsg;
+import io.netty.channel.DefaultEventLoopGroup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.FSDirectory;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class IndexAccessor {
     private final DbAccessor dbAccessor;
-    private IndexSearcher indexSearcher;
+    private final DefaultEventLoopGroup executors;
+    private volatile IndexSearcher indexSearcher;
+    private volatile DirectoryReader reader;
     private IndexWriter indexWriter;
-    private QueryParser parser;
     private int addCnt;
     private static final int COMMIT_THRESHOLD = 50;
 
 
-    public IndexAccessor(String indexPath, DbAccessor dbAccessor) {
+    public IndexAccessor(String indexPath, DbAccessor dbAccessor, DefaultEventLoopGroup executors) {
         this.dbAccessor = dbAccessor;
+        this.executors = executors;
         initialize(indexPath);
     }
 
@@ -41,9 +42,30 @@ public class IndexAccessor {
         FSDirectory directory = FSDirectory.open(Paths.get(indexPath));
         indexWriter = new IndexWriter(directory, new IndexWriterConfig(new StandardAnalyzer()));
         indexWriter.commit();
-        DirectoryReader reader = DirectoryReader.open(directory);
+        reader = DirectoryReader.open(directory);
+
         indexSearcher = new IndexSearcher(reader);
-        parser = new QueryParser(FileDoc.NAME, new StandardAnalyzer());
+
+        executors.scheduleAtFixedRate(() -> {
+            log.info("rebuild index searcher");
+            try {
+                reader.close();
+                reader = DirectoryReader.open(directory);
+                indexSearcher = new IndexSearcher(reader);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }, 5, 5, TimeUnit.SECONDS);
+        executors.scheduleAtFixedRate(() -> {
+            try {
+                log.info(" commit {} file(s) to index", addCnt);
+                addCnt = 0;
+                indexWriter.commit();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }, 5, 5, TimeUnit.SECONDS);
     }
 
     @SneakyThrows
@@ -61,10 +83,14 @@ public class IndexAccessor {
         }
     }
 
+    //todo lock
     @SneakyThrows
     public List<FileView> search(String kw) {
-        Query src = parser.parse(kw);
-        TopDocs search = indexSearcher.search(src, 50);
+        BooleanQuery query = new BooleanQuery.Builder()
+                .add(new BoostQuery(new TermQuery(new Term(FileDoc.NAME, kw)), 4), BooleanClause.Occur.SHOULD)
+                .add(new BoostQuery(new TermQuery(new Term(FileDoc.ABS_PATH_INDEXED, kw)), 1), BooleanClause.Occur.SHOULD)
+                .build();
+        TopDocs search = indexSearcher.search(query, 50);
         ScoreDoc[] docs = search.scoreDocs;
         return Arrays.stream(docs).map(this::buildFileView).collect(Collectors.toList());
     }

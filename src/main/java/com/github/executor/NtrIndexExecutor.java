@@ -49,7 +49,7 @@ public class NtrIndexExecutor implements Runnable {
         List<FsLog> fsLogs = q.poll(24).stream()
                 .filter(x -> !x.getPath().contains("$RECYCLE.BIN"))
                 .collect(Collectors.toList());
-        log.info("sync {} to index", fsLogs);
+        log.debug("sync {} to index", fsLogs);
         for (FsLog fsLog : fsLogs) {
             Cmd cmd = fsLog.getCmd();
             String absPath = fsLog.getPath();
@@ -72,6 +72,7 @@ public class NtrIndexExecutor implements Runnable {
                         .setSize(attrs.size())
                         .setCreatedAt(attrs.creationTime().toMillis())
                         .setModifiedAt(attrs.lastModifiedTime().toMillis())
+                        .setAbsPathIndexed(FileUtil.absPath2absPathIndexed(absPath))
                         .setAbsPath(absPath)
                         .setIsDir(attrs.isDirectory() ? 1 : 0)
                         .setIsSymbolicLink(attrs.isSymbolicLink() ? 1 : 0));
