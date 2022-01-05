@@ -11,7 +11,6 @@ import io.netty.handler.codec.http.cors.CorsConfigBuilder;
 import io.netty.handler.codec.http.cors.CorsHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
-
 public class OrangeInitializer extends ChannelInitializer<SocketChannel> {
 
     private final IndexAccessor indexAccessor;
@@ -27,9 +26,11 @@ public class OrangeInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
         pipeline.addLast(new ChunkedWriteHandler());
-        CorsConfig corsConfig = CorsConfigBuilder.forAnyOrigin().allowNullOrigin().allowCredentials().build();
+        CorsConfig corsConfig = CorsConfigBuilder.forAnyOrigin()
+                .allowNullOrigin()
+                .allowCredentials()
+                .build();
         pipeline.addLast(new CorsHandler(corsConfig));
         pipeline.addLast(new OrangeHandler(indexAccessor));
-
     }
 }

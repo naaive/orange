@@ -32,10 +32,10 @@ public class FsStatExecutor implements Runnable {
     private static final int COMMIT_THRESHOLD = 100000;
     private final String monitorPath;
     private final Set<String> excludePaths;
-    private int addCnt;
     private final DbAccessor dbAccessor;
     private final IndexAccessor indexAccessor;
     private final IndexConf indexConf = readFromFile();
+    private int addCnt;
 
     public FsStatExecutor(
             String monitorPath, String[] excludePaths, DbAccessor dbAccessor, IndexAccessor indexAccessor) {

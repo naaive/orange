@@ -1,6 +1,5 @@
 package com.github.accessor;
 
-
 import com.github.FileMsg;
 import io.netty.channel.DefaultEventLoopGroup;
 import lombok.SneakyThrows;
@@ -25,12 +24,10 @@ import java.util.stream.Collectors;
 public class IndexAccessor {
     private final DbAccessor dbAccessor;
     private final DefaultEventLoopGroup executors;
+    private final ReentrantLock lock = new ReentrantLock();
     private volatile IndexSearcher indexSearcher;
     private volatile DirectoryReader reader;
     private IndexWriter indexWriter;
-
-    private final ReentrantLock lock = new ReentrantLock();
-
 
     public IndexAccessor(String indexPath, DbAccessor dbAccessor, DefaultEventLoopGroup executors) {
         this.dbAccessor = dbAccessor;
@@ -47,23 +44,25 @@ public class IndexAccessor {
 
         indexSearcher = new IndexSearcher(reader);
 
-        executors.scheduleAtFixedRate(() -> {
-            log.info("rebuild index searcher");
-            try {
-                lock.lock();
-                try {
-                    reader.close();
-                    reader = DirectoryReader.open(directory);
-                    indexSearcher = new IndexSearcher(reader);
-                } finally {
-                    lock.unlock();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }, 5, 5, TimeUnit.SECONDS);
-
+        executors.scheduleAtFixedRate(
+                () -> {
+                    log.info("rebuild index searcher");
+                    try {
+                        lock.lock();
+                        try {
+                            reader.close();
+                            reader = DirectoryReader.open(directory);
+                            indexSearcher = new IndexSearcher(reader);
+                        } finally {
+                            lock.unlock();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                },
+                5,
+                5,
+                TimeUnit.SECONDS);
     }
 
     @SneakyThrows
@@ -73,7 +72,6 @@ public class IndexAccessor {
             return;
         }
         indexWriter.addDocument(fileDoc.toDocument());
-
     }
 
     @SneakyThrows
@@ -87,7 +85,9 @@ public class IndexAccessor {
         try {
             BooleanQuery query = new BooleanQuery.Builder()
                     .add(new BoostQuery(new TermQuery(new Term(FileDoc.NAME, kw)), 4), BooleanClause.Occur.SHOULD)
-                    .add(new BoostQuery(new TermQuery(new Term(FileDoc.ABS_PATH_INDEXED, kw)), 1), BooleanClause.Occur.SHOULD)
+                    .add(
+                            new BoostQuery(new TermQuery(new Term(FileDoc.ABS_PATH_INDEXED, kw)), 1),
+                            BooleanClause.Occur.SHOULD)
                     .build();
             TopDocs search = indexSearcher.search(query, 50);
             ScoreDoc[] docs = search.scoreDocs;
@@ -131,7 +131,8 @@ public class IndexAccessor {
                 view.setIsDir(Integer.parseInt(field.getCharSequenceValue().toString()));
             }
             if (Objects.equals(name, FileDoc.IS_SYMBOLICLINK)) {
-                view.setIsSymbolicLink(Integer.parseInt(field.getCharSequenceValue().toString()));
+                view.setIsSymbolicLink(
+                        Integer.parseInt(field.getCharSequenceValue().toString()));
             }
         }
 

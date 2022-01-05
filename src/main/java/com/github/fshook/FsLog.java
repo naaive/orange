@@ -3,8 +3,6 @@ package com.github.fshook;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.nio.file.Paths;
-
 import static com.github.utils.FileUtil.formatPath;
 
 @Data
@@ -17,6 +15,4 @@ public class FsLog {
         this.path = formatPath(path);
         return this;
     }
-
-
 }

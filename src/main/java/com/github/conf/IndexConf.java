@@ -24,13 +24,6 @@ public class IndexConf {
     private Long lastStatTime;
 
     @SneakyThrows
-    public void save2file() {
-        String s = JSON.toJSONString(this);
-        Files.writeString(Paths.get(INDEX_CONF), s);
-
-    }
-
-    @SneakyThrows
     public static IndexConf readFromFile() {
         Path path = Paths.get(INDEX_CONF);
         File file = path.toFile();
@@ -43,5 +36,11 @@ public class IndexConf {
             return new IndexConf().setLastStatTime(0L);
         }
         return JSON.parseObject(index, IndexConf.class);
+    }
+
+    @SneakyThrows
+    public void save2file() {
+        String s = JSON.toJSONString(this);
+        Files.writeString(Paths.get(INDEX_CONF), s);
     }
 }

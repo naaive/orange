@@ -47,8 +47,6 @@ public class OrangeServer {
         new OrangeServer().start();
     }
 
-
-
     @SneakyThrows
     private void start() {
 
@@ -83,11 +81,13 @@ public class OrangeServer {
     private void runTasks() {
 
         //        FileSystemView fsv = FileSystemView.getFileSystemView();
-                Arrays.stream(File.listRoots()).map(x -> new FsStatExecutor(
+        Arrays.stream(File.listRoots())
+                .map(x -> new FsStatExecutor(
                         x.getAbsolutePath(),
-                        new String[]{"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
+                        new String[] {"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
                         dbAccessor,
-                        indexAccessor)).forEach(x -> {
+                        indexAccessor))
+                .forEach(x -> {
                     executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
                 });
 

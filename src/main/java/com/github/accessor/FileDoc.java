@@ -40,7 +40,6 @@ public class FileDoc {
         document.add(new IntPoint(IS_SYMBOLICLINK, isSymbolicLink));
         document.add(new StoredField(IS_SYMBOLICLINK, isSymbolicLink));
 
-
         document.add(new LongPoint(CREATED_AT, createdAt));
         document.add(new StoredField(CREATED_AT, createdAt));
 

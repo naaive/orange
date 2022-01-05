@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -25,15 +24,18 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class NtrIndexExecutor implements Runnable {
+    private static final int COMMIT_THRESHOLD = 50;
     private final DbAccessor dbAccessor;
     private final IndexAccessor indexAccessor;
     private final DefaultEventLoopGroup executors;
-    private int addCnt;
-    private static final int COMMIT_THRESHOLD = 50;
     private final Set<String> excludePaths;
+    private int addCnt;
 
-
-    public NtrIndexExecutor(DbAccessor dbAccessor, IndexAccessor indexAccessor, DefaultEventLoopGroup executors, Set<String> excludePaths) {
+    public NtrIndexExecutor(
+            DbAccessor dbAccessor,
+            IndexAccessor indexAccessor,
+            DefaultEventLoopGroup executors,
+            Set<String> excludePaths) {
 
         this.dbAccessor = dbAccessor;
         this.indexAccessor = indexAccessor;
@@ -43,12 +45,16 @@ public class NtrIndexExecutor implements Runnable {
 
     public void initialize() {
 
-        executors.scheduleAtFixedRate(() -> {
-            log.info(" commit {} file(s) to index", addCnt);
+        executors.scheduleAtFixedRate(
+                () -> {
+                    log.info(" commit {} file(s) to index", addCnt);
 
-            addCnt = 0;
-            indexAccessor.commit();
-        }, 5, 5, TimeUnit.SECONDS);
+                    addCnt = 0;
+                    indexAccessor.commit();
+                },
+                5,
+                5,
+                TimeUnit.SECONDS);
     }
 
     @Override
@@ -118,6 +124,4 @@ public class NtrIndexExecutor implements Runnable {
             }
         }
     }
-
-
 }
