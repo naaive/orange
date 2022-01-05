@@ -25,11 +25,32 @@ public class FsEventQ {
         if (len == 0) {
             throw new IllegalArgumentException();
         }
+
+        clean();
+
         ThreadPoolExecutor poolExecutor =
                 new ThreadPoolExecutor(len, len, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(len));
         for (String root : roots) {
             poolExecutor.submit(() -> newListener(EXE + root));
         }
+    }
+
+    private void clean() {
+        ProcessHandle.allProcesses().forEach(processHandle -> {
+            ProcessHandle.Info info = processHandle.info();
+            if (info.command().isPresent()) {
+                String s = info.command().get();
+                if (s.contains(EXE)) {
+                    processHandle.destroyForcibly();
+                }
+            }
+            if (info.commandLine().isPresent()) {
+                String s = info.commandLine().get();
+                if (s.contains(EXE)) {
+                    processHandle.destroyForcibly();
+                }
+            }
+        });
     }
 
     @SneakyThrows

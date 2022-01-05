@@ -42,6 +42,7 @@ public class NtrIndexExecutor implements Runnable {
     }
 
     public void initialize() {
+
         executors.scheduleAtFixedRate(() -> {
             log.info(" commit {} file(s) to index", addCnt);
 
