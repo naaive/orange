@@ -15,8 +15,12 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
 import lombok.SneakyThrows;
 
+import java.awt.*;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +33,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final String SEARCH_PATH = "/q";
     private static final String SUGGEST_PATH = "/sg";
+    private static final String OPEN_FOLDER_PATH = "/ofd";
     private final IndexAccessor indexAccessor;
     private final FileDocSuggester fileDocSuggester;
 
@@ -55,6 +60,30 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         if (Objects.equals(url.getPath(), SUGGEST_PATH)) {
             doSuggest(ctx, msg, url);
         }
+
+        if (Objects.equals(url.getPath(), OPEN_FOLDER_PATH)) {
+            doOpenFolder(ctx, msg, url);
+        }
+    }
+
+    @SneakyThrows
+    private void doOpenFolder(ChannelHandlerContext ctx, FullHttpRequest msg, URL url) {
+        String query = url.getQuery();
+        String[] split = query.split("=");
+        String folder = split[1];
+
+        File file = new File(URLDecoder.decode(folder, StandardCharsets.UTF_8));
+        while (true) {
+            if (file.exists()) {
+                if (file.isFile()) {
+                    file = file.getParentFile();
+                } else {
+                    Desktop.getDesktop().open(file);
+                    break;
+                }
+            }
+        }
+        doResponse(ctx, msg, JSON.toJSONString(file.getAbsoluteFile()));
     }
 
     private void doSuggest(ChannelHandlerContext ctx, FullHttpRequest msg, URL url) {

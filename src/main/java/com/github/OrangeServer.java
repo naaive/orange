@@ -91,15 +91,17 @@ public class OrangeServer {
                         new String[] {WINDOWS_PATH, "C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"
                         },
                         dbAccessor,
-                        indexAccessor, fileDocSuggester))
+                        indexAccessor,
+                        fileDocSuggester))
                 .forEach(x -> {
-                                        executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
+//                    executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
                 });
 
         executors.submit(new NtrIndexExecutor(
                 dbAccessor,
                 indexAccessor,
-                fileDocSuggester, executors,
+                fileDocSuggester,
+                executors,
                 Stream.of(WINDOWS_PATH, ORANGE_PATH).collect(Collectors.toSet())));
     }
 }

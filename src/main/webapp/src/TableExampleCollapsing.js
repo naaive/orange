@@ -13,10 +13,14 @@ function bytesToSize(bytes) {
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
 
-const TableExampleCollapsing = ({items}) => (
+function TableExampleCollapsing({items}) {
 
+    function handleClick(data) {
+        fetch(`http://localhost:8080/ofd?kw=${encodeURI(data)}`);
+    }
 
-    <Table basic='very' size='small'>
+    return <Table selectable basic='very' size='small'>
+
         <Table.Header>
             <Table.Row>
                 <Table.HeaderCell>Name</Table.HeaderCell>
@@ -32,7 +36,7 @@ const TableExampleCollapsing = ({items}) => (
                     let isDir = R.prop('isDir')(x);
                     let ext = R.prop('ext')(x)
                     let absPath = R.prop('absPath', x);
-                    return <Table.Row key={absPath}>
+                    return <Table.Row key={absPath} onDoubleClick={() => handleClick(absPath)}>
                         <Table.Cell>
                             <Header as='h4' image>
                                 <div className="icon">
@@ -47,16 +51,25 @@ const TableExampleCollapsing = ({items}) => (
                                 </Header.Content>
                             </Header>
                         </Table.Cell>
-                        <Table.Cell>{bytesToSize(R.prop('size')(x))}</Table.Cell>
-                        <Table.Cell>{moment(R.prop('modifiedAt', x)).format("YYYY-MM-DD h:mm:ss")}</Table.Cell>
-                        <Table.Cell>  {absPath}</Table.Cell>
+                        <Table.Cell>
+
+                            {bytesToSize(R.prop('size')(x))}
+                        </Table.Cell>
+                        <Table.Cell>
+                            {moment(R.prop('modifiedAt', x)).format("YYYY-MM-DD h:mm:ss")}
+                        </Table.Cell>
+                        <Table.Cell>
+                            {absPath}
+                        </Table.Cell>
+
                     </Table.Row>
+
 
                 })(items)
             }
 
         </Table.Body>
-    </Table>
-);
+    </Table>;
+}
 
 export default TableExampleCollapsing

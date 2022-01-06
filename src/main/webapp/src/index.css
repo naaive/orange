@@ -24,6 +24,9 @@
     margin: 0 auto;
 }
 
+.omenu {
+    z-index: 100;
+}
 
 .search-bar.search {
     padding: 16px 0 0 0;
