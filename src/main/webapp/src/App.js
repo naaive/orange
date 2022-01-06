@@ -13,7 +13,7 @@ function App() {
     const [kw, setKw] = useState('');
 
     useEffect(() => {
-        doTxtChange('log')
+        doTxtChange('吾爱破解工具')
     }, []);
 
     function top6(json) {
