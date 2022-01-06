@@ -40,6 +40,7 @@ public class OrangeServer {
     private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(4);
     private DbAccessor dbAccessor;
     private IndexAccessor indexAccessor;
+    private final String WINDOWS_PATH = "C:\\Windows";
 
     public static void main(String[] args) {
         System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
@@ -84,14 +85,18 @@ public class OrangeServer {
         Arrays.stream(File.listRoots())
                 .map(x -> new FsStatExecutor(
                         x.getAbsolutePath(),
-                        new String[] {"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
+                        new String[] {WINDOWS_PATH, "C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"
+                        },
                         dbAccessor,
                         indexAccessor))
                 .forEach(x -> {
-                    executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
+                                        executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
                 });
 
         executors.submit(new NtrIndexExecutor(
-                dbAccessor, indexAccessor, executors, Stream.of(ORANGE_PATH).collect(Collectors.toSet())));
+                dbAccessor,
+                indexAccessor,
+                executors,
+                Stream.of(WINDOWS_PATH, ORANGE_PATH).collect(Collectors.toSet())));
     }
 }

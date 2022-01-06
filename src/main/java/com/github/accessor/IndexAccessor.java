@@ -89,7 +89,7 @@ public class IndexAccessor {
                             new BoostQuery(new TermQuery(new Term(FileDoc.ABS_PATH_INDEXED, kw)), 1),
                             BooleanClause.Occur.SHOULD)
                     .build();
-            TopDocs search = indexSearcher.search(query, 50);
+            TopDocs search = indexSearcher.search(query, 1000);
             ScoreDoc[] docs = search.scoreDocs;
             return Arrays.stream(docs).map(this::buildFileView).collect(Collectors.toList());
         } finally {
