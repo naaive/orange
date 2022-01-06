@@ -96,7 +96,6 @@ public class IndexAccessor {
                     .add(
                             new BoostQuery(absq, 1),
                             BooleanClause.Occur.SHOULD)
-//                    .add(new BoostQuery(new TermQuery(new Term(FileDoc.NAME, kw)), 4), BooleanClause.Occur.SHOULD)
                     .add(
                             new BoostQuery(nameq, 4),
                             BooleanClause.Occur.SHOULD)

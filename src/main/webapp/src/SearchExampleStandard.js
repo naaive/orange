@@ -4,10 +4,6 @@ import React from 'react'
 import {Grid, Search} from 'semantic-ui-react'
 import * as R from "ramda";
 
-const source = _.times(5, () => ({
-    title: faker.company.companyName(),
-    // description: faker.company.catchPhrase()
-}))
 
 const initialState = {
     loading: false,
@@ -52,9 +48,6 @@ function SearchExampleStandard({setItems, doTxtChange}) {
                 return
             }
 
-            const re = new RegExp(_.escapeRegExp(data.value), 'i')
-            const isMatch = (result) => re.test(result.title)
-
             let resp = await fetch(`http://localhost:8080/sg?kw=${encodeURI(data.value)}`);
             let json = await resp.json();
             let titles = R.map(
@@ -83,7 +76,6 @@ function SearchExampleStandard({setItems, doTxtChange}) {
                     fluid={true}
                     loading={loading}
                     onResultSelect={(e, data) => {
-                        console.log(123)
                         dispatch({
                             type: 'UPDATE_SELECTION',
                             selection: {doTxtChange: doTxtChange, title: data.result.title}
@@ -91,6 +83,13 @@ function SearchExampleStandard({setItems, doTxtChange}) {
                     }
 
                     }
+                    onKeyUp={(event)=> {
+                        if (event.keyCode === 13) {
+                            doTxtChange(event.target.value)
+                            // close suggest results
+                            window.document.scripts[0].click()
+                        }
+                    }}
                     onSearchChange={handleSearchChange}
                     results={results}
                     value={value}
