@@ -7,6 +7,7 @@ import com.github.accessor.IndexAccessor;
 import com.github.executor.FsStatExecutor;
 import com.github.executor.NtrIndexExecutor;
 import com.github.handler.OrangeInitializer;
+import com.github.utils.ProcessUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -73,6 +74,8 @@ public class OrangeServer {
             System.err.println("Open your web browser and navigate to " + ("http") + "://127.0.0.1:" + PORT + '/');
 
             runTasks();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(ProcessUtil::clean));
 
             ch.closeFuture().sync();
         } finally {

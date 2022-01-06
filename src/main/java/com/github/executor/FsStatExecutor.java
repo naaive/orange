@@ -5,21 +5,19 @@ import com.github.accessor.DbAccessor;
 import com.github.accessor.FileDoc;
 import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
-import com.github.conf.IndexConf;
 import com.github.utils.FileUtil;
+import com.github.utils.ProcessUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.github.conf.IndexConf.readFromFile;
 
 /**
  * @author jeff
@@ -34,7 +32,6 @@ public class FsStatExecutor implements Runnable {
     private final DbAccessor dbAccessor;
     private final IndexAccessor indexAccessor;
     private final FileDocSuggester fileDocSuggester;
-    private final IndexConf indexConf = readFromFile();
     private int addCnt;
 
     public FsStatExecutor(
@@ -55,18 +52,13 @@ public class FsStatExecutor implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        LocalDateTime lastStatTime = LocalDateTime.ofInstant(
-                Instant.ofEpochSecond(indexConf.getLastStatTime()),
-                TimeZone.getDefault().toZoneId());
-        LocalDateTime now = LocalDateTime.now();
-        if (Duration.between(lastStatTime, now).toHours() < 1) {
-            log.info("no need to travel {} recursively", monitorPath);
+
+        if (ProcessUtil.shouldStat()) {
+            log.info("no need to travel {} because of system load", monitorPath);
             return;
         }
         log.info("start travel {} recursively", monitorPath);
         travelFiles();
-        log.info("commit {} file(s) to index", addCnt);
-        addCnt = 0;
     }
 
     private void travelFiles() throws IOException {
@@ -84,6 +76,11 @@ public class FsStatExecutor implements Runnable {
                 }
 
                 addDoc(attrs, absPath, true);
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 return FileVisitResult.CONTINUE;
             }
 

@@ -1,5 +1,7 @@
 package com.github.fshook;
 
+import com.github.conf.IndexConf;
+import com.github.utils.ProcessUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class FsEventQ {
 
-    private static final String EXE = "C:\\Users\\Administrator\\PycharmProjects\\pythonProject\\main.dist\\main.exe ";
     private final ArrayBlockingQueue<FsLog> fsLogs = new ArrayBlockingQueue<>(1024);
 
     public FsEventQ(String... roots) {
@@ -26,32 +27,16 @@ public class FsEventQ {
             throw new IllegalArgumentException();
         }
 
-        clean();
+        ProcessUtil.clean();
 
         ThreadPoolExecutor poolExecutor =
                 new ThreadPoolExecutor(len, len, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(len));
         for (String root : roots) {
-            poolExecutor.submit(() -> newListener(EXE + root));
+            poolExecutor.submit(() -> newListener(IndexConf.EXE + root));
         }
     }
 
-    private void clean() {
-        ProcessHandle.allProcesses().forEach(processHandle -> {
-            ProcessHandle.Info info = processHandle.info();
-            if (info.command().isPresent()) {
-                String s = info.command().get();
-                if (s.contains(EXE)) {
-                    processHandle.destroyForcibly();
-                }
-            }
-            if (info.commandLine().isPresent()) {
-                String s = info.commandLine().get();
-                if (s.contains(EXE)) {
-                    processHandle.destroyForcibly();
-                }
-            }
-        });
-    }
+
 
     @SneakyThrows
     public List<FsLog> poll(int size) {

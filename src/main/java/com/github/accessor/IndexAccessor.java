@@ -73,6 +73,8 @@ public class IndexAccessor {
 
     @SneakyThrows
     public synchronized void add(FileDoc fileDoc) {
+
+        //todo remove
         Optional<FileMsg.File> file = dbAccessor.get(fileDoc.getAbsPath());
         if (file.isPresent()) {
             return;
