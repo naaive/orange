@@ -3,6 +3,7 @@ package com.github.executor;
 import com.github.FileMsg;
 import com.github.accessor.DbAccessor;
 import com.github.accessor.FileDoc;
+import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
 import com.github.fshook.Cmd;
 import com.github.fshook.FsEventQ;
@@ -27,6 +28,7 @@ public class NtrIndexExecutor implements Runnable {
     private static final int COMMIT_THRESHOLD = 50;
     private final DbAccessor dbAccessor;
     private final IndexAccessor indexAccessor;
+    private final FileDocSuggester fileDocSuggester;
     private final DefaultEventLoopGroup executors;
     private final Set<String> excludePaths;
     private int addCnt;
@@ -34,11 +36,12 @@ public class NtrIndexExecutor implements Runnable {
     public NtrIndexExecutor(
             DbAccessor dbAccessor,
             IndexAccessor indexAccessor,
-            DefaultEventLoopGroup executors,
+            FileDocSuggester fileDocSuggester, DefaultEventLoopGroup executors,
             Set<String> excludePaths) {
 
         this.dbAccessor = dbAccessor;
         this.indexAccessor = indexAccessor;
+        this.fileDocSuggester = fileDocSuggester;
         this.executors = executors;
         this.excludePaths = excludePaths;
     }
@@ -114,6 +117,9 @@ public class NtrIndexExecutor implements Runnable {
                     log.info("commit {} file(s) to index", addCnt);
                     addCnt = 0;
                 }
+
+                fileDocSuggester.put(name);
+
                 dbAccessor.put(
                         absPath,
                         FileMsg.File.newBuilder()

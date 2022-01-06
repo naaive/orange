@@ -34,7 +34,7 @@ function exampleReducer(state, action) {
 }
 
 function top6(json) {
-    return R.pipe(R.map(R.prop('name')), R.take(6))(json);
+    return R.take(6)(json);
 }
 
 function SearchExampleStandard({setItems, doTxtChange}) {
@@ -55,7 +55,7 @@ function SearchExampleStandard({setItems, doTxtChange}) {
             const re = new RegExp(_.escapeRegExp(data.value), 'i')
             const isMatch = (result) => re.test(result.title)
 
-            let resp = await fetch(`http://localhost:8080/q?kw=${encodeURI(data.value)}`);
+            let resp = await fetch(`http://localhost:8080/sg?kw=${encodeURI(data.value)}`);
             let json = await resp.json();
             let titles = R.map(
                 x => ({title: x})

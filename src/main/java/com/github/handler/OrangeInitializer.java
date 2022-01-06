@@ -1,5 +1,6 @@
 package com.github.handler;
 
+import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -14,9 +15,11 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 public class OrangeInitializer extends ChannelInitializer<SocketChannel> {
 
     private final IndexAccessor indexAccessor;
+    private final FileDocSuggester fileDocSuggester;
 
-    public OrangeInitializer(IndexAccessor indexAccessor) {
+    public OrangeInitializer(IndexAccessor indexAccessor, FileDocSuggester fileDocSuggester) {
         this.indexAccessor = indexAccessor;
+        this.fileDocSuggester = fileDocSuggester;
     }
 
     @Override
@@ -31,6 +34,6 @@ public class OrangeInitializer extends ChannelInitializer<SocketChannel> {
                 .allowCredentials()
                 .build();
         pipeline.addLast(new CorsHandler(corsConfig));
-        pipeline.addLast(new OrangeHandler(indexAccessor));
+        pipeline.addLast(new OrangeHandler(indexAccessor,fileDocSuggester));
     }
 }

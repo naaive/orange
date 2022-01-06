@@ -3,6 +3,7 @@ package com.github.executor;
 import com.github.FileMsg;
 import com.github.accessor.DbAccessor;
 import com.github.accessor.FileDoc;
+import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
 import com.github.conf.IndexConf;
 import com.github.utils.FileUtil;
@@ -34,15 +35,17 @@ public class FsStatExecutor implements Runnable {
     private final Set<String> excludePaths;
     private final DbAccessor dbAccessor;
     private final IndexAccessor indexAccessor;
+    private final FileDocSuggester fileDocSuggester;
     private final IndexConf indexConf = readFromFile();
     private int addCnt;
 
     public FsStatExecutor(
-            String monitorPath, String[] excludePaths, DbAccessor dbAccessor, IndexAccessor indexAccessor) {
+            String monitorPath, String[] excludePaths, DbAccessor dbAccessor, IndexAccessor indexAccessor, FileDocSuggester fileDocSuggester) {
         this.monitorPath = monitorPath;
         this.excludePaths = Arrays.stream(excludePaths).collect(Collectors.toSet());
         this.dbAccessor = dbAccessor;
         this.indexAccessor = indexAccessor;
+        this.fileDocSuggester = fileDocSuggester;
     }
 
     @SneakyThrows
@@ -118,7 +121,7 @@ public class FsStatExecutor implements Runnable {
                 .setSize(attrs.size())
                 .setIsDir(isDir ? 1 : 0)
                 .setIsSymbolicLink(attrs.isSymbolicLink() ? 1 : 0));
-
+        fileDocSuggester.put(name);
         dbAccessor.put(
                 absPath,
                 com.github.FileMsg.File.newBuilder()

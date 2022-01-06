@@ -5,7 +5,6 @@ import com.github.ik.IKAnalyzer;
 import io.netty.channel.DefaultEventLoopGroup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -14,7 +13,6 @@ import org.apache.lucene.store.FSDirectory;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -33,6 +31,8 @@ public class IndexAccessor {
     private volatile IndexSearcher indexSearcher;
     private volatile DirectoryReader reader;
     private IndexWriter indexWriter;
+    private final QueryParser absPathParser = new QueryParser(FileDoc.ABS_PATH_INDEXED, new IKAnalyzer(true));
+    private final QueryParser nameParser = new QueryParser(FileDoc.NAME, new IKAnalyzer(true));
 
     public IndexAccessor(String indexPath, DbAccessor dbAccessor, DefaultEventLoopGroup executors) {
         this.dbAccessor = dbAccessor;
@@ -89,18 +89,19 @@ public class IndexAccessor {
     public List<FileView> search(String kw) {
         lock.lock();
         try {
-            QueryParser queryParser = new QueryParser(FileDoc.ABS_PATH_INDEXED, new IKAnalyzer(true));
-            Query parse = queryParser.parse(URLDecoder.decode(kw, StandardCharsets.UTF_8));
-//            BooleanQuery query = new BooleanQuery.Builder()
-//                    .add(
-//                            new BoostQuery(parse, 1),
-//                            BooleanClause.Occur.SHOULD)
-////                    .add(new BoostQuery(new TermQuery(new Term(FileDoc.NAME, kw)), 4), BooleanClause.Occur.SHOULD)
-////                    .add(
-////                            new BoostQuery(parse, 1),
-////                            BooleanClause.Occur.SHOULD)
-//                    .build();
-            TopDocs search = indexSearcher.search(parse, 50);
+            String decode = URLDecoder.decode(kw, StandardCharsets.UTF_8);
+            Query absq = absPathParser.parse(decode);
+            Query nameq = nameParser.parse(decode);
+            BooleanQuery query = new BooleanQuery.Builder()
+                    .add(
+                            new BoostQuery(absq, 1),
+                            BooleanClause.Occur.SHOULD)
+//                    .add(new BoostQuery(new TermQuery(new Term(FileDoc.NAME, kw)), 4), BooleanClause.Occur.SHOULD)
+                    .add(
+                            new BoostQuery(nameq, 4),
+                            BooleanClause.Occur.SHOULD)
+                    .build();
+            TopDocs search = indexSearcher.search(query, 100);
             ScoreDoc[] docs = search.scoreDocs;
             return Arrays.stream(docs).map(this::buildFileView).collect(Collectors.toList());
         } finally {

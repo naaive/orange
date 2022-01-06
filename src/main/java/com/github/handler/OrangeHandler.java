@@ -1,6 +1,7 @@
 package com.github.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.github.accessor.FileDocSuggester;
 import com.github.accessor.FileView;
 import com.github.accessor.IndexAccessor;
 import io.netty.buffer.ByteBuf;
@@ -27,10 +28,13 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final String SEARCH_PATH = "/q";
+    private static final String SUGGEST_PATH = "/sg";
     private final IndexAccessor indexAccessor;
+    private final FileDocSuggester fileDocSuggester;
 
-    public OrangeHandler(IndexAccessor indexAccessor) {
+    public OrangeHandler(IndexAccessor indexAccessor, FileDocSuggester fileDocSuggester) {
         this.indexAccessor = indexAccessor;
+        this.fileDocSuggester = fileDocSuggester;
     }
 
     @Override
@@ -41,21 +45,29 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
     @SneakyThrows
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) {
-        boolean keepAlive = HttpUtil.isKeepAlive(msg);
+
         URL url = genUrl(msg.uri());
 
-        if (!Objects.equals(url.getPath(), SEARCH_PATH)) {
-            msg.content().retain();
-            ctx.fireChannelRead(msg);
-            return;
+        if (Objects.equals(url.getPath(), SEARCH_PATH)) {
+            doSearch(ctx, msg, url);
         }
 
+        if (Objects.equals(url.getPath(), SUGGEST_PATH)) {
+            doSuggest(ctx, msg, url);
+        }
+    }
+
+    private void doSuggest(ChannelHandlerContext ctx, FullHttpRequest msg, URL url) {
         String query = url.getQuery();
         String[] split = query.split("=");
         String keyword = split[1];
-        List<FileView> docs = indexAccessor.search(keyword);
-        ByteBuf byteBuf =
-                ctx.alloc().buffer().writeBytes(JSON.toJSONString(docs).getBytes(StandardCharsets.UTF_8));
+        List<String> lookup = fileDocSuggester.lookup(keyword);
+        doResponse(ctx, msg, JSON.toJSONString(lookup));
+    }
+
+    private void doResponse(ChannelHandlerContext ctx, FullHttpRequest msg, String s) {
+        boolean keepAlive = HttpUtil.isKeepAlive(msg);
+        ByteBuf byteBuf = ctx.alloc().buffer().writeBytes(s.getBytes(StandardCharsets.UTF_8));
         FullHttpResponse response = new DefaultFullHttpResponse(msg.protocolVersion(), OK, byteBuf);
         response.headers()
                 .set(CONTENT_TYPE, TEXT_PLAIN)
@@ -74,6 +86,14 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         if (!keepAlive) {
             f.addListener(ChannelFutureListener.CLOSE);
         }
+    }
+
+    private void doSearch(ChannelHandlerContext ctx, FullHttpRequest msg, URL url) {
+        String query = url.getQuery();
+        String[] split = query.split("=");
+        String keyword = split[1];
+        List<FileView> docs = indexAccessor.search(keyword);
+        doResponse(ctx, msg, JSON.toJSONString(docs));
     }
 
     private URL genUrl(String uri) throws MalformedURLException {

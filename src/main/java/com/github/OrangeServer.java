@@ -2,6 +2,7 @@ package com.github;
 
 import ch.qos.logback.classic.Level;
 import com.github.accessor.DbAccessor;
+import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
 import com.github.executor.FsStatExecutor;
 import com.github.executor.NtrIndexExecutor;
@@ -41,6 +42,7 @@ public class OrangeServer {
     private DbAccessor dbAccessor;
     private IndexAccessor indexAccessor;
     private final String WINDOWS_PATH = "C:\\Windows";
+    private final FileDocSuggester fileDocSuggester = new FileDocSuggester();
 
     public static void main(String[] args) {
         System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
@@ -53,6 +55,7 @@ public class OrangeServer {
 
         this.dbAccessor = new DbAccessor(DATA_PATH);
         this.indexAccessor = new IndexAccessor(INDEX_PATH, dbAccessor, executors);
+
         // Configure the server.
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -63,7 +66,7 @@ public class OrangeServer {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(String.valueOf(LogLevel.INFO)))
-                    .childHandler(new OrangeInitializer(indexAccessor));
+                    .childHandler(new OrangeInitializer(indexAccessor, fileDocSuggester));
 
             Channel ch = b.bind(PORT).sync().channel();
 
@@ -88,7 +91,7 @@ public class OrangeServer {
                         new String[] {WINDOWS_PATH, "C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"
                         },
                         dbAccessor,
-                        indexAccessor))
+                        indexAccessor, fileDocSuggester))
                 .forEach(x -> {
                                         executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
                 });
@@ -96,7 +99,7 @@ public class OrangeServer {
         executors.submit(new NtrIndexExecutor(
                 dbAccessor,
                 indexAccessor,
-                executors,
+                fileDocSuggester, executors,
                 Stream.of(WINDOWS_PATH, ORANGE_PATH).collect(Collectors.toSet())));
     }
 }

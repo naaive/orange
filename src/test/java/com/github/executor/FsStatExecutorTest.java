@@ -1,8 +1,8 @@
 package com.github.executor;
 
 import com.github.accessor.DbAccessor;
+import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
-import com.github.conf.IndexConf;
 import io.netty.channel.DefaultEventLoopGroup;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +13,6 @@ import java.util.concurrent.locks.LockSupport;
 
 import static com.github.conf.IndexConf.DATA_PATH;
 import static com.github.conf.IndexConf.INDEX_PATH;
-import static org.junit.jupiter.api.Assertions.*;
 
 class FsStatExecutorTest {
     private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(4);
@@ -26,7 +25,7 @@ class FsStatExecutorTest {
                 x.getAbsolutePath(),
                 new String[]{"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
                 dbAccessor,
-                indexAccessor)).forEach(x -> {
+                indexAccessor, new FileDocSuggester())).forEach(x -> {
 
             executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
         });

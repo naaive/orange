@@ -20,6 +20,7 @@ public class IndexConf {
     public static final String DATA_PATH = ORANGE_PATH + "/data";
     public static final String CONF_PATH = ORANGE_PATH + "/conf";
     public static final String INDEX_CONF = CONF_PATH + "/index";
+    public static final String SUGGEST_CONF = CONF_PATH + "/suggest";
 
     private Long lastStatTime;
 
