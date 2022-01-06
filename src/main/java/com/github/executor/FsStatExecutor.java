@@ -16,10 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.github.conf.IndexConf.readFromFile;
@@ -33,6 +30,7 @@ public class FsStatExecutor implements Runnable {
     private static final int COMMIT_THRESHOLD = 100000;
     private final String monitorPath;
     private final Set<String> excludePaths;
+    private final Set<String> excludeNames;
     private final DbAccessor dbAccessor;
     private final IndexAccessor indexAccessor;
     private final FileDocSuggester fileDocSuggester;
@@ -40,9 +38,15 @@ public class FsStatExecutor implements Runnable {
     private int addCnt;
 
     public FsStatExecutor(
-            String monitorPath, String[] excludePaths, DbAccessor dbAccessor, IndexAccessor indexAccessor, FileDocSuggester fileDocSuggester) {
+            String monitorPath,
+            String[] excludePaths,
+            Set<String> excludeNames,
+            DbAccessor dbAccessor,
+            IndexAccessor indexAccessor,
+            FileDocSuggester fileDocSuggester) {
         this.monitorPath = monitorPath;
         this.excludePaths = Arrays.stream(excludePaths).collect(Collectors.toSet());
+        this.excludeNames = excludeNames;
         this.dbAccessor = dbAccessor;
         this.indexAccessor = indexAccessor;
         this.fileDocSuggester = fileDocSuggester;
@@ -70,9 +74,10 @@ public class FsStatExecutor implements Runnable {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 String absPath = dir.toAbsolutePath().toString();
+                String name = FileUtil.absPath2name(absPath);
 
-                if (excludePaths.stream().anyMatch(absPath::contains)
-                        || excludePaths.stream().anyMatch(x -> x.contains(absPath))) {
+                if (excludeNames.stream().anyMatch(x -> Objects.equals(x, name))
+                        || excludePaths.stream().anyMatch(x -> Objects.equals(absPath, x))) {
 
                     log.info("skip dir:{} due to in the exclude paths:{}", absPath, excludePaths);
                     return FileVisitResult.SKIP_SUBTREE;

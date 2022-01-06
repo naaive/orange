@@ -10,6 +10,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.github.conf.IndexConf.DATA_PATH;
 import static com.github.conf.IndexConf.INDEX_PATH;
@@ -24,7 +26,7 @@ class FsStatExecutorTest {
         Arrays.stream(File.listRoots()).map(x -> new FsStatExecutor(
                 x.getAbsolutePath(),
                 new String[]{"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
-                dbAccessor,
+                Stream.of("node_modules").collect(Collectors.toSet()), dbAccessor,
                 indexAccessor, new FileDocSuggester())).forEach(x -> {
 
             executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);

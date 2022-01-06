@@ -90,11 +90,11 @@ public class OrangeServer {
                         x.getAbsolutePath(),
                         new String[] {WINDOWS_PATH, "C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"
                         },
-                        dbAccessor,
+                        Stream.of("node_modules").collect(Collectors.toSet()), dbAccessor,
                         indexAccessor,
                         fileDocSuggester))
                 .forEach(x -> {
-//                    executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
+                    executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
                 });
 
         executors.submit(new NtrIndexExecutor(
