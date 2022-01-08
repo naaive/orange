@@ -48,7 +48,7 @@ function SearchExampleStandard({setItems, doTxtChange}) {
                 return
             }
 
-            let resp = await fetch(`http://localhost:8080/sg?kw=${encodeURI(data.value)}`);
+            let resp = await fetch(`http://localhost:41320/sg?kw=${encodeURI(data.value)}`);
             let json = await resp.json();
             let titles = R.map(
                 x => ({title: x})

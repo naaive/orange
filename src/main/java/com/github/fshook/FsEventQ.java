@@ -32,7 +32,7 @@ public class FsEventQ {
         ThreadPoolExecutor poolExecutor =
                 new ThreadPoolExecutor(len, len, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(len));
         for (String root : roots) {
-            poolExecutor.submit(() -> newListener(IndexConf.EXE + root));
+            poolExecutor.submit(() -> newListener(IndexConf.FSEVENT_PATH + root));
         }
     }
 

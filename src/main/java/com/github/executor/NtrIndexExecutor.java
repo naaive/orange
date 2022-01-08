@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class NtrIndexExecutor implements Runnable {
-    private static final int COMMIT_THRESHOLD = 50;
+    private static final int COMMIT_THRESHOLD = 10000;
     private final DbAccessor dbAccessor;
     private final IndexAccessor indexAccessor;
     private final FileDocSuggester fileDocSuggester;

@@ -49,13 +49,13 @@ public class ProcessUtil {
             ProcessHandle.Info info = processHandle.info();
             if (info.command().isPresent()) {
                 String s = info.command().get();
-                if (s.contains(IndexConf.EXE)) {
+                if (s.contains(IndexConf.FSEVENT_PATH)) {
                     processHandle.destroyForcibly();
                 }
             }
             if (info.commandLine().isPresent()) {
                 String s = info.commandLine().get();
-                if (s.contains(IndexConf.EXE)) {
+                if (s.contains(IndexConf.FSEVENT_PATH)) {
                     processHandle.destroyForcibly();
                 }
             }

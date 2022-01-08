@@ -7,6 +7,7 @@ import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
 import com.github.utils.FileUtil;
 import com.github.utils.ProcessUtil;
+import io.netty.channel.DefaultEventLoopGroup;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +34,7 @@ public class FsStatExecutor implements Runnable {
     private final DbAccessor dbAccessor;
     private final IndexAccessor indexAccessor;
     private final FileDocSuggester fileDocSuggester;
+    private final DefaultEventLoopGroup executors;
     private int addCnt;
 
     public FsStatExecutor(
@@ -40,13 +43,15 @@ public class FsStatExecutor implements Runnable {
             Set<String> excludeNames,
             DbAccessor dbAccessor,
             IndexAccessor indexAccessor,
-            FileDocSuggester fileDocSuggester) {
+            FileDocSuggester fileDocSuggester,
+            DefaultEventLoopGroup executors) {
         this.monitorPath = monitorPath;
         this.excludePaths = Arrays.stream(excludePaths).collect(Collectors.toSet());
         this.excludeNames = excludeNames;
         this.dbAccessor = dbAccessor;
         this.indexAccessor = indexAccessor;
         this.fileDocSuggester = fileDocSuggester;
+        this.executors = executors;
     }
 
     @SneakyThrows
@@ -57,6 +62,17 @@ public class FsStatExecutor implements Runnable {
             log.info("no need to travel {} because of system load", monitorPath);
             return;
         }
+        executors.scheduleAtFixedRate(
+                () -> {
+                    log.info(" commit {} file(s) to index", addCnt);
+
+                    addCnt = 0;
+                    indexAccessor.commit();
+                },
+                5,
+                5,
+                TimeUnit.SECONDS);
+
         log.info("start travel {} recursively", monitorPath);
         travelFiles();
     }

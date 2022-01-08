@@ -16,7 +16,7 @@ function bytesToSize(bytes) {
 function TableExampleCollapsing({items}) {
 
     function handleClick(data) {
-        fetch(`http://localhost:8080/ofd?kw=${encodeURI(data)}`);
+        fetch(`http://localhost:41320/ofd?kw=${encodeURI(data)}`);
     }
 
     return <Table selectable basic='very' size='small'>

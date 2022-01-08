@@ -44,8 +44,8 @@ public class DefaultConfig implements Configuration {
     /*
      * 分词器默认字典路径
      */
-    private static final String PATH_DIC_MAIN = IndexConf.IK_CONF + "/ik/main2012.dic";
-    private static final String PATH_DIC_QUANTIFIER = IndexConf.IK_CONF + "/ik/quantifier.dic";
+    private static final String PATH_DIC_MAIN = IndexConf.IK_CONF + "/main2012.dic";
+    private static final String PATH_DIC_QUANTIFIER = IndexConf.IK_CONF + "/quantifier.dic";
 
     /*
      * 分词器配置文件路径

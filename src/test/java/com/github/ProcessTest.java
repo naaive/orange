@@ -13,8 +13,8 @@ public class ProcessTest {
             Optional<String> commandLineOpt = info.commandLine();
             if (info.command().isPresent()) {
                 String x1 = info.command().get();
-                if (x1.contains("core")) {
-//                    x.destroyForcibly();
+                if (x1.contains("orange")) {
+                    x.destroyForcibly();
                     System.out.println(x1);
                 }
             }

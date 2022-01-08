@@ -39,7 +39,7 @@ public class OrangeServer {
         rootLogger.setLevel(Level.INFO);
     }
 
-    private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(4);
+    private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(5);
     private DbAccessor dbAccessor;
     private IndexAccessor indexAccessor;
     private final String WINDOWS_PATH = "C:\\Windows";
@@ -85,6 +85,7 @@ public class OrangeServer {
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
+            executors.shutdownGracefully();
         }
     }
 
@@ -99,7 +100,9 @@ public class OrangeServer {
                         },
                         Stream.of("node_modules").collect(Collectors.toSet()), dbAccessor,
                         indexAccessor,
-                        fileDocSuggester))
+                        fileDocSuggester
+                        ,executors
+                ))
                 .forEach(x -> {
                     executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
                 });
@@ -109,6 +112,6 @@ public class OrangeServer {
                 indexAccessor,
                 fileDocSuggester,
                 executors,
-                Stream.of(WINDOWS_PATH, ORANGE_PATH).collect(Collectors.toSet())));
+                Stream.of(WINDOWS_PATH, PROJECT_PATH).collect(Collectors.toSet())));
     }
 }
