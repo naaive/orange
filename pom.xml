@@ -170,11 +170,11 @@
                 <configuration>
 
                     <skip>false</skip>
-                    <imageName>core</imageName>
+                    <imageName>orange_core</imageName>
                     <mainClass>com.github.OrangeServer</mainClass>
                     <buildArgs>
                         --no-fallback
-                        -H:ReflectionConfigurationFiles=graal.json
+                        -H:ReflectionConfigurationFiles=classes/graal.json
                         --enable-url-protocols=http
                         --initialize-at-build-time=com.github.ik.OIKAnalyzer
                         --initialize-at-build-time=org.slf4j.impl.Log4jLoggerAdapter

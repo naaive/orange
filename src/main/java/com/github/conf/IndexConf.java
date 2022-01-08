@@ -15,11 +15,8 @@ import java.time.LocalDateTime;
 @Data
 @Accessors(chain = true)
 public class IndexConf {
-    public static final String EXE =
-            "C:\\Users\\Administrator\\PycharmProjects\\pythonProject\\build\\exe.win-amd64-3.8\\main.exe ";
-    public static final String CORE =
-            "C:\\Users\\Administrator\\PycharmProjects\\pythonProject\\build\\exe.win-amd64-3.8\\main.exe ";
-    public static final String ORANGE_PATH = "C:/Users/Administrator/IdeaProjects/orange/src/main/resources/.orange";
+    public static final String EXE = "./lib/fsevent.exe ";
+    public static final String ORANGE_PATH = "./.orange";
     public static final String INDEX_PATH = ORANGE_PATH + "/index";
     public static final int PORT = Integer.parseInt(System.getProperty("port", "8080"));
     public static final String DATA_PATH = ORANGE_PATH + "/data";

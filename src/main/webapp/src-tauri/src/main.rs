@@ -8,7 +8,7 @@ use std::thread;
 
 fn main() {
     thread::spawn(|| {
-        Command::new("core")
+        Command::new("./lib/orange_core.exe")
             .output()
             .expect("failed to execute process");
     });
