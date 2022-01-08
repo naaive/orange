@@ -3,26 +3,28 @@ package com.github.accessor;
 import com.alibaba.fastjson.JSON;
 import com.github.FileMsg;
 import lombok.SneakyThrows;
-import org.rocksdb.Options;
-import org.rocksdb.RocksDB;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.Options;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import static org.iq80.leveldb.impl.Iq80DBFactory.factory;
+
 public class DbAccessor {
 
-    private static RocksDB db;
+    private static DB db;
 
     public DbAccessor(String dataPath) {
-        RocksDB.loadLibrary();
         initialize(dataPath);
     }
 
     @SneakyThrows
     private void initialize(String dataPath) {
         Options options = new Options();
-        options.setCreateIfMissing(true);
-        db = RocksDB.open(options, dataPath);
+        options.createIfMissing(true);
+         db = factory.open(new File(dataPath), options);
     }
 
     @SneakyThrows

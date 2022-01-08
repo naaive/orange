@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FsStatExecutor implements Runnable {
 
-    private static final int COMMIT_THRESHOLD = 100000;
+    private static final int COMMIT_THRESHOLD = 10000;
     private final String monitorPath;
     private final Set<String> excludePaths;
     private final Set<String> excludeNames;
@@ -136,6 +136,7 @@ public class FsStatExecutor implements Runnable {
         if (addCnt % COMMIT_THRESHOLD == 0) {
             log.info("commit {} file(s) to index", addCnt);
             addCnt = 0;
+            indexAccessor.commit();
         }
     }
 }

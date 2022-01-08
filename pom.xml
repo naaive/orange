@@ -9,17 +9,20 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <graalvm.version>21.2.0</graalvm.version>
     </properties>
 
+
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.wltea/ikanalyzer -->
-<!--        <dependency>-->
-<!--            <groupId>org.wltea</groupId>-->
-<!--            <artifactId>ikanalyzer</artifactId>-->
-<!--            <version>2012</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.graalvm.sdk</groupId>
+            <artifactId>graal-sdk</artifactId>
+            <version>${graalvm.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.janeluo/ikanalyzer -->
         <dependency>
             <groupId>com.janeluo</groupId>
@@ -52,7 +55,7 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.30</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -110,15 +113,13 @@
             <artifactId>jna-platform</artifactId>
             <version>5.10.0</version>
         </dependency>
-
-
-
-        <!-- https://mvnrepository.com/artifact/org.rocksdb/rocksdbjni -->
+        <!-- https://mvnrepository.com/artifact/org.iq80.leveldb/leveldb -->
         <dependency>
-            <groupId>org.rocksdb</groupId>
-            <artifactId>rocksdbjni</artifactId>
-            <version>6.26.1</version>
+            <groupId>org.iq80.leveldb</groupId>
+            <artifactId>leveldb</artifactId>
+            <version>0.12</version>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
         <dependency>
             <groupId>io.netty</groupId>
@@ -150,6 +151,40 @@
             </extension>
         </extensions>
         <plugins>
+            <plugin>
+                <groupId>org.graalvm.nativeimage</groupId>
+                <artifactId>native-image-maven-plugin</artifactId>
+                <version>${graalvm.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>native-image</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+
+                    <skip>false</skip>
+                    <imageName>test</imageName>
+                    <mainClass>com.github.OrangeServer</mainClass>
+                    <buildArgs>
+                        --no-fallback
+                        --initialize-at-build-time=org.slf4j.impl.Log4jLoggerAdapter
+                        --initialize-at-build-time=ch.qos.logback.classic.Logger
+                        --initialize-at-build-time=org.slf4j.impl.StaticLoggerBinder
+                        --initialize-at-build-time=ch.qos.logback.classic.Level
+                        --initialize-at-build-time=ch.qos.logback.core.spi.AppenderAttachableImpl
+                        --initialize-at-build-time=org.slf4j.LoggerFactory
+                        --initialize-at-build-time=ch.qos.logback.core.status.InfoStatus
+                        --initialize-at-build-time=ch.qos.logback.core.CoreConstants
+                        --initialize-at-build-time=org.slf4j.MDC
+                        --initialize-at-build-time=ch.qos.logback.core.status.StatusBase
+                        --allow-incomplete-classpath
+                    </buildArgs>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>

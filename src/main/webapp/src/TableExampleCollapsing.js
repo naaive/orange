@@ -38,7 +38,7 @@ function TableExampleCollapsing({items}) {
                     let absPath = R.prop('absPath', x);
                     return <Table.Row key={absPath} onDoubleClick={() => handleClick(absPath)}>
                         <Table.Cell>
-                            <Header as='h4' image>
+                            <Header as='h5' image>
                                 <div className="icon">
                                     {
                                         isDir ? <img src={Folder}/> :
