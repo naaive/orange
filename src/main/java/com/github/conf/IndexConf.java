@@ -1,6 +1,6 @@
 package com.github.conf;
 
-import com.alibaba.fastjson.JSON;
+import com.github.utils.JsonUtil;
 import io.netty.util.internal.StringUtil;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 public class IndexConf {
     public static final String EXE =
             "C:\\Users\\Administrator\\PycharmProjects\\pythonProject\\build\\exe.win-amd64-3.8\\main.exe ";
+    public static final String CORE =
+            "C:\\Users\\Administrator\\PycharmProjects\\pythonProject\\build\\exe.win-amd64-3.8\\main.exe ";
     public static final String ORANGE_PATH = "C:/Users/Administrator/IdeaProjects/orange/src/main/resources/.orange";
     public static final String INDEX_PATH = ORANGE_PATH + "/index";
     public static final int PORT = Integer.parseInt(System.getProperty("port", "8080"));
@@ -24,6 +26,7 @@ public class IndexConf {
     public static final String CONF_PATH = ORANGE_PATH + "/conf";
     public static final String INDEX_CONF = CONF_PATH + "/index";
     public static final String SUGGEST_CONF = ORANGE_PATH + "/suggest";
+    public static final String IK_CONF = ORANGE_PATH + "/conf/ik";
 
     private LocalDateTime lastStatTime;
 
@@ -39,12 +42,12 @@ public class IndexConf {
         if (StringUtil.isNullOrEmpty(index)) {
             return new IndexConf().setLastStatTime(LocalDateTime.MIN);
         }
-        return JSON.parseObject(index, IndexConf.class);
+        return JsonUtil.fromJson(index, IndexConf.class);
     }
 
     @SneakyThrows
     public void save2file() {
 
-        Files.writeString(Paths.get(INDEX_CONF), JSON.toJSONString(this));
+        Files.writeString(Paths.get(INDEX_CONF), JsonUtil.toJson(this));
     }
 }

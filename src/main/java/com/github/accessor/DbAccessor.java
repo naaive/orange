@@ -1,7 +1,7 @@
 package com.github.accessor;
 
-import com.alibaba.fastjson.JSON;
 import com.github.FileMsg;
+import com.github.utils.JsonUtil;
 import lombok.SneakyThrows;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
@@ -50,12 +50,13 @@ public class DbAccessor {
     public synchronized void saveStatProcess(StatProcess process) {
         db.put(
                 "process#stat#v1".getBytes(StandardCharsets.UTF_8),
-                JSON.toJSONString(process).getBytes(StandardCharsets.UTF_8));
+
+                JsonUtil.toJson(process).getBytes(StandardCharsets.UTF_8));
     }
 
     @SneakyThrows
     public StatProcess fetchStatProcess() {
         byte[] bytes = db.get("process#stat#v1".getBytes(StandardCharsets.UTF_8));
-        return JSON.parseObject(bytes, StatProcess.class);
+        return JsonUtil.fromJson(new String(bytes), StatProcess.class);
     }
 }

@@ -1,9 +1,9 @@
 package com.github.handler;
 
-import com.alibaba.fastjson.JSON;
 import com.github.accessor.FileDocSuggester;
 import com.github.accessor.FileView;
 import com.github.accessor.IndexAccessor;
+import com.github.utils.JsonUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -82,7 +82,7 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
                 }
             }
         }
-        doResponse(ctx, msg, JSON.toJSONString(file.getAbsoluteFile()));
+        doResponse(ctx, msg, JsonUtil.toJson(file.getAbsoluteFile()));
     }
 
     private void doSuggest(ChannelHandlerContext ctx, FullHttpRequest msg, URL url) {
@@ -90,7 +90,7 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         String[] split = query.split("=");
         String keyword = split[1];
         List<String> lookup = fileDocSuggester.lookup(keyword);
-        doResponse(ctx, msg, JSON.toJSONString(lookup));
+        doResponse(ctx, msg, JsonUtil.toJson(lookup));
     }
 
     private void doResponse(ChannelHandlerContext ctx, FullHttpRequest msg, String s) {
@@ -121,7 +121,7 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         String[] split = query.split("=");
         String keyword = split[1];
         List<FileView> docs = indexAccessor.search(keyword);
-        doResponse(ctx, msg, JSON.toJSONString(docs));
+        doResponse(ctx, msg, JsonUtil.toJson(docs));
     }
 
     private URL genUrl(String uri) throws MalformedURLException {

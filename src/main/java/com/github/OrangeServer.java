@@ -48,6 +48,10 @@ public class OrangeServer {
     public static void main(String[] args) {
         System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
 
+        if (ProcessUtil.isAlive()) {
+            return;
+        }
+
         new OrangeServer().start();
     }
 

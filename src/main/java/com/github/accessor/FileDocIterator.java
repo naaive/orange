@@ -1,6 +1,6 @@
 package com.github.accessor;
 
-import com.alibaba.fastjson.JSON;
+import com.github.utils.JsonUtil;
 import org.apache.lucene.search.suggest.InputIterator;
 import org.apache.lucene.util.BytesRef;
 
@@ -25,7 +25,7 @@ public class FileDocIterator implements InputIterator {
 
     @Override
     public BytesRef payload() {
-        return new BytesRef(JSON.toJSONString(next).getBytes(StandardCharsets.UTF_8));
+        return new BytesRef(JsonUtil.toJson(next).getBytes(StandardCharsets.UTF_8));
     }
 
     @Override

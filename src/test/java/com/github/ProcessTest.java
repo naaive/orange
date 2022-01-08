@@ -13,7 +13,7 @@ public class ProcessTest {
             Optional<String> commandLineOpt = info.commandLine();
             if (info.command().isPresent()) {
                 String x1 = info.command().get();
-                if (x1.contains("pythonProject\\main.dist\\main.exe")) {
+                if (x1.contains("core")) {
 //                    x.destroyForcibly();
                     System.out.println(x1);
                 }

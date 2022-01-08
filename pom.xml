@@ -12,6 +12,8 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <graalvm.version>21.2.0</graalvm.version>
+        <lucene.version>8.11.1</lucene.version>
+
     </properties>
 
 
@@ -23,26 +25,26 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.janeluo/ikanalyzer -->
-        <dependency>
-            <groupId>com.janeluo</groupId>
-            <artifactId>ikanalyzer</artifactId>
-            <version>2012_u6</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>lucene-analyzers-common</artifactId>
-                    <groupId>org.apache.lucene</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>lucene-core</artifactId>
-                    <groupId>org.apache.lucene</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>lucene-queryparser</artifactId>
-                    <groupId>org.apache.lucene</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+<!--         https://mvnrepository.com/artifact/com.janeluo/ikanalyzer -->
+<!--        <dependency>-->
+<!--            <groupId>com.janeluo</groupId>-->
+<!--            <artifactId>ikanalyzer</artifactId>-->
+<!--            <version>2012_u6</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>lucene-analyzers-common</artifactId>-->
+<!--                    <groupId>org.apache.lucene</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>lucene-core</artifactId>-->
+<!--                    <groupId>org.apache.lucene</groupId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>lucene-queryparser</artifactId>-->
+<!--                    <groupId>org.apache.lucene</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -74,45 +76,33 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-suggest</artifactId>
-            <version>8.11.1</version>
+            <version>${lucene.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>lucene-core</artifactId>
+                    <groupId>org.apache.lucene</groupId>
+                </exclusion>
+
+                <exclusion>
+                    <artifactId>lucene-core</artifactId>
+                    <groupId>org.apache.lucene</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>8.11.1</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-analyzers-smartcn -->
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-smartcn</artifactId>
-            <version>8.11.1</version>
-        </dependency>
-
-
+        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-queryparser -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
-            <version>8.11.1</version>
+            <version>${lucene.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>lucene-core</artifactId>
+                    <groupId>org.apache.lucene</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-highlighter</artifactId>
-            <version>8.11.1</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/io.methvin/directory-watcher -->
-        <dependency>
-            <groupId>io.methvin</groupId>
-            <artifactId>directory-watcher</artifactId>
-            <version>0.15.0</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna-platform -->
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform</artifactId>
-            <version>5.10.0</version>
-        </dependency>
+
+
         <!-- https://mvnrepository.com/artifact/org.iq80.leveldb/leveldb -->
         <dependency>
             <groupId>org.iq80.leveldb</groupId>
@@ -126,17 +116,31 @@
             <artifactId>netty-all</artifactId>
             <version>4.1.72.Final</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.79</version>
-        </dependency>
+
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.7.0</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.8.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/net.sf.json-lib/json-lib -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.8.1</version>
         </dependency>
 
 
@@ -166,10 +170,13 @@
                 <configuration>
 
                     <skip>false</skip>
-                    <imageName>test</imageName>
+                    <imageName>core</imageName>
                     <mainClass>com.github.OrangeServer</mainClass>
                     <buildArgs>
                         --no-fallback
+                        -H:ReflectionConfigurationFiles=graal.json
+                        --enable-url-protocols=http
+                        --initialize-at-build-time=com.github.ik.OIKAnalyzer
                         --initialize-at-build-time=org.slf4j.impl.Log4jLoggerAdapter
                         --initialize-at-build-time=ch.qos.logback.classic.Logger
                         --initialize-at-build-time=org.slf4j.impl.StaticLoggerBinder

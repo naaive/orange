@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.9.16
+Created-By: 1.8.0_312-b07 (Temurin)
+Extension-Name: org.apache.lucene
+Specification-Title: Lucene Search Engine: core
+Specification-Version: 8.11.1
+Specification-Vendor: The Apache Software Foundation
+Implementation-Title: org.apache.lucene
+Implementation-Version: 8.11.1 0b002b11819df70783e83ef36b42ed1223c14b5
+ 0 - janhoy - 2021-12-14 13:49:05
+Implementation-Vendor: The Apache Software Foundation
+X-Compile-Source-JDK: 8
+X-Compile-Target-JDK: 8
+
