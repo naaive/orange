@@ -4,6 +4,7 @@ import com.github.accessor.DbAccessor;
 import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
 import com.github.conf.LogConf;
+import com.github.executor.AliveExecutor;
 import com.github.executor.FsStatExecutor;
 import com.github.executor.NtrIndexExecutor;
 import com.github.handler.OrangeInitializer;
@@ -59,7 +60,6 @@ public class OrangeServer {
 
         this.dbAccessor = new DbAccessor(DATA_PATH);
         this.indexAccessor = new IndexAccessor(INDEX_PATH, dbAccessor, executors);
-
         // Configure the server.
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -113,5 +113,8 @@ public class OrangeServer {
                 fileDocSuggester,
                 executors,
                 Stream.of(WINDOWS_PATH, PROJECT_PATH).collect(Collectors.toSet())));
+
+        AliveExecutor aliveExecutor = new AliveExecutor();
+        executors.scheduleAtFixedRate(aliveExecutor, 0, 1, TimeUnit.SECONDS);
     }
 }

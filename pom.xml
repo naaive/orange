@@ -25,27 +25,6 @@
             <scope>provided</scope>
         </dependency>
 
-<!--         https://mvnrepository.com/artifact/com.janeluo/ikanalyzer -->
-<!--        <dependency>-->
-<!--            <groupId>com.janeluo</groupId>-->
-<!--            <artifactId>ikanalyzer</artifactId>-->
-<!--            <version>2012_u6</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>lucene-analyzers-common</artifactId>-->
-<!--                    <groupId>org.apache.lucene</groupId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>lucene-core</artifactId>-->
-<!--                    <groupId>org.apache.lucene</groupId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>lucene-queryparser</artifactId>-->
-<!--                    <groupId>org.apache.lucene</groupId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
@@ -161,6 +140,8 @@
                     <mainClass>com.github.OrangeServer</mainClass>
                     <buildArgs>
                         --no-fallback
+                        --gc=serial
+                        -R:MaxHeapSize=256M
                         -H:ReflectionConfigurationFiles=classes/reflection.json
                         --enable-url-protocols=http
                         --initialize-at-build-time=com.github.conf.LogConf

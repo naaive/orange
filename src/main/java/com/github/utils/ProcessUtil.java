@@ -18,6 +18,7 @@ import static com.github.conf.IndexConf.getInstance;
 public class ProcessUtil {
 
     private static final String ORANGE_CORE = "orange_core";
+    private static final String ORANGE_UI = "orange";
 
     public static boolean shouldStat(String from) {
 
@@ -52,22 +53,43 @@ public class ProcessUtil {
         }
     }
 
+    public static boolean isAlive() {
+        ProcessHandle current = ProcessHandle.current();
+        List<ProcessHandle> handles = ProcessHandle.allProcesses().collect(Collectors.toList());
+        for (ProcessHandle handle : handles) {
+            ProcessHandle.Info info = handle.info();
+            if (info.command().isPresent()) {
+                String name = FileUtil.absPath2name(info.command().get());
+                if (name.contains(ORANGE_UI) && !current.equals(handle)) {
+                    return true;
+                }
+            }
+            if (info.commandLine().isPresent()) {
+                String name = FileUtil.absPath2name(info.commandLine().get());
+                if (name.contains(ORANGE_UI) && !current.equals(handle)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static void cleanOrangeCore() {
         ProcessHandle current = ProcessHandle.current();
         List<ProcessHandle> handles = ProcessHandle.allProcesses().collect(Collectors.toList());
         for (ProcessHandle handle : handles) {
             ProcessHandle.Info info = handle.info();
             if (info.command().isPresent()) {
-                String s = info.command().get();
-                if (s.contains(ORANGE_CORE) && !current.equals(handle)) {
-                    log.info("close orange_core:" + s);
+                String name = FileUtil.absPath2name(info.command().get());
+                if (name.contains(ORANGE_CORE) && !current.equals(handle)) {
+                    log.info("close orange_core:" + name);
                     handle.destroyForcibly();
                 }
             }
             if (info.commandLine().isPresent()) {
-                String s = info.commandLine().get();
-                if (s.contains(ORANGE_CORE) && !current.equals(handle)) {
-                    log.info("close orange_core:" + s);
+                String name = FileUtil.absPath2name(info.command().get());
+                if (name.contains(ORANGE_CORE) && !current.equals(handle)) {
+                    log.info("close orange_core:" + name);
                     handle.destroyForcibly();
                 }
             }
@@ -84,16 +106,16 @@ public class ProcessUtil {
         ProcessHandle.allProcesses().forEach(processHandle -> {
             ProcessHandle.Info info = processHandle.info();
             if (info.command().isPresent()) {
-                String s = info.command().get();
-                if (s.contains(IndexConf.FSEVENT_EXE)) {
-                    log.info("close fsevent:" + s);
+                String name = FileUtil.absPath2name(info.command().get());
+                if (name.contains(IndexConf.FSEVENT_EXE)) {
+                    log.info("close fsevent:" + name);
                     processHandle.destroyForcibly();
                 }
             }
             if (info.commandLine().isPresent()) {
-                String s = info.commandLine().get();
-                if (s.contains(IndexConf.FSEVENT_EXE)) {
-                    log.info("close fsevent:" + s);
+                String name = FileUtil.absPath2name(info.command().get());
+                if (name.contains(IndexConf.FSEVENT_EXE)) {
+                    log.info("close fsevent:" + name);
                     processHandle.destroyForcibly();
                 }
             }
