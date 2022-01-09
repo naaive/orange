@@ -51,19 +51,6 @@
             <artifactId>protobuf-java</artifactId>
             <version>3.4.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -174,19 +161,9 @@
                     <mainClass>com.github.OrangeServer</mainClass>
                     <buildArgs>
                         --no-fallback
-                        -H:ReflectionConfigurationFiles=classes/graal.json
+                        -H:ReflectionConfigurationFiles=classes/reflection.json
                         --enable-url-protocols=http
-                        --initialize-at-build-time=com.github.ik.OIKAnalyzer
-                        --initialize-at-build-time=org.slf4j.impl.Log4jLoggerAdapter
-                        --initialize-at-build-time=ch.qos.logback.classic.Logger
-                        --initialize-at-build-time=org.slf4j.impl.StaticLoggerBinder
-                        --initialize-at-build-time=ch.qos.logback.classic.Level
-                        --initialize-at-build-time=ch.qos.logback.core.spi.AppenderAttachableImpl
-                        --initialize-at-build-time=org.slf4j.LoggerFactory
-                        --initialize-at-build-time=ch.qos.logback.core.status.InfoStatus
-                        --initialize-at-build-time=ch.qos.logback.core.CoreConstants
-                        --initialize-at-build-time=org.slf4j.MDC
-                        --initialize-at-build-time=ch.qos.logback.core.status.StatusBase
+                        --initialize-at-build-time=com.github.conf.LogConf
                         --allow-incomplete-classpath
                     </buildArgs>
                 </configuration>

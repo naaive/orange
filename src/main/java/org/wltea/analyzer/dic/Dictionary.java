@@ -25,7 +25,6 @@
  */
 package org.wltea.analyzer.dic;
 
-import lombok.SneakyThrows;
 import org.wltea.analyzer.cfg.Configuration;
 
 import java.io.*;
@@ -187,12 +186,16 @@ public class Dictionary {
   /**
    * 加载主词典及扩展词典
    */
-  @SneakyThrows
   private void loadMainDict() {
     // 建立一个主词典实例
     _MainDict = new DictSegment((char) 0);
     // 读取主词典文件
-    InputStream is = new FileInputStream(cfg.getMainDictionary());
+    InputStream is = null;
+    try {
+      is = new FileInputStream(cfg.getMainDictionary());
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
 
     try {
       BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8), 512);
@@ -319,12 +322,16 @@ public class Dictionary {
   /**
    * 加载量词词典
    */
-  @SneakyThrows
   private void loadQuantifierDict() {
     // 建立一个量词典实例
     _QuantifierDict = new DictSegment((char) 0);
     // 读取量词词典文件
-    InputStream is = new FileInputStream(cfg.getQuantifierDicionary());
+    InputStream is = null;
+    try {
+      is = new FileInputStream(cfg.getQuantifierDicionary());
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
     if (is == null) {
       throw new RuntimeException("Quantifier Dictionary not found!!!");
     }

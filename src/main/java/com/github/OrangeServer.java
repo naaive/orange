@@ -1,12 +1,13 @@
 package com.github;
 
-import ch.qos.logback.classic.Level;
 import com.github.accessor.DbAccessor;
 import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
+import com.github.conf.LogConf;
 import com.github.executor.FsStatExecutor;
 import com.github.executor.NtrIndexExecutor;
 import com.github.handler.OrangeInitializer;
+import com.github.utils.OsUtil;
 import com.github.utils.ProcessUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -17,27 +18,19 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.java.Log;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.conf.IndexConf.*;
 
-@Slf4j
+@Log
 public class OrangeServer {
-
-    static {
-        ch.qos.logback.classic.Logger rootLogger =
-                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        rootLogger.setLevel(Level.INFO);
-    }
 
     private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(5);
     private DbAccessor dbAccessor;
@@ -45,17 +38,25 @@ public class OrangeServer {
     private final String WINDOWS_PATH = "C:\\Windows";
     private final FileDocSuggester fileDocSuggester = new FileDocSuggester();
 
-    public static void main(String[] args) {
-        System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
 
+    static {
+        LogConf.initialize();
+    }
+
+    public static void main(String[] args) {
+
+                System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
         if (ProcessUtil.isAlive()) {
+            log.info("already running");
             return;
+        }
+        if (OsUtil.isWindows()) {
+            ProcessUtil.winKillByPort(41320);
         }
 
         new OrangeServer().start();
     }
 
-    @SneakyThrows
     private void start() {
 
         this.dbAccessor = new DbAccessor(DATA_PATH);
@@ -82,6 +83,8 @@ public class OrangeServer {
             Runtime.getRuntime().addShutdownHook(new Thread(ProcessUtil::clean));
 
             ch.closeFuture().sync();
+        } catch (InterruptedException e) {
+            log.log(Level.SEVERE, "start server err", e);
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
@@ -89,7 +92,6 @@ public class OrangeServer {
         }
     }
 
-    @SneakyThrows
     private void runTasks() {
 
         //        FileSystemView fsv = FileSystemView.getFileSystemView();
@@ -98,11 +100,11 @@ public class OrangeServer {
                         x.getAbsolutePath(),
                         new String[] {WINDOWS_PATH, "C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"
                         },
-                        Stream.of("node_modules").collect(Collectors.toSet()), dbAccessor,
+                        Stream.of("node_modules").collect(Collectors.toSet()),
+                        dbAccessor,
                         indexAccessor,
-                        fileDocSuggester
-                        ,executors
-                ))
+                        fileDocSuggester,
+                        executors))
                 .forEach(x -> {
                     executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
                 });

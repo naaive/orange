@@ -8,8 +8,7 @@ import com.github.accessor.IndexAccessor;
 import com.github.utils.FileUtil;
 import com.github.utils.ProcessUtil;
 import io.netty.channel.DefaultEventLoopGroup;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -19,12 +18,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
  * @author jeff
  */
-@Slf4j
+@Log
 public class FsStatExecutor implements Runnable {
 
     private static final int COMMIT_THRESHOLD = 10000;
@@ -54,17 +54,16 @@ public class FsStatExecutor implements Runnable {
         this.executors = executors;
     }
 
-    @SneakyThrows
     @Override
     public void run() {
 
         if (ProcessUtil.shouldStat()) {
-            log.info("no need to travel {} because of system load", monitorPath);
+            log.info(String.format("no need to travel %s because of system load", monitorPath));
             return;
         }
         executors.scheduleAtFixedRate(
                 () -> {
-                    log.info(" commit {} file(s) to index", addCnt);
+                    log.info(String.format("commit %s file(s) to index", addCnt));
 
                     addCnt = 0;
                     indexAccessor.commit();
@@ -73,8 +72,12 @@ public class FsStatExecutor implements Runnable {
                 5,
                 TimeUnit.SECONDS);
 
-        log.info("start travel {} recursively", monitorPath);
-        travelFiles();
+        log.info(String.format("start travel %s recursively", monitorPath));
+        try {
+            travelFiles();
+        } catch (IOException e) {
+            log.log(Level.SEVERE,"travel files err",e);
+        }
     }
 
     private void travelFiles() throws IOException {
@@ -87,7 +90,7 @@ public class FsStatExecutor implements Runnable {
                 if (excludeNames.stream().anyMatch(x -> Objects.equals(x, name))
                         || excludePaths.stream().anyMatch(x -> Objects.equals(absPath, x))) {
 
-                    log.info("skip dir:{} due to in the exclude paths:{}", absPath, excludePaths);
+                    log.info(String.format("skip dir:%s due to in the exclude paths:%s", absPath, excludePaths));
                     return FileVisitResult.SKIP_SUBTREE;
                 }
 
@@ -119,13 +122,11 @@ public class FsStatExecutor implements Runnable {
         });
     }
 
-    @SneakyThrows
     private boolean hasDocAndNoExpired(String absPath, long modifiedTime) {
         Optional<FileMsg.File> optionalFile = dbAccessor.get(absPath);
         return optionalFile.filter(file -> file.getModifiedAt() == modifiedTime).isPresent();
     }
 
-    @SneakyThrows
     private void addDoc(BasicFileAttributes attrs, String absPath, boolean isDir) {
         String name = FileUtil.absPath2name(absPath);
         String ext = FileUtil.name2ext(name);
@@ -150,7 +151,7 @@ public class FsStatExecutor implements Runnable {
 
         addCnt++;
         if (addCnt % COMMIT_THRESHOLD == 0) {
-            log.info("commit {} file(s) to index", addCnt);
+            log.info(String.format("commit %s file(s) to index", addCnt));
             addCnt = 0;
             indexAccessor.commit();
         }

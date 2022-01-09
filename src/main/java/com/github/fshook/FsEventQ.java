@@ -2,21 +2,23 @@ package com.github.fshook;
 
 import com.github.conf.IndexConf;
 import com.github.utils.ProcessUtil;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
-@Slf4j
+@Log
 public class FsEventQ {
 
     private final ArrayBlockingQueue<FsLog> fsLogs = new ArrayBlockingQueue<>(1024);
@@ -32,34 +34,36 @@ public class FsEventQ {
         ThreadPoolExecutor poolExecutor =
                 new ThreadPoolExecutor(len, len, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(len));
         for (String root : roots) {
-            poolExecutor.submit(() -> newListener(IndexConf.FSEVENT_PATH + root));
+            poolExecutor.submit(() -> newListener(IndexConf.FSEVENT_PATH + " " + root));
         }
     }
 
-
-
-    @SneakyThrows
     public List<FsLog> poll(int size) {
-        List<FsLog> fsLogs0 = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            FsLog take = fsLogs.poll(200, TimeUnit.MILLISECONDS);
-            if (take != null) {
-                fsLogs0.add(take);
+        try {
+            List<FsLog> fsLogs0 = new ArrayList<>(size);
+            for (int i = 0; i < size; i++) {
+                FsLog take = fsLogs.poll(200, TimeUnit.MILLISECONDS);
+                if (take != null) {
+                    fsLogs0.add(take);
+                }
             }
+            return fsLogs0;
+        } catch (InterruptedException e) {
+            log.log(Level.SEVERE, "poll err", e);
         }
-        return fsLogs0;
+        return Collections.emptyList();
     }
 
-    @SneakyThrows
     private void newListener(String cmd) {
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(cmd);
+            String absolutePath = new File(cmd).getAbsolutePath();
+            p = Runtime.getRuntime().exec(absolutePath);
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(p.getErrorStream(), StandardCharsets.UTF_8), 256);
             String line;
             while ((line = br.readLine()) != null) {
-                log.debug(line);
+                log.log(Level.FINE, line);
                 String[] split = line.split(" ");
                 String op = split[0];
                 String file = split[1];
@@ -88,12 +92,13 @@ public class FsEventQ {
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException | InterruptedException e) {
+            log.log(Level.SEVERE, "newListener err", e);
         } finally {
             if (p != null) {
                 p.destroy();
             }
+            Runtime.getRuntime().exit(-1);
         }
     }
 }

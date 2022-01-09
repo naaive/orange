@@ -13,22 +13,24 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
-import lombok.SneakyThrows;
+import lombok.extern.java.Log;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-
+@Log
 public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final String SEARCH_PATH = "/q";
     private static final String SUGGEST_PATH = "/sg";
@@ -46,9 +48,8 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         ctx.flush();
     }
 
-    @SneakyThrows
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) {
+    public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws MalformedURLException {
 
         URL url = genUrl(msg.uri());
 
@@ -65,7 +66,6 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         }
     }
 
-    @SneakyThrows
     private void doOpenFolder(ChannelHandlerContext ctx, FullHttpRequest msg, URL url) {
         String query = url.getQuery();
         String[] split = query.split("=");
@@ -77,7 +77,11 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
                 if (file.isFile()) {
                     file = file.getParentFile();
                 } else {
-                    Desktop.getDesktop().open(file);
+                    try {
+                        Desktop.getDesktop().open(file);
+                    } catch (IOException e) {
+                        log.log(Level.SEVERE, "open folder err", e);
+                    }
                     break;
                 }
             }

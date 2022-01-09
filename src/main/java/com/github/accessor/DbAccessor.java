@@ -2,16 +2,20 @@ package com.github.accessor;
 
 import com.github.FileMsg;
 import com.github.utils.JsonUtil;
-import lombok.SneakyThrows;
+import com.google.protobuf.InvalidProtocolBufferException;
+import lombok.extern.java.Log;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import static org.iq80.leveldb.impl.Iq80DBFactory.factory;
 
+@Log
 public class DbAccessor {
 
     private static DB db;
@@ -20,33 +24,37 @@ public class DbAccessor {
         initialize(dataPath);
     }
 
-    @SneakyThrows
     private void initialize(String dataPath) {
-        Options options = new Options();
-        options.createIfMissing(true);
-         db = factory.open(new File(dataPath), options);
+        try {
+            Options options = new Options();
+            options.createIfMissing(true);
+            db = factory.open(new File(dataPath), options);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "DbAccessor initialize err", e);
+        }
     }
 
-    @SneakyThrows
     public Optional<FileMsg.File> get(String absPath) {
-        byte[] bytes = db.get(absPath.getBytes(StandardCharsets.UTF_8));
-        if (bytes == null) {
+        try {
+            byte[] bytes = db.get(absPath.getBytes(StandardCharsets.UTF_8));
+            if (bytes == null) {
+                return Optional.empty();
+            }
+            return Optional.of(FileMsg.File.parseFrom(bytes));
+        } catch (InvalidProtocolBufferException e) {
+            log.log(Level.SEVERE, "get err", e);
             return Optional.empty();
         }
-        return Optional.of(com.github.FileMsg.File.parseFrom(bytes));
     }
 
-    @SneakyThrows
     public synchronized void put(String absPath, FileMsg.File file) {
         db.put(absPath.getBytes(StandardCharsets.UTF_8), file.toByteArray());
     }
 
-    @SneakyThrows
     public synchronized void del(String absPath) {
         db.delete(absPath.getBytes(StandardCharsets.UTF_8));
     }
 
-    @SneakyThrows
     public synchronized void saveStatProcess(StatProcess process) {
         db.put(
                 "process#stat#v1".getBytes(StandardCharsets.UTF_8),
@@ -54,7 +62,6 @@ public class DbAccessor {
                 JsonUtil.toJson(process).getBytes(StandardCharsets.UTF_8));
     }
 
-    @SneakyThrows
     public StatProcess fetchStatProcess() {
         byte[] bytes = db.get("process#stat#v1".getBytes(StandardCharsets.UTF_8));
         return JsonUtil.fromJson(new String(bytes), StatProcess.class);

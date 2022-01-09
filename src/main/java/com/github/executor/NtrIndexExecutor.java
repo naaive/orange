@@ -10,7 +10,7 @@ import com.github.fshook.FsEventQ;
 import com.github.fshook.FsLog;
 import com.github.utils.FileUtil;
 import io.netty.channel.DefaultEventLoopGroup;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,9 +21,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-@Slf4j
+@Log
 public class NtrIndexExecutor implements Runnable {
     private static final int COMMIT_THRESHOLD = 10000;
     private final DbAccessor dbAccessor;
@@ -50,7 +51,7 @@ public class NtrIndexExecutor implements Runnable {
 
         executors.scheduleAtFixedRate(
                 () -> {
-                    log.info(" commit {} file(s) to index", addCnt);
+                    log.info(String.format("commit %s file(s) to index", addCnt));
 
                     addCnt = 0;
                     indexAccessor.commit();
@@ -70,7 +71,7 @@ public class NtrIndexExecutor implements Runnable {
             try {
                 doWork(q);
             } catch (Throwable e) {
-                log.error("ntr indexing err", e);
+                log.log(Level.SEVERE,"ntr indexing err", e);
             }
         }
     }
@@ -79,7 +80,7 @@ public class NtrIndexExecutor implements Runnable {
         List<FsLog> fsLogs = q.poll(24).stream()
                 .filter(x -> !x.getPath().contains("$RECYCLE.BIN"))
                 .collect(Collectors.toList());
-        log.debug("sync {} to index", fsLogs);
+        log.log(Level.FINE,"sync %s to index", fsLogs);
         for (FsLog fsLog : fsLogs) {
             Cmd cmd = fsLog.getCmd();
             String absPath = fsLog.getPath();
@@ -114,7 +115,7 @@ public class NtrIndexExecutor implements Runnable {
                 addCnt++;
                 if (addCnt % COMMIT_THRESHOLD == 0) {
                     indexAccessor.commit();
-                    log.info("commit {} file(s) to index", addCnt);
+                    log.info(String.format("commit %s file(s) to index", addCnt));
                     addCnt = 0;
                 }
 
