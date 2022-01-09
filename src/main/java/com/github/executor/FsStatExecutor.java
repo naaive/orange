@@ -57,7 +57,7 @@ public class FsStatExecutor implements Runnable {
     @Override
     public void run() {
 
-        if (ProcessUtil.shouldStat()) {
+        if (ProcessUtil.shouldStat(monitorPath)) {
             log.info(String.format("no need to travel %s because of system load", monitorPath));
             return;
         }

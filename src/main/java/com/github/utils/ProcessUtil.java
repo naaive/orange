@@ -1,10 +1,12 @@
 package com.github.utils;
 
 import com.github.conf.IndexConf;
+import com.google.common.hash.Hashing;
 import lombok.extern.java.Log;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -17,13 +19,17 @@ public class ProcessUtil {
 
     private static final String ORANGE_CORE = "orange_core";
 
-    public static boolean  shouldStat() {
+    public static boolean shouldStat(String from) {
 
-        IndexConf indexConf = getInstance();
+        IndexConf indexConf = getInstance(Hashing.sha256()
+                .hashBytes(from.getBytes(StandardCharsets.UTF_8))
+                .toString());
         Date lastStatTime = indexConf.getLastStatTime();
         Date now = new Date();
         indexConf.setLastStatTime(now);
-        indexConf.save2file();
+        indexConf.save2file(Hashing.sha256()
+                .hashBytes(from.getBytes(StandardCharsets.UTF_8))
+                .toString());
 
         return now.getTime() - lastStatTime.getTime() < 1000 * 60 * 60 * 12;
     }

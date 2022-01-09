@@ -7,11 +7,12 @@ import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 @Log
@@ -26,23 +27,24 @@ public class IndexConf {
     public static final String INDEX_PATH = PROJECT_PATH + "/.orange/index";
     public static final String DATA_PATH = PROJECT_PATH + "/.orange/data";
     public static final String CONF_PATH = PROJECT_PATH + "/.orange/conf";
-    public static final String INDEX_CONF = CONF_PATH + "/app";
+    public static final String INDEX_CONF = CONF_PATH + "/volume";
     public static final String SUGGEST_CONF = PROJECT_PATH + "/.orange/suggest";
     public static final String IK_CONF = PROJECT_PATH + "/.orange/conf/ik";
 
     private Date lastStatTime;
     private static IndexConf indexConf;
+    private static Map<String, IndexConf> from2indexConf = new HashMap<>();
 
-    private IndexConf() {
-    }
+    private IndexConf() {}
 
-    public synchronized static IndexConf getInstance() {
-        if (indexConf != null) {
-            return indexConf;
+    public static synchronized IndexConf getInstance(String from) {
+        IndexConf conf = from2indexConf.get(from);
+        if (conf != null) {
+            return conf;
         }
         String index = null;
         try {
-            Path path = Paths.get(INDEX_CONF);
+            Path path = Paths.get(INDEX_CONF + from);
             File file = path.toFile();
             if (!file.exists()) {
                 file.getParentFile().mkdirs();
@@ -50,27 +52,29 @@ public class IndexConf {
             }
             index = Files.readString(path);
             if (StringUtil.isNullOrEmpty(index)) {
-                indexConf = new IndexConf().setLastStatTime(new Date());
-                indexConf.save2file();
+                indexConf = new IndexConf().setLastStatTime(new Date(0));
+                indexConf.save2file(from);
+                from2indexConf.put(from, indexConf);
                 return indexConf;
             } else {
-                indexConf= JsonUtil.fromJson(index, IndexConf.class);
-                return indexConf;
+                indexConf = JsonUtil.fromJson(index, IndexConf.class);
+                from2indexConf.put(from, indexConf);
+                return IndexConf.indexConf;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.log(Level.SEVERE, "read from file err", e);
             indexConf = new IndexConf().setLastStatTime(new Date());
-            indexConf.save2file();
+            from2indexConf.put(from, indexConf);
+            indexConf.save2file(from);
             return indexConf;
         }
     }
 
-    public void save2file() {
-
+    public void save2file(String from) {
         try {
             String csq = JsonUtil.toJson(this);
-            Files.writeString(Paths.get(INDEX_CONF), csq);
-        } catch (IOException e) {
+            Files.writeString(Paths.get(INDEX_CONF + from), csq);
+        } catch (Exception e) {
             log.log(Level.SEVERE, "save to file err", e);
         }
     }
