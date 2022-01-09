@@ -17,7 +17,7 @@ public class ProcessTest {
         ProcessHandle.allProcesses().forEach(x -> {
             ProcessHandle.Info info = x.info();
             Optional<String> commandLineOpt = info.commandLine();
-            String orange_core = "lib";
+            String orange_core = "orange_core";
             if (info.command().isPresent()) {
                 String x1 = info.command().get();
                 if (x1.contains(orange_core)) {
@@ -35,7 +35,7 @@ public class ProcessTest {
 
     @Test
     void name() {
-        killByPort(41320);
+        killByPort(3000);
     }
 
     private void killByPort   (int port) {
