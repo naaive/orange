@@ -1,6 +1,6 @@
 package com.github.accessor;
 
-import com.github.conf.IndexConf;
+import com.github.conf.AppConf;
 import com.github.ik.IKAnalyzer;
 import io.netty.channel.DefaultEventLoopGroup;
 import lombok.extern.java.Log;
@@ -47,7 +47,7 @@ public class FileDocSuggester {
                 TimeUnit.SECONDS);
         try {
 
-            FSDirectory directory = FSDirectory.open(Paths.get(IndexConf.SUGGEST_CONF));
+            FSDirectory directory = FSDirectory.open(Paths.get(AppConf.SUGGEST_CONF));
             suggester = new AnalyzingInfixSuggester(directory, new IKAnalyzer(false));
             suggester.build(new FileDocIterator(Collections.emptyList()));
         } catch (IOException e) {

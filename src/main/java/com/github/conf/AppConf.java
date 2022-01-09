@@ -18,28 +18,30 @@ import java.util.logging.Level;
 @Log
 @Data
 @Accessors(chain = true)
-public class IndexConf {
+public class AppConf {
     public static final int PORT = Integer.parseInt(System.getProperty("port", "41320"));
     public static final String PROJECT_PATH = new File(System.getProperty("project.path", "")).getAbsolutePath();
 
     public static final String LIB_PATH = "/lib";
     public static final String FSEVENT_EXE = "fsevent.exe";
     public static final String FSEVENT_PATH = PROJECT_PATH + LIB_PATH + "/" + FSEVENT_EXE;
-    public static final String INDEX_PATH = PROJECT_PATH + "/.orange/index";
-    public static final String DATA_PATH = PROJECT_PATH + "/.orange/data";
-    public static final String CONF_PATH = PROJECT_PATH + "/.orange/conf";
-    public static final String INDEX_CONF = CONF_PATH + "/volume";
-    public static final String SUGGEST_CONF = PROJECT_PATH + "/.orange/suggest";
-    public static final String IK_CONF = PROJECT_PATH + "/.orange/conf/ik";
+    public static final String CACHEDATA = "cachedata";
+    public static final String INDEX_PATH = PROJECT_PATH + "/" + CACHEDATA + "/index";
+    public static final String DATA_PATH = PROJECT_PATH + "/" + CACHEDATA + "/data";
+    public static final String SUGGEST_CONF = PROJECT_PATH + "/" + CACHEDATA + "/suggest";
+    public static final String STAT_PATH = PROJECT_PATH + "/conf/stat";
+    public static final String INDEX_CONF = STAT_PATH + "/volume";
+    public static final String IK_CONF = PROJECT_PATH + "/conf/ik";
 
     private Date lastStatTime;
-    private static IndexConf indexConf;
-    private static Map<String, IndexConf> from2indexConf = new HashMap<>();
+    private static AppConf appConf;
+    private static Map<String, AppConf> from2indexConf = new HashMap<>();
 
-    private IndexConf() {}
+    private AppConf() {}
 
-    public static synchronized IndexConf getInstance(String from) {
-        IndexConf conf = from2indexConf.get(from);
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static synchronized AppConf getInstance(String from) {
+        AppConf conf = from2indexConf.get(from);
         if (conf != null) {
             return conf;
         }
@@ -53,21 +55,21 @@ public class IndexConf {
             }
             index = Files.readString(path);
             if (StringUtil.isNullOrEmpty(index)) {
-                indexConf = new IndexConf().setLastStatTime(new Date(0));
-                indexConf.save2file(from);
-                from2indexConf.put(from, indexConf);
-                return indexConf;
+                appConf = new AppConf().setLastStatTime(new Date(0));
+                appConf.save2file(from);
+                from2indexConf.put(from, appConf);
+                return appConf;
             } else {
-                indexConf = JsonUtil.fromJson(index, IndexConf.class);
-                from2indexConf.put(from, indexConf);
-                return IndexConf.indexConf;
+                appConf = JsonUtil.fromJson(index, AppConf.class);
+                from2indexConf.put(from, appConf);
+                return AppConf.appConf;
             }
         } catch (Exception e) {
             log.log(Level.SEVERE, "read from file err", e);
-            indexConf = new IndexConf().setLastStatTime(new Date());
-            from2indexConf.put(from, indexConf);
-            indexConf.save2file(from);
-            return indexConf;
+            appConf = new AppConf().setLastStatTime(new Date());
+            from2indexConf.put(from, appConf);
+            appConf.save2file(from);
+            return appConf;
         }
     }
 

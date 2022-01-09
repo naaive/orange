@@ -13,8 +13,8 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.conf.IndexConf.DATA_PATH;
-import static com.github.conf.IndexConf.INDEX_PATH;
+import static com.github.conf.AppConf.DATA_PATH;
+import static com.github.conf.AppConf.INDEX_PATH;
 
 class FsStatExecutorTest {
     private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(4);

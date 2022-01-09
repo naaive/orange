@@ -1,6 +1,6 @@
 package com.github.utils;
 
-import com.github.conf.IndexConf;
+import com.github.conf.AppConf;
 import com.google.common.hash.Hashing;
 import lombok.extern.java.Log;
 
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import static com.github.conf.IndexConf.getInstance;
+import static com.github.conf.AppConf.getInstance;
 
 @Log
 public class ProcessUtil {
@@ -22,13 +22,13 @@ public class ProcessUtil {
 
     public static boolean shouldStat(String from) {
 
-        IndexConf indexConf = getInstance(Hashing.sha256()
+        AppConf appConf = getInstance(Hashing.sha256()
                 .hashBytes(from.getBytes(StandardCharsets.UTF_8))
                 .toString());
-        Date lastStatTime = indexConf.getLastStatTime();
+        Date lastStatTime = appConf.getLastStatTime();
         Date now = new Date();
-        indexConf.setLastStatTime(now);
-        indexConf.save2file(Hashing.sha256()
+        appConf.setLastStatTime(now);
+        appConf.save2file(Hashing.sha256()
                 .hashBytes(from.getBytes(StandardCharsets.UTF_8))
                 .toString());
 
@@ -107,14 +107,14 @@ public class ProcessUtil {
             ProcessHandle.Info info = processHandle.info();
             if (info.command().isPresent()) {
                 String name = FileUtil.absPath2name(info.command().get());
-                if (name.contains(IndexConf.FSEVENT_EXE)) {
+                if (name.contains(AppConf.FSEVENT_EXE)) {
                     log.info("close fsevent:" + name);
                     processHandle.destroyForcibly();
                 }
             }
             if (info.commandLine().isPresent()) {
                 String name = FileUtil.absPath2name(info.command().get());
-                if (name.contains(IndexConf.FSEVENT_EXE)) {
+                if (name.contains(AppConf.FSEVENT_EXE)) {
                     log.info("close fsevent:" + name);
                     processHandle.destroyForcibly();
                 }

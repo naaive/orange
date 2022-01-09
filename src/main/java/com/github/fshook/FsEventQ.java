@@ -1,6 +1,6 @@
 package com.github.fshook;
 
-import com.github.conf.IndexConf;
+import com.github.conf.AppConf;
 import com.github.utils.ProcessUtil;
 import lombok.extern.java.Log;
 
@@ -34,7 +34,7 @@ public class FsEventQ {
         ThreadPoolExecutor poolExecutor =
                 new ThreadPoolExecutor(len, len, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(len));
         for (String root : roots) {
-            poolExecutor.submit(() -> newListener(IndexConf.FSEVENT_PATH + " " + root));
+            poolExecutor.submit(() -> newListener(AppConf.FSEVENT_PATH + " " + root));
         }
     }
 

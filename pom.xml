@@ -144,7 +144,6 @@
                         -R:MaxHeapSize=256M
                         -H:ReflectionConfigurationFiles=classes/reflection.json
                         --enable-url-protocols=http
-                        --initialize-at-build-time=com.github.conf.LogConf
                         --allow-incomplete-classpath
                     </buildArgs>
                 </configuration>

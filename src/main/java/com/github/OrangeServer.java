@@ -3,7 +3,6 @@ package com.github;
 import com.github.accessor.DbAccessor;
 import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
-import com.github.conf.LogConf;
 import com.github.executor.AliveExecutor;
 import com.github.executor.FsStatExecutor;
 import com.github.executor.NtrIndexExecutor;
@@ -28,7 +27,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.conf.IndexConf.*;
+import static com.github.conf.AppConf.*;
 
 @Log
 public class OrangeServer {
@@ -39,15 +38,9 @@ public class OrangeServer {
     private final String WINDOWS_PATH = "C:\\Windows";
     private final FileDocSuggester fileDocSuggester = new FileDocSuggester(executors);
 
-
-    static {
-        LogConf.initialize();
-
-    }
-
     public static void main(String[] args) {
 
-                System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
+        System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
         ProcessUtil.cleanOrangeCore();
         if (OsUtil.isWindows()) {
             ProcessUtil.winKillByPort(PORT);

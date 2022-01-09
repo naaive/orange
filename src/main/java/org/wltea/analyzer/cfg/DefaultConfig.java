@@ -25,7 +25,7 @@
  */
 package org.wltea.analyzer.cfg;
 
-import com.github.conf.IndexConf;
+import com.github.conf.AppConf;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,8 +44,8 @@ public class DefaultConfig implements Configuration {
     /*
      * 分词器默认字典路径
      */
-    private static final String PATH_DIC_MAIN = IndexConf.IK_CONF + "/main2012.dic";
-    private static final String PATH_DIC_QUANTIFIER = IndexConf.IK_CONF + "/quantifier.dic";
+    private static final String PATH_DIC_MAIN = AppConf.IK_CONF + "/main2012.dic";
+    private static final String PATH_DIC_QUANTIFIER = AppConf.IK_CONF + "/quantifier.dic";
 
     /*
      * 分词器配置文件路径

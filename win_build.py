@@ -11,7 +11,7 @@ def build_orange_core():
     os.system("mvn package")
     binPath = "./dist"
     shutil.copyfile("./target/orange_core.exe", binPath + "/lib/orange_core.exe")
-    shutil.copytree("./src/main/resources/ik", binPath + "/.orange/conf/ik")
+    shutil.copytree("./src/main/resources/ik", binPath + "/conf/ik")
 
 
 def clear_dist():
@@ -20,6 +20,7 @@ def clear_dist():
     os.mkdir(binPath)
     os.mkdir(binPath + "/lib")
     os.mkdir(binPath + "/log")
+    os.mkdir(binPath + "/conf")
 
 
 def build_orange_ui():
