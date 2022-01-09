@@ -19,6 +19,7 @@ def clear_dist():
         shutil.rmtree(binPath, True)
     os.mkdir(binPath)
     os.mkdir(binPath + "/lib")
+    os.mkdir(binPath + "/log")
 
 
 def build_orange_ui():
@@ -43,7 +44,10 @@ def build_fsevent(cwd):
 
 if __name__ == '__main__':
     cwd = os.getcwd()
-    clear_dist()
+    try:
+        clear_dist()
+    except:
+        pass
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
     build_orange_core()

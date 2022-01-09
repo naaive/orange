@@ -25,50 +25,55 @@ public class ProcessUtil {
         indexConf.setLastStatTime(now);
         indexConf.save2file();
 
-        return now.getTime()-lastStatTime.getTime()<1000*60*60*12;
+        return now.getTime() - lastStatTime.getTime() < 1000 * 60 * 60 * 12;
     }
+
     public static void winKillByPort(int port) {
-        try{
+        try {
             Runtime rt = Runtime.getRuntime();
             Process proc = rt.exec("cmd /c netstat -ano | findstr " + port);
 
-            BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(proc.getInputStream()));
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String s;
             if ((s = stdInput.readLine()) != null) {
-                int index=s.lastIndexOf(" ");
-                String sc=s.substring(index);
-                rt.exec("cmd /c Taskkill /PID" +sc+" /T /F");
+                int index = s.lastIndexOf(" ");
+                String sc = s.substring(index);
+                rt.exec("cmd /c Taskkill /PID" + sc + " /T /F");
                 log.info("killed pid:" + sc);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             log.log(Level.SEVERE, "kill err", e);
         }
     }
 
-    public static boolean isAlive() {
-        int cnt = 0;
+    public static void cleanOrangeCore() {
+        ProcessHandle current = ProcessHandle.current();
         List<ProcessHandle> handles = ProcessHandle.allProcesses().collect(Collectors.toList());
         for (ProcessHandle handle : handles) {
             ProcessHandle.Info info = handle.info();
             if (info.command().isPresent()) {
                 String s = info.command().get();
-                if (s.contains(ORANGE_CORE)) {
-                    cnt++;
+                if (s.contains(ORANGE_CORE) && !current.equals(handle)) {
+                    log.info("close orange_core:" + s);
+                    handle.destroyForcibly();
                 }
             }
             if (info.commandLine().isPresent()) {
                 String s = info.commandLine().get();
-                if (s.contains(ORANGE_CORE)) {
-                    cnt++;
-
+                if (s.contains(ORANGE_CORE) && !current.equals(handle)) {
+                    log.info("close orange_core:" + s);
+                    handle.destroyForcibly();
                 }
             }
         }
-        return cnt > 1;
     }
 
     public static void clean() {
+        cleanFsevent();
+        cleanOrangeCore();
+    }
+
+    public static void cleanFsevent() {
 
         ProcessHandle.allProcesses().forEach(processHandle -> {
             ProcessHandle.Info info = processHandle.info();

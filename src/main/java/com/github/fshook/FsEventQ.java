@@ -29,7 +29,7 @@ public class FsEventQ {
             throw new IllegalArgumentException();
         }
 
-        ProcessUtil.clean();
+        ProcessUtil.cleanFsevent();
 
         ThreadPoolExecutor poolExecutor =
                 new ThreadPoolExecutor(len, len, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(len));

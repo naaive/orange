@@ -25,7 +25,7 @@ public class JsonUtil {
         try {
             return gson.writeValueAsString(src);
         } catch (JsonProcessingException e) {
-            log.log(Level.SEVERE, "open folder err", e);
+            log.log(Level.SEVERE, "to json err", e);
             throw new RuntimeException("to json err");
         }
     }

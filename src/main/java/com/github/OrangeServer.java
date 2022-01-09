@@ -41,17 +41,15 @@ public class OrangeServer {
 
     static {
         LogConf.initialize();
+
     }
 
     public static void main(String[] args) {
 
                 System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
-        if (ProcessUtil.isAlive()) {
-            log.info("already running");
-            return;
-        }
+        ProcessUtil.cleanOrangeCore();
         if (OsUtil.isWindows()) {
-            ProcessUtil.winKillByPort(41320);
+            ProcessUtil.winKillByPort(PORT);
         }
 
         new OrangeServer().start();

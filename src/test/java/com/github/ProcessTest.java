@@ -17,7 +17,7 @@ public class ProcessTest {
         ProcessHandle.allProcesses().forEach(x -> {
             ProcessHandle.Info info = x.info();
             Optional<String> commandLineOpt = info.commandLine();
-            String orange_core = "orange_core";
+            String orange_core = "lib";
             if (info.command().isPresent()) {
                 String x1 = info.command().get();
                 if (x1.contains(orange_core)) {
@@ -38,7 +38,7 @@ public class ProcessTest {
         killByPort(41320);
     }
 
-    private void killByPort(int port) {
+    private void killByPort   (int port) {
         try{
             Runtime rt = Runtime.getRuntime();
             Process proc = rt.exec("cmd /c netstat -ano | findstr " + port);

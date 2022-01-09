@@ -78,7 +78,7 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
                     file = file.getParentFile();
                 } else {
                     try {
-                        Desktop.getDesktop().open(file);
+                        Runtime.getRuntime().exec("explorer "+file);
                     } catch (IOException e) {
                         log.log(Level.SEVERE, "open folder err", e);
                     }
