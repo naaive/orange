@@ -17,16 +17,17 @@ public class ProcessTest {
         ProcessHandle.allProcesses().forEach(x -> {
             ProcessHandle.Info info = x.info();
             Optional<String> commandLineOpt = info.commandLine();
+            String orange_core = "orange_core";
             if (info.command().isPresent()) {
                 String x1 = info.command().get();
-                if (x1.contains("fsevent.exe")) {
+                if (x1.contains(orange_core)) {
                     x.destroyForcibly();
                     System.out.println(x1);
                 }
             }
             if (commandLineOpt.isPresent()) {
                 String s = commandLineOpt.get();
-                boolean main = s.contains("fsevent.exe");
+                boolean main = s.contains(orange_core);
                 System.out.println(s);
             }
         });

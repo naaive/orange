@@ -45,6 +45,8 @@ public class NtrIndexExecutor implements Runnable {
         this.fileDocSuggester = fileDocSuggester;
         this.executors = executors;
         this.excludePaths = excludePaths;
+
+        initialize();
     }
 
     public void initialize() {

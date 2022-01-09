@@ -21,7 +21,8 @@ public class IndexConf {
     public static final int PORT = Integer.parseInt(System.getProperty("port", "41320"));
     public static final String PROJECT_PATH = System.getProperty("project.path", "..");
     public static final String LIB_PATH = "/lib";
-    public static final String FSEVENT_PATH = PROJECT_PATH + LIB_PATH + "/fsevent.exe";
+    public static final String FSEVENT_EXE = "fsevent.exe";
+    public static final String FSEVENT_PATH = PROJECT_PATH + LIB_PATH + "/" + FSEVENT_EXE;
     public static final String INDEX_PATH = PROJECT_PATH + "/.orange/index";
     public static final String DATA_PATH = PROJECT_PATH + "/.orange/data";
     public static final String CONF_PATH = PROJECT_PATH + "/.orange/conf";
@@ -54,7 +55,6 @@ public class IndexConf {
 
         try {
             String csq = JsonUtil.toJson(this);
-            log.info("json:" + csq);
             Files.writeString(Paths.get(INDEX_CONF), csq);
         } catch (IOException e) {
             log.log(Level.SEVERE, "save to file err", e);

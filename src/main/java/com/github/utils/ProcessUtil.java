@@ -39,6 +39,7 @@ public class ProcessUtil {
                 int index=s.lastIndexOf(" ");
                 String sc=s.substring(index);
                 rt.exec("cmd /c Taskkill /PID" +sc+" /T /F");
+                log.info("killed pid:" + sc);
             }
         }catch(Exception e){
             log.log(Level.SEVERE, "kill err", e);
@@ -73,13 +74,15 @@ public class ProcessUtil {
             ProcessHandle.Info info = processHandle.info();
             if (info.command().isPresent()) {
                 String s = info.command().get();
-                if (s.contains(IndexConf.FSEVENT_PATH)) {
+                if (s.contains(IndexConf.FSEVENT_EXE)) {
+                    log.info("close fsevent:" + s);
                     processHandle.destroyForcibly();
                 }
             }
             if (info.commandLine().isPresent()) {
                 String s = info.commandLine().get();
-                if (s.contains(IndexConf.FSEVENT_PATH)) {
+                if (s.contains(IndexConf.FSEVENT_EXE)) {
+                    log.info("close fsevent:" + s);
                     processHandle.destroyForcibly();
                 }
             }

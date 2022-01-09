@@ -5,16 +5,17 @@ windows_subsystem = "windows"
 
 use std::process::Command;
 use std::{process, thread};
-use tauri::{Manager, SystemTray, SystemTrayEvent};
-use tauri::{CustomMenuItem, SystemTrayMenu, SystemTrayMenuItem};
+use tauri::{ SystemTray, SystemTrayEvent};
+use tauri::{CustomMenuItem, SystemTrayMenu};
 use tauri::api::path::BaseDirectory::Runtime;
 
 fn main() {
 
     thread::spawn(|| {
-        Command::new("orange_core.exe")
+        Command::new("lib/orange_core.exe")
             .output()
             .expect("failed to execute process");
+        println!("hi")
     });
 
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
@@ -30,7 +31,7 @@ fn main() {
 
                 match id.as_str() {
                     "quit" => {
-                        process::exit(0x0100);
+                        process::exit(0);
                     }
                     _ => {}
                 }
