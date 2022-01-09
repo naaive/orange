@@ -136,7 +136,7 @@
                 <configuration>
 
                     <skip>false</skip>
-                    <imageName>orange_core</imageName>
+                    <imageName>orange_sidecar</imageName>
                     <mainClass>com.github.OrangeServer</mainClass>
                     <buildArgs>
                         --no-fallback

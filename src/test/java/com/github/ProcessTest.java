@@ -49,12 +49,12 @@ public class ProcessTest {
         ProcessHandle.allProcesses().forEach(x -> {
             ProcessHandle.Info info = x.info();
             Optional<String> commandLineOpt = info.commandLine();
-            String orange_core = "orange_core";
-//            String orange_core = "fsevent";
+            String orange_core = "orange";
+//            String orange_core = "lib";
             if (info.command().isPresent()) {
                 String x1 = info.command().get();
                 if (x1.contains(orange_core)) {
-                    x.destroyForcibly();
+//                    x.destroyForcibly();
                     System.out.println(x1);
                 }
             }

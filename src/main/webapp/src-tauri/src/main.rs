@@ -3,7 +3,7 @@ all(not(debug_assertions), target_os = "windows"),
 windows_subsystem = "windows"
 )]
 
-use std::process;
+use std::{process, thread};
 use std::fs::{File, OpenOptions};
 use std::os::windows::process::CommandExt;
 use std::path::Path;
@@ -17,17 +17,22 @@ static LOG_NAME: &str = "log/orange.log";
 
 
 fn main() {
-    const CREATE_NO_WINDOW: u32 = 0x08000000;
-    // const DETACHED_PROCESS: u32 = 0x00000008;
 
-    let file_out = Stdio::from(open_file());
+    thread::spawn(|| {
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+        // const DETACHED_PROCESS: u32 = 0x00000008;
+        let file_out = Stdio::from(open_file());
+        Command::new("lib/orange_sidecar.exe ")
+            .arg("-Dproject.path=.")
+            .creation_flags(CREATE_NO_WINDOW)
+            // .stderr(file_out)
+            .stderr(file_out)
+            .output()
+            .expect("failed to execute process");
 
-    Command::new("lib/orange_core.exe")
-        .creation_flags(CREATE_NO_WINDOW)
-        // .stderr(file_out)
-        .stderr(file_out)
-        .spawn()
-        .expect("failed to execute process");
+        println!("hi")
+    });
+
 
     let quit = CustomMenuItem::new("quit".to_string(), "Quit");
     let tray_menu = SystemTrayMenu::new()

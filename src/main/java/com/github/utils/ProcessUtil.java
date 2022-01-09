@@ -17,7 +17,7 @@ import static com.github.conf.AppConf.getInstance;
 @Log
 public class ProcessUtil {
 
-    private static final String ORANGE_CORE = "orange_core";
+    private static final String ORANGE_SIDECAR = "orange_sidecar";
     private static final String ORANGE_UI = "orange";
 
     public static boolean shouldStat(String from) {
@@ -81,15 +81,15 @@ public class ProcessUtil {
             ProcessHandle.Info info = handle.info();
             if (info.command().isPresent()) {
                 String name = FileUtil.absPath2name(info.command().get());
-                if (name.contains(ORANGE_CORE) && !current.equals(handle)) {
-                    log.info("close orange_core:" + name);
+                if (name.contains(ORANGE_SIDECAR) && !current.equals(handle)) {
+                    log.info("close orange_sidecar:" + name);
                     handle.destroyForcibly();
                 }
             }
             if (info.commandLine().isPresent()) {
                 String name = FileUtil.absPath2name(info.command().get());
-                if (name.contains(ORANGE_CORE) && !current.equals(handle)) {
-                    log.info("close orange_core:" + name);
+                if (name.contains(ORANGE_SIDECAR) && !current.equals(handle)) {
+                    log.info("close orange_sidecar:" + name);
                     handle.destroyForcibly();
                 }
             }

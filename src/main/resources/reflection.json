@@ -27,7 +27,7 @@
     "allPublicFields": true
   },
   {
-    "name": "com.github.conf.IndexConf",
+    "name": "com.github.conf.AppConf",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,

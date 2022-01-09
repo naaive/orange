@@ -48,7 +48,8 @@ public class FileDocSuggester {
         try {
 
             FSDirectory directory = FSDirectory.open(Paths.get(AppConf.SUGGEST_CONF));
-            suggester = new AnalyzingInfixSuggester(directory, new IKAnalyzer(false));
+            suggester = new AnalyzingInfixSuggester(
+                    directory, new IKAnalyzer(false), new IKAnalyzer(true), 1, true, false, false);
             suggester.build(new FileDocIterator(Collections.emptyList()));
         } catch (IOException e) {
             log.log(Level.SEVERE, "FileDocSuggester initialize err", e);

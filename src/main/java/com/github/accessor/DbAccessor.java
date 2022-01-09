@@ -31,6 +31,7 @@ public class DbAccessor {
             db = factory.open(new File(dataPath), options);
         } catch (IOException e) {
             log.log(Level.SEVERE, "DbAccessor initialize err", e);
+            Runtime.getRuntime().exit(-1);
         }
     }
 

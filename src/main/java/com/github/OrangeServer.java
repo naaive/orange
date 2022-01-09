@@ -39,8 +39,6 @@ public class OrangeServer {
     private final FileDocSuggester fileDocSuggester = new FileDocSuggester(executors);
 
     public static void main(String[] args) {
-
-        System.setProperty("project.path", "C:\\Users\\Administrator\\IdeaProjects\\github\\orange\\dist");
         ProcessUtil.cleanOrangeCore();
         if (OsUtil.isWindows()) {
             ProcessUtil.winKillByPort(PORT);
