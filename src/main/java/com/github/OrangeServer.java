@@ -36,7 +36,7 @@ public class OrangeServer {
     private DbAccessor dbAccessor;
     private IndexAccessor indexAccessor;
     private final String WINDOWS_PATH = "C:\\Windows";
-    private final FileDocSuggester fileDocSuggester = new FileDocSuggester();
+    private final FileDocSuggester fileDocSuggester = new FileDocSuggester(executors);
 
 
     static {

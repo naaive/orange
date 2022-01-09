@@ -27,7 +27,7 @@ class FsStatExecutorTest {
                 x.getAbsolutePath(),
                 new String[]{"C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"},
                 Stream.of("node_modules").collect(Collectors.toSet()), dbAccessor,
-                indexAccessor, new FileDocSuggester(), executors)).forEach(x -> {
+                indexAccessor, new FileDocSuggester(executors), executors)).forEach(x -> {
 
             executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
         });

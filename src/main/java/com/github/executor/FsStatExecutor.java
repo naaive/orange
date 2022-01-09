@@ -64,7 +64,6 @@ public class FsStatExecutor implements Runnable {
         executors.scheduleAtFixedRate(
                 () -> {
                     log.info(String.format("commit %s file(s) to index", addCnt));
-
                     addCnt = 0;
                     indexAccessor.commit();
                 },

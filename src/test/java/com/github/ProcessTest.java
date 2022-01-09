@@ -3,12 +3,44 @@ package com.github;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ProcessTest {
+
+    public static String getProcessOutput(String java) throws IOException, InterruptedException
+    {
+        ProcessBuilder processBuilder = new ProcessBuilder(java);
+
+        processBuilder.redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+        StringBuilder processOutput = new StringBuilder();
+
+        try (BufferedReader processOutputReader = new BufferedReader(
+                new InputStreamReader(process.getInputStream()));)
+        {
+            String readLine;
+
+            while ((readLine = processOutputReader.readLine()) != null)
+            {
+                processOutput.append(readLine + System.lineSeparator());
+            }
+
+            process.waitFor();
+        }
+
+        return processOutput.toString().trim();
+    }
+    @Test
+    void cpu() throws IOException, InterruptedException {
+
+//        BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+//        errorReader.lines().forEach(System.out::println);
+    }
 
     public static void main(String[] args) {
         //        ProcessHandle.allProcesses()

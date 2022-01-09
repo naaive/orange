@@ -10,16 +10,16 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import static com.github.conf.IndexConf.readFromFile;
+import static com.github.conf.IndexConf.getInstance;
 
 @Log
 public class ProcessUtil {
 
     private static final String ORANGE_CORE = "orange_core";
 
-    public static boolean shouldStat() {
+    public static boolean  shouldStat() {
 
-        IndexConf indexConf = readFromFile();
+        IndexConf indexConf = getInstance();
         Date lastStatTime = indexConf.getLastStatTime();
         Date now = new Date();
         indexConf.setLastStatTime(now);

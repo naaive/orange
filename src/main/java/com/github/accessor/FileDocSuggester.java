@@ -2,6 +2,7 @@ package com.github.accessor;
 
 import com.github.conf.IndexConf;
 import com.github.ik.IKAnalyzer;
+import io.netty.channel.DefaultEventLoopGroup;
 import lombok.extern.java.Log;
 import org.apache.lucene.search.suggest.analyzing.AnalyzingInfixSuggester;
 import org.apache.lucene.store.FSDirectory;
@@ -12,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -21,14 +23,31 @@ public class FileDocSuggester {
     private AnalyzingInfixSuggester suggester;
     private static final int COMMIT_THRESHOLD = 10000;
     private int addCnt = 0;
+    private final DefaultEventLoopGroup executors;
 
-    public FileDocSuggester() {
+    public FileDocSuggester(DefaultEventLoopGroup executors) {
+        this.executors = executors;
 
         initialize();
     }
 
     private void initialize() {
+        executors.scheduleAtFixedRate(
+                () -> {
+                    log.info(String.format("commit %s file(s) to index", addCnt));
+
+                    addCnt = 0;
+                    try {
+                        suggester.refresh();
+                    } catch (IOException e) {
+                        log.log(Level.SEVERE, "refresh suggester err", e);
+                    }
+                },
+                5,
+                5,
+                TimeUnit.SECONDS);
         try {
+
             FSDirectory directory = FSDirectory.open(Paths.get(IndexConf.SUGGEST_CONF));
             suggester = new AnalyzingInfixSuggester(directory, new IKAnalyzer(false));
             suggester.build(new FileDocIterator(Collections.emptyList()));

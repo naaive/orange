@@ -31,8 +31,15 @@ public class IndexConf {
     public static final String IK_CONF = PROJECT_PATH + "/.orange/conf/ik";
 
     private Date lastStatTime;
+    private static IndexConf indexConf;
 
-    public static IndexConf readFromFile() {
+    private IndexConf() {
+    }
+
+    public synchronized static IndexConf getInstance() {
+        if (indexConf != null) {
+            return indexConf;
+        }
         String index = null;
         try {
             Path path = Paths.get(INDEX_CONF);
@@ -43,12 +50,19 @@ public class IndexConf {
             }
             index = Files.readString(path);
             if (StringUtil.isNullOrEmpty(index)) {
-                return new IndexConf().setLastStatTime(new Date());
+                indexConf = new IndexConf().setLastStatTime(new Date());
+                indexConf.save2file();
+                return indexConf;
+            } else {
+                indexConf= JsonUtil.fromJson(index, IndexConf.class);
+                return indexConf;
             }
         } catch (IOException e) {
             log.log(Level.SEVERE, "read from file err", e);
+            indexConf = new IndexConf().setLastStatTime(new Date());
+            indexConf.save2file();
+            return indexConf;
         }
-        return JsonUtil.fromJson(index, IndexConf.class);
     }
 
     public void save2file() {
