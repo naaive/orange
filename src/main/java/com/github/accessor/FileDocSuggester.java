@@ -34,8 +34,7 @@ public class FileDocSuggester {
     private void initialize() {
         executors.scheduleAtFixedRate(
                 () -> {
-                    log.info(String.format("commit %s file(s) to index", addCnt));
-
+                    log.info(String.format("refresh %s keyword(s) to index", addCnt));
                     addCnt = 0;
                     try {
                         suggester.refresh();

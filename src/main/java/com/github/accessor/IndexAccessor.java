@@ -28,7 +28,7 @@ public class IndexAccessor {
     private final ReentrantLock lock = new ReentrantLock();
     private volatile IndexSearcher indexSearcher;
     private volatile DirectoryReader reader;
-    private IndexWriter indexWriter;
+    private volatile IndexWriter indexWriter;
     private final QueryParser absPathParser = new QueryParser(FileDoc.ABS_PATH_INDEXED, new IKAnalyzer(true));
     private final QueryParser nameParser = new QueryParser(FileDoc.NAME, new IKAnalyzer(true));
 
@@ -54,8 +54,10 @@ public class IndexAccessor {
                             lock.lock();
                             try {
                                 reader.close();
+                                indexWriter.close();
                                 reader = DirectoryReader.open(directory);
                                 indexSearcher = new IndexSearcher(reader);
+                                indexWriter = new IndexWriter(directory, new IndexWriterConfig(new IKAnalyzer(false)));
                             } finally {
                                 lock.unlock();
                             }
@@ -71,19 +73,19 @@ public class IndexAccessor {
         }
     }
 
-
     public synchronized void add(FileDoc fileDoc) {
-
+        lock.lock();
         try {
-            //todo remove
+            // todo remove
             Optional<FileMsg.File> file = dbAccessor.get(fileDoc.getAbsPath());
             if (file.isPresent()) {
                 return;
             }
             indexWriter.addDocument(fileDoc.toDocument());
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.log(Level.SEVERE, "add err", e);
-
+        }finally{
+            lock.unlock();
         }
     }
 
@@ -102,12 +104,8 @@ public class IndexAccessor {
             Query absq = absPathParser.parse(decode);
             Query nameq = nameParser.parse(decode);
             BooleanQuery query = new BooleanQuery.Builder()
-                    .add(
-                            new BoostQuery(absq, 1),
-                            BooleanClause.Occur.SHOULD)
-                    .add(
-                            new BoostQuery(nameq, 4),
-                            BooleanClause.Occur.SHOULD)
+                    .add(new BoostQuery(absq, 1), BooleanClause.Occur.SHOULD)
+                    .add(new BoostQuery(nameq, 4), BooleanClause.Occur.SHOULD)
                     .build();
             TopDocs search = indexSearcher.search(query, 100);
             ScoreDoc[] docs = search.scoreDocs;
@@ -121,10 +119,13 @@ public class IndexAccessor {
     }
 
     public synchronized void del(String path) {
+        lock.lock();
         try {
             indexWriter.deleteDocuments(new Term(FileDoc.ABS_PATH, path));
         } catch (IOException e) {
             log.log(Level.SEVERE, "del  err", e);
+        }finally{
+            lock.unlock();
         }
     }
 

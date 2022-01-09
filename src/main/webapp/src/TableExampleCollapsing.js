@@ -19,13 +19,13 @@ function TableExampleCollapsing({items}) {
         fetch(`http://localhost:41320/ofd?kw=${encodeURI(data)}`);
     }
 
-    return <Table selectable basic='very' size='small'>
+    return <Table unstackable selectable basic='very' size='small'>
 
         <Table.Header>
             <Table.Row>
-                <Table.HeaderCell>Name</Table.HeaderCell>
+                <Table.HeaderCell  >Name</Table.HeaderCell>
                 <Table.HeaderCell>Size</Table.HeaderCell>
-                <Table.HeaderCell>Last Modified</Table.HeaderCell>
+                <Table.HeaderCell >Last Modified</Table.HeaderCell>
                 <Table.HeaderCell>Path</Table.HeaderCell>
             </Table.Row>
         </Table.Header>

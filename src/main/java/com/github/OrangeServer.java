@@ -32,7 +32,7 @@ import static com.github.conf.IndexConf.*;
 @Log
 public class OrangeServer {
 
-    private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(5);
+    private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(10);
     private DbAccessor dbAccessor;
     private IndexAccessor indexAccessor;
     private final String WINDOWS_PATH = "C:\\Windows";

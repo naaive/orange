@@ -6,7 +6,9 @@
     background: white;
 
 }
-
+.ui.basic.table td{
+    white-space: nowrap;
+}
 .search {
     z-index: 100;
     position: -webkit-sticky;
