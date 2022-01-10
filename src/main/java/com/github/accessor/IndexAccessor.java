@@ -84,7 +84,7 @@ public class IndexAccessor {
             indexWriter.addDocument(fileDoc.toDocument());
         } catch (Exception e) {
             log.log(Level.SEVERE, "add err", e);
-        }finally{
+        } finally {
             lock.unlock();
         }
     }
@@ -101,6 +101,11 @@ public class IndexAccessor {
         lock.lock();
         try {
             String decode = URLDecoder.decode(kw, StandardCharsets.UTF_8);
+            if (Objects.equals(decode, "*") || Objects.equals(decode, "")) {
+                TopDocs search = indexSearcher.search(nameParser.parse("*:*"), 100);
+                ScoreDoc[] docs = search.scoreDocs;
+                return Arrays.stream(docs).map(this::buildFileView).collect(Collectors.toList());
+            }
             Query absq = absPathParser.parse(decode);
             Query nameq = nameParser.parse(decode);
             BooleanQuery query = new BooleanQuery.Builder()
@@ -124,7 +129,7 @@ public class IndexAccessor {
             indexWriter.deleteDocuments(new Term(FileDoc.ABS_PATH, path));
         } catch (IOException e) {
             log.log(Level.SEVERE, "del  err", e);
-        }finally{
+        } finally {
             lock.unlock();
         }
     }

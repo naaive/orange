@@ -13,7 +13,7 @@ function App() {
     const [kw, setKw] = useState('');
 
     useEffect(() => {
-        doTxtChange('log')
+        doTxtChange('*')
     }, []);
 
     function top6(json) {

@@ -15,7 +15,6 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
 import lombok.extern.java.Log;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -30,6 +29,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+
 @Log
 public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static final String SEARCH_PATH = "/q";
@@ -78,7 +78,7 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
                     file = file.getParentFile();
                 } else {
                     try {
-                        Runtime.getRuntime().exec("explorer "+file);
+                        Runtime.getRuntime().exec("explorer " + file);
                     } catch (IOException e) {
                         log.log(Level.SEVERE, "open folder err", e);
                     }
@@ -123,7 +123,7 @@ public class OrangeHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
     private void doSearch(ChannelHandlerContext ctx, FullHttpRequest msg, URL url) {
         String query = url.getQuery();
         String[] split = query.split("=");
-        String keyword = split[1];
+        String keyword = split.length == 2 ? split[1] : "";
         List<FileView> docs = indexAccessor.search(keyword);
         doResponse(ctx, msg, JsonUtil.toJson(docs));
     }
