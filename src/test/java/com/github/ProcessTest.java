@@ -49,13 +49,15 @@ public class ProcessTest {
         ProcessHandle.allProcesses().forEach(x -> {
             ProcessHandle.Info info = x.info();
             Optional<String> commandLineOpt = info.commandLine();
-            String orange_core = "orange";
+            String orange_core = "lib";
 //            String orange_core = "lib";
             if (info.command().isPresent()) {
+
                 String x1 = info.command().get();
                 if (x1.contains(orange_core)) {
+                    System.out.println(info);
+
 //                    x.destroyForcibly();
-                    System.out.println(x1);
                 }
             }
             if (commandLineOpt.isPresent()) {

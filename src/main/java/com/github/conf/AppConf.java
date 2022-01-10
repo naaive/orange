@@ -20,7 +20,7 @@ import java.util.logging.Level;
 @Accessors(chain = true)
 public class AppConf {
     public static final int PORT = Integer.parseInt(System.getProperty("port", "41320"));
-    public static final String PROJECT_PATH = System.getProperty("project.path", "");
+    public static final String PROJECT_PATH = System.getProperty("project.path", ".");
 //    static {
 //        PROJECT_PATH=new File(System.getProperty("project.path", "")).getParentFile().getAbsolutePath();
 //    }
