@@ -13,7 +13,7 @@ function bytesToSize(bytes) {
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
 
-function TableExampleCollapsing({items}) {
+function TableExampleCollapsing({items, kw}) {
 
     function handleClick(data) {
         fetch(`http://localhost:41320/ofd?kw=${encodeURI(data)}`);
@@ -23,9 +23,9 @@ function TableExampleCollapsing({items}) {
 
         <Table.Header>
             <Table.Row>
-                <Table.HeaderCell  >Name</Table.HeaderCell>
+                <Table.HeaderCell>Name</Table.HeaderCell>
                 <Table.HeaderCell>Size</Table.HeaderCell>
-                <Table.HeaderCell >Last Modified</Table.HeaderCell>
+                <Table.HeaderCell>Last Modified</Table.HeaderCell>
                 <Table.HeaderCell>Path</Table.HeaderCell>
             </Table.Row>
         </Table.Header>

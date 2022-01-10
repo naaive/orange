@@ -21,6 +21,7 @@ function App() {
     }
 
     async function doTxtChange(v) {
+        setKw(v);
         let resp = await fetch(`http://localhost:41320/q?kw=${encodeURI(v)}`);
         let json = await resp.json();
 
@@ -28,22 +29,7 @@ function App() {
         setSuggestions(top6(json));
     }
 
-    let debouncedTxtChange = useCallback(_.debounce(doTxtChange, 300), []);
 
-    function onTextChange(v) {
-        setKw(v);
-        console.log(v)
-        debouncedTxtChange(v);
-    }
-
-
-    async function handleClick(toggleMenu) {
-        toggleMenu();
-        let resp = await fetch(`http://localhost:41320/q?kw=${encodeURI(kw)}`);
-        let json = await resp.json();
-        setItems(json);
-        setSuggestions(top6(json));
-    }
 
 
     return (
@@ -52,7 +38,7 @@ function App() {
                 <SearchExampleStandard setItems={setItems} doTxtChange={doTxtChange}/>
             </div>
             <div className="oitems">
-                <TableExampleCollapsing items={items}/>
+                <TableExampleCollapsing items={items} kw={kw}/>
             </div>
         </div>
     );
