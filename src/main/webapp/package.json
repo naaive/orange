@@ -27,7 +27,8 @@
     "build-js": "react-scripts build",
     "build-binary": "tauri build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "icon": "tauri icon --icon"
   },
   "eslintConfig": {
     "extends": [
