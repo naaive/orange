@@ -6,7 +6,7 @@ import com.github.accessor.FileDoc;
 import com.github.accessor.FileDocSuggester;
 import com.github.accessor.IndexAccessor;
 import com.github.fshook.Cmd;
-import com.github.fshook.FsEventQ;
+import com.github.fshook.FsEventQ4notify;
 import com.github.fshook.FsLog;
 import com.github.utils.FileUtil;
 import io.netty.channel.DefaultEventLoopGroup;
@@ -65,7 +65,7 @@ public class NtrIndexExecutor implements Runnable {
 
     @Override
     public void run() {
-        FsEventQ q = new FsEventQ(
+        FsEventQ4notify q = new FsEventQ4notify(
                 Arrays.stream(File.listRoots()).map(File::getAbsolutePath).toArray(String[]::new));
 
         //noinspection InfiniteLoopStatement
@@ -78,7 +78,7 @@ public class NtrIndexExecutor implements Runnable {
         }
     }
 
-    private void doWork(FsEventQ q) {
+    private void doWork(FsEventQ4notify q) {
         List<FsLog> fsLogs = q.poll(24).stream()
                 .filter(x -> !x.getPath().contains("$RECYCLE.BIN"))
                 .collect(Collectors.toList());

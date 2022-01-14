@@ -18,7 +18,7 @@ import static com.github.conf.AppConf.getInstance;
 public class ProcessUtil {
 
     private static final String ORANGE_SIDECAR = "orange_sidecar";
-    private static final String ORANGE_UI = "orange";
+    private static final String ORANGE_UI = "Orange";
 
     public static boolean shouldStat(String from) {
 

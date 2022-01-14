@@ -68,10 +68,10 @@ def build_fsevent(cwd):
 
 if __name__ == '__main__':
     cwd = os.getcwd()
-    # clear_dist()
+    clear_dist()
 
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    # build_orange_sidecar()
-    # build_fsevent(cwd)
+    build_orange_sidecar()
+    build_fsevent(cwd)
     build_orange_ui(cwd)

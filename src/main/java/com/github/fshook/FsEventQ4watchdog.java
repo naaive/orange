@@ -19,11 +19,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @Log
-public class FsEventQ {
+public class FsEventQ4watchdog {
 
     private final ArrayBlockingQueue<FsLog> fsLogs = new ArrayBlockingQueue<>(1024);
 
-    public FsEventQ(String... roots) {
+    public FsEventQ4watchdog(String... roots) {
         int len = roots.length;
         if (len == 0) {
             throw new IllegalArgumentException();
