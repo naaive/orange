@@ -9,6 +9,10 @@ import java.util.logging.Level;
 public class AliveExecutor implements Runnable {
     @Override
     public void run() {
+        boolean debug = Boolean.parseBoolean(System.getProperty("debug"));
+        if (debug) {
+            return;
+        }
         if (ProcessUtil.isAlive()) {
         } else {
             log.log(Level.SEVERE,"ui process dead, exit...");

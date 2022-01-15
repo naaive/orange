@@ -4,7 +4,9 @@
 
 # Log file
 *.log
-
+conf
+cachedata
+.idea
 # BlueJ files
 *.ctxt
 

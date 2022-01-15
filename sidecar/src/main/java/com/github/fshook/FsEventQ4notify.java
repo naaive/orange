@@ -9,10 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +19,7 @@ import java.util.logging.Level;
 public class FsEventQ4notify {
 
     private final ArrayBlockingQueue<FsLog> fsLogs = new ArrayBlockingQueue<>(1024);
+    public final ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(1));;
 
     public FsEventQ4notify(String... roots) {
         int len = roots.length;
@@ -30,12 +28,7 @@ public class FsEventQ4notify {
         }
 
         ProcessUtil.cleanFsevent();
-
-        ThreadPoolExecutor poolExecutor =
-                new ThreadPoolExecutor(len, len, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(len));
-        for (String root : roots) {
-            poolExecutor.submit(() -> newListener(AppConf.FSEVENT_PATH + " " + root));
-        }
+        poolExecutor.submit(() -> newListener(AppConf.FSEVENT_PATH + " " + String.join(" ", roots)));
     }
 
     public List<FsLog> poll(int size) {
