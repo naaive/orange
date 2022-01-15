@@ -13,7 +13,6 @@ fn main() {
             do_watch(&path);
         }).join().unwrap();
     }
-    println!("{}", 123);
 }
 
 fn do_watch(path: &str) -> ! {
