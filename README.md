@@ -18,13 +18,11 @@
 [![Linux Support](https://img.shields.io/badge/linux-1793D1?style=flat&logo=linux&logoColor=white)](https://github.com/naaive/orange/releases)
 </div>
 
----
-
 # What is orange?
 
 ![Demo](screenshot/orange.gif)
 
-Orange is an easy to use file search software. It's based on GraalVM, Tauri, and running Orange on Windows, MacOS, or Linux gives you a consistent experience. Some of its features are summarized as follows:
+Orange is an easy to use file search software. It's based on GraalVM, Tauri, and running Orange on Windows, MacOS, or Linux gives you a consistent experience. Its features are summarized as follows:
 
 
 - Near real-time search
@@ -33,13 +31,11 @@ Orange is an easy to use file search software. It's based on GraalVM, Tauri, and
 - Easy to use
 
 
----
 
 ## Download
 
 Go to [release page](https://github.com/naaive/orange/releases). 
 
----
 
 ## LICENSE
 
