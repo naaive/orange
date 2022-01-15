@@ -52,7 +52,7 @@ public class FsEventQ4notify {
         try {
             String[] s = cmd.split(" ");
             String abs = s[0];
-            String arg = s[1];
+            String arg = cmd.substring(abs.length()+1);
             String absolutePath = new File(abs).getAbsolutePath();
             String command = absolutePath + " " + arg;
             p = Runtime.getRuntime().exec(command);
@@ -92,6 +92,7 @@ public class FsEventQ4notify {
             if (p != null) {
                 p.destroy();
             }
+            log.log(Level.SEVERE, "fsevent err");
             Runtime.getRuntime().exit(-1);
         }
     }

@@ -98,6 +98,7 @@ public class FsEventQ4watchdog {
             if (p != null) {
                 p.destroy();
             }
+            log.log(Level.SEVERE, "fsevent err");
             Runtime.getRuntime().exit(-1);
         }
     }

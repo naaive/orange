@@ -11,8 +11,9 @@ fn main() {
     for path in args {
         thread::spawn(move || {
             do_watch(&path);
-        }).join().unwrap();
+        });
     }
+    thread::park();
 }
 
 fn do_watch(path: &str) -> ! {
@@ -26,7 +27,9 @@ fn do_watch(path: &str) -> ! {
                 eprintln!("{:?} {:?} ", op, path)
             }
             Ok(_event) => (),
-            Err(_e) => (),
+            Err(_e) => {
+                println!("err {:?}", _e);
+            },
         }
     }
 }

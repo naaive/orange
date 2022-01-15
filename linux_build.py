@@ -59,7 +59,7 @@ def build_fsevent(cwd):
     os.chdir("fsevent/notify")
     os.system("cargo build --release")
     lib_path = "../../ui/src-tauri/lib"
-    shutil.copyfile("target/release/fsevent.exe", lib_path + "/fsevent.exe")
+    shutil.copyfile("target/release/fsevent", lib_path + "/fsevent.exe")
 
 
 
@@ -70,5 +70,5 @@ if __name__ == '__main__':
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
     build_orange_sidecar(cwd)
-#     build_fsevent(cwd)
-#     build_orange_ui(cwd)
+    build_fsevent(cwd)
+    build_orange_ui(cwd)

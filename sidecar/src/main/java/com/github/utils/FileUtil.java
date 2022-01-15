@@ -13,12 +13,12 @@ public class FileUtil {
     }
 
     public static String absPath2name(String absPath) {
-        String[] split =  formatPath(absPath).split("/");
-        return split[split.length - 1];
+        String[] split = formatPath(absPath).split("/");
+        return split.length == 0 ? absPath : split[split.length - 1];
     }
 
     public static String absPath2absPathIndexed(String absPath) {
-        return String.join(" ",  formatPath(absPath).split("/"));
+        return String.join(" ", formatPath(absPath).split("/"));
     }
 
     public static String formatPath(String logPath) {

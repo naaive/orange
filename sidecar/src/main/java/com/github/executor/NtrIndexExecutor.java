@@ -9,12 +9,14 @@ import com.github.fshook.Cmd;
 import com.github.fshook.FsEventQ4notify;
 import com.github.fshook.FsLog;
 import com.github.utils.FileUtil;
+import com.github.utils.OsUtil;
 import io.netty.channel.DefaultEventLoopGroup;
 import lombok.extern.java.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
@@ -65,8 +67,19 @@ public class NtrIndexExecutor implements Runnable {
 
     @Override
     public void run() {
-        FsEventQ4notify q = new FsEventQ4notify(
-                Arrays.stream(File.listRoots()).map(File::getAbsolutePath).toArray(String[]::new));
+        FsEventQ4notify q;
+        if (OsUtil.isUnix()) {
+            try {
+                q = new FsEventQ4notify(Files.list(Path.of("/")).map(x->x.toAbsolutePath().toString()).toArray(String[]::new));
+            } catch (IOException e) {
+                log.log(Level.SEVERE,"init fsevent err");
+                throw new RuntimeException(e);
+            }
+        } else {
+             q = new FsEventQ4notify(
+                    Arrays.stream(File.listRoots()).map(File::getAbsolutePath).toArray(String[]::new));
+        }
+
 
         //noinspection InfiniteLoopStatement
         while (true) {
