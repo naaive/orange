@@ -78,7 +78,12 @@ public class ProcessUtil {
         ProcessHandle current = ProcessHandle.current();
         List<ProcessHandle> handles = ProcessHandle.allProcesses().collect(Collectors.toList());
         for (ProcessHandle handle : handles) {
-            ProcessHandle.Info info = handle.info();
+            ProcessHandle.Info info = null;
+            try {
+                info = handle.info();
+            } catch (Exception e) {
+                continue;
+            }
             if (info.command().isPresent()) {
                 String name = FileUtil.absPath2name(info.command().get());
                 if (name.contains(ORANGE_SIDECAR) && !current.equals(handle)) {

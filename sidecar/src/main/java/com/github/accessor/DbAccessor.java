@@ -29,7 +29,7 @@ public class DbAccessor {
             Options options = new Options();
             options.createIfMissing(true);
             db = factory.open(new File(dataPath), options);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.log(Level.SEVERE, "DbAccessor initialize err", e);
             Runtime.getRuntime().exit(-1);
         }
