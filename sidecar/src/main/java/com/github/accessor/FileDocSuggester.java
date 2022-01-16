@@ -83,7 +83,9 @@ public class FileDocSuggester {
             spellchecker.setStringDistance(new JaroWinklerDistance());
             open.close();
 
-            this.spellchecker.close();
+            if (this.spellchecker != null) {
+                this.spellchecker.close();
+            }
             this.spellchecker = spellchecker;
         } catch (IOException e) {
             log.log(Level.SEVERE,"failed to rebuild spell checker");

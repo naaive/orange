@@ -55,6 +55,7 @@ public class FsEventQ4notify {
             String arg = cmd.substring(abs.length()+1);
             String absolutePath = new File(abs).getAbsolutePath();
             String command = absolutePath + " " + arg;
+
             p = Runtime.getRuntime().exec(command);
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(p.getErrorStream(), StandardCharsets.UTF_8), 256);
@@ -63,7 +64,9 @@ public class FsEventQ4notify {
                 log.log(Level.FINE, line);
                 String[] split = line.split(" ");
                 String op = split[0];
-                String file = split[1];
+                //todo multi op
+
+                String file = split[split.length-1];
                 if (Objects.equals("CHMOD", op)) {
                     fsLogs.put(new FsLog().setCmd(Cmd.U).setPath(file.substring(1, file.length() - 1)));
                 }
@@ -88,7 +91,9 @@ public class FsEventQ4notify {
             }
         } catch (IOException | InterruptedException e) {
             log.log(Level.SEVERE, "newListener err", e);
-        } finally {
+        }catch (Exception e){
+            log.log(Level.SEVERE, "fsevent err", e);
+        }finally {
             if (p != null) {
                 p.destroy();
             }

@@ -109,7 +109,12 @@ public class ProcessUtil {
     public static void cleanFsevent() {
 
         ProcessHandle.allProcesses().forEach(processHandle -> {
-            ProcessHandle.Info info = processHandle.info();
+            ProcessHandle.Info info = null;
+            try {
+                info = processHandle.info();
+            } catch (Exception e) {
+                return;
+            }
             if (info.command().isPresent()) {
                 String name = FileUtil.absPath2name(info.command().get());
                 if (name.contains(AppConf.FSEVENT_EXE)) {
