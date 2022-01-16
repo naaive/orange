@@ -4,6 +4,12 @@ import com.github.conf.AppConf;
 import com.github.ik.IKAnalyzer;
 import io.netty.channel.DefaultEventLoopGroup;
 import lombok.extern.java.Log;
+import lombok.val;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.search.spell.JaroWinklerDistance;
+import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.search.suggest.analyzing.AnalyzingInfixSuggester;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
@@ -11,6 +17,7 @@ import org.apache.lucene.util.BytesRef;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +31,7 @@ public class FileDocSuggester {
     private static final int COMMIT_THRESHOLD = 10000;
     private int addCnt = 0;
     private final DefaultEventLoopGroup executors;
+    private volatile SpellChecker spellchecker;
 
     public FileDocSuggester(DefaultEventLoopGroup executors) {
         this.executors = executors;
@@ -51,8 +59,34 @@ public class FileDocSuggester {
             suggester = new AnalyzingInfixSuggester(
                     directory, new IKAnalyzer(false), new IKAnalyzer(true), 1, true, false, false);
             suggester.build(new FileDocIterator(Collections.emptyList()));
+
+            rebuildSpellChecker();
+
         } catch (IOException e) {
             log.log(Level.SEVERE, "FileDocSuggester initialize err", e);
+        }
+
+        executors.scheduleAtFixedRate(
+                this::rebuildSpellChecker,
+                60,
+                60,
+                TimeUnit.MINUTES);
+    }
+
+    private void rebuildSpellChecker() {
+        try {
+            FSDirectory indexDir = FSDirectory.open(Paths.get(AppConf.INDEX_PATH));
+            DirectoryReader open = DirectoryReader.open(indexDir);
+            SpellChecker spellchecker = new SpellChecker(indexDir);
+            LuceneDictionary absPath = new LuceneDictionary(open, FileDoc.NAME);
+            spellchecker.indexDictionary(absPath,new IndexWriterConfig(),true);
+            spellchecker.setStringDistance(new JaroWinklerDistance());
+            open.close();
+
+            this.spellchecker.close();
+            this.spellchecker = spellchecker;
+        } catch (IOException e) {
+            log.log(Level.SEVERE,"failed to rebuild spell checker");
         }
     }
 
@@ -79,12 +113,26 @@ public class FileDocSuggester {
 
     public List<String> lookup(String key) {
         try {
-            return suggester.lookup(key, 6, true, false).stream()
+            List<String> collated = suggester.lookup(key, 6, true, false).stream()
                     .map(x -> x.key.toString())
                     .collect(Collectors.toList());
+            if (collated.isEmpty()) {
+                collated = spellCheck(key);
+            }
+            return collated;
         } catch (IOException e) {
             log.log(Level.SEVERE, "lookup err", e);
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * called when no suggestions
+     * @param key
+     * @return
+     * @throws IOException
+     */
+    private List<String> spellCheck(String key) throws IOException {
+        return Arrays.stream(spellchecker.suggestSimilar(key, 6)).collect(Collectors.toList());
     }
 }
