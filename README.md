@@ -8,17 +8,17 @@
 
 <div align="center">
 
-[![LICENSE](https://img.shields.io/badge/license-gpl-green?style=flat)](https://github.com/naaive/orange/blob/master/LICENSE)
 [![Download Counts](https://img.shields.io/github/downloads/naaive/orange/total?style=flat)](https://github.com/naaive/orange/releases)
 [![Stars Count](https://img.shields.io/github/stars/naaive/orange?style=flat)](https://github.com/naaive/orange/stargazers) [![Forks Count](https://img.shields.io/github/forks/naaive/orange.svg?style=flat)](https://github.com/naaive/orange/network/members) 
 [![Issues Count](https://img.shields.io/github/issues/naaive/orange.svg?style=flat)](https://github.com/naaive/orange/issues)
+[![LICENSE](https://img.shields.io/badge/license-gpl-green?style=flat)](https://github.com/naaive/orange/blob/master/LICENSE)
 
 [![Windows Support](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)](https://github.com/naaive/orange/releases)
 [![Windows Support](https://img.shields.io/badge/MACOS-adb8c5?style=flat&logo=macos&logoColor=white)](https://github.com/naaive/orange/releases)
 [![Linux Support](https://img.shields.io/badge/linux-1793D1?style=flat&logo=linux&logoColor=white)](https://github.com/naaive/orange/releases)
 </div>
 
-# What is orange?
+# What is Orange?
 
 ![Demo](screenshot/orange.gif)
 
