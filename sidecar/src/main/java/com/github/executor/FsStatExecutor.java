@@ -35,6 +35,7 @@ public class FsStatExecutor implements Runnable {
     private final IndexAccessor indexAccessor;
     private final FileDocSuggester fileDocSuggester;
     private final DefaultEventLoopGroup executors;
+    public final int YIELD_SECS = 25;
     private int addCnt;
 
     public FsStatExecutor(
@@ -95,7 +96,7 @@ public class FsStatExecutor implements Runnable {
 
                 addDoc(attrs, absPath, true);
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(YIELD_SECS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

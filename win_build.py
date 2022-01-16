@@ -23,9 +23,17 @@ def build_orange_sidecar(cwd):
     if os.path.exists(log_path):
         shutil.rmtree(log_path, True)
     mkdir(log_path)
+
+    cachedata_path = "../ui/src-tauri/cachedata"
+    if os.path.exists(cachedata_path):
+        shutil.rmtree(cachedata_path, True)
+    # mkdir(cachedata_path)
+
     shutil.copyfile("./target/classes/orange.log", log_path + "/orange.log")
     shutil.copyfile("./target/orange_sidecar.exe", lib_path + "/orange_sidecar.exe")
     shutil.copytree("./src/main/resources/ik", conf_path + "/ik")
+    shutil.copytree("./src/main/resources/stat", conf_path + "/stat")
+    shutil.copytree("./src/main/resources/cachedata", cachedata_path)
 
 
 def mkdir(lib_path):
@@ -53,6 +61,10 @@ def build_orange_ui(cwd):
     os.system("yarn run build-js")
     os.system("yarn run build-binary")
 
+def cp_release(cwd):
+    os.chdir(cwd)
+    shutil.copyfile("ui/src-tauri/target/release/bundle/msi/Orange_0.1.0_x64.msi", "Orange_0.1.0_x64.msi")
+
 
 def build_fsevent(cwd):
     os.chdir(cwd)
@@ -69,6 +81,9 @@ if __name__ == '__main__':
 
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
     build_orange_sidecar(cwd)
     build_fsevent(cwd)
     build_orange_ui(cwd)
+
+    cp_release(cwd)

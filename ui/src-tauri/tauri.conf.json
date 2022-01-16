@@ -28,6 +28,7 @@
       "resources": [
         "lib/*",
         "log/*",
+        "cachedata/*",
         "conf/*"
       ],
       "externalBin": [],
