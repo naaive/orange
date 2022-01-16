@@ -71,7 +71,7 @@ public class NtrIndexExecutor implements Runnable {
         if (OsUtil.isUnix()) {
             try {
                 q = new FsEventQ4notify(Files.list(Path.of("/")).map(x->x.toAbsolutePath().toString()).toArray(String[]::new));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.log(Level.SEVERE,"init fsevent err");
                 throw new RuntimeException(e);
             }

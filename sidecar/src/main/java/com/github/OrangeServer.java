@@ -22,6 +22,7 @@ import lombok.extern.java.Log;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -35,11 +36,10 @@ public class OrangeServer {
     private final DefaultEventLoopGroup executors = new DefaultEventLoopGroup(10);
     private DbAccessor dbAccessor;
     private IndexAccessor indexAccessor;
-    private final String WINDOWS_PATH = "C:\\Windows";
     private final FileDocSuggester fileDocSuggester = new FileDocSuggester(executors);
 
     public static void main(String[] args) {
-        ProcessUtil.cleanOrangeCore();
+        ProcessUtil.cleanOrangeSidecar();
         if (OsUtil.isWindows()) {
             ProcessUtil.winKillByPort(PORT);
         }
@@ -65,7 +65,7 @@ public class OrangeServer {
 
             Channel ch = b.bind(PORT).sync().channel();
 
-            System.err.println("Open your web browser and navigate to " + ("http") + "://127.0.0.1:" + PORT + '/');
+            log.info("Open your web browser and navigate to " + ("http") + "://127.0.0.1:" + PORT );
 
             runTasks();
 
@@ -83,12 +83,11 @@ public class OrangeServer {
 
     private void runTasks() {
 
-        //        FileSystemView fsv = FileSystemView.getFileSystemView();
+        log.info("start FsStatExecutor");
         Arrays.stream(File.listRoots())
                 .map(x -> new FsStatExecutor(
                         x.getAbsolutePath(),
-                        new String[] {WINDOWS_PATH, "C:\\Users\\Administrator\\WebstormProjects\\untitled\\node_modules"
-                        },
+                        new String[] {},
                         Stream.of("node_modules").collect(Collectors.toSet()),
                         dbAccessor,
                         indexAccessor,
@@ -97,15 +96,14 @@ public class OrangeServer {
                 .forEach(x -> {
                     executors.scheduleAtFixedRate(x, 0, 1, TimeUnit.DAYS);
                 });
-
+        log.info("start NtrIndexExecutor");
         executors.submit(new NtrIndexExecutor(
                 dbAccessor,
                 indexAccessor,
                 fileDocSuggester,
                 executors,
-                Stream.of(WINDOWS_PATH, PROJECT_PATH).collect(Collectors.toSet())));
+                Collections.emptySet()));
 
-        AliveExecutor aliveExecutor = new AliveExecutor();
-        executors.scheduleAtFixedRate(aliveExecutor, 0, 1, TimeUnit.SECONDS);
+        executors.scheduleAtFixedRate(new AliveExecutor(), 0, 1, TimeUnit.SECONDS);
     }
 }

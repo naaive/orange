@@ -36,6 +36,7 @@ public class FileDocSuggester {
     public FileDocSuggester(DefaultEventLoopGroup executors) {
         this.executors = executors;
 
+        log.info("init FileDocSuggester");
         initialize();
     }
 
@@ -60,15 +61,13 @@ public class FileDocSuggester {
                     directory, new IKAnalyzer(false), new IKAnalyzer(true), 1, true, false, false);
             suggester.build(new FileDocIterator(Collections.emptyList()));
 
-            rebuildSpellChecker();
-
         } catch (IOException e) {
             log.log(Level.SEVERE, "FileDocSuggester initialize err", e);
         }
 
         executors.scheduleAtFixedRate(
                 this::rebuildSpellChecker,
-                60,
+                5,
                 60,
                 TimeUnit.MINUTES);
     }

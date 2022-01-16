@@ -74,11 +74,11 @@ public class ProcessUtil {
         return false;
     }
 
-    public static void cleanOrangeCore() {
+    public static void cleanOrangeSidecar() {
         ProcessHandle current = ProcessHandle.current();
         List<ProcessHandle> handles = ProcessHandle.allProcesses().collect(Collectors.toList());
         for (ProcessHandle handle : handles) {
-            ProcessHandle.Info info = null;
+            ProcessHandle.Info info;
             try {
                 info = handle.info();
             } catch (Exception e) {
@@ -103,7 +103,7 @@ public class ProcessUtil {
 
     public static void clean() {
         cleanFsevent();
-        cleanOrangeCore();
+        cleanOrangeSidecar();
     }
 
     public static void cleanFsevent() {

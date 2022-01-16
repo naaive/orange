@@ -25,6 +25,7 @@ public class DbAccessor {
     }
 
     private void initialize(String dataPath) {
+        log.info("init DbAccessor");
         try {
             Options options = new Options();
             options.createIfMissing(true);

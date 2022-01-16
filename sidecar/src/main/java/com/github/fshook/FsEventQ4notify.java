@@ -28,7 +28,13 @@ public class FsEventQ4notify {
         }
 
         ProcessUtil.cleanFsevent();
-        poolExecutor.submit(() -> newListener(AppConf.FSEVENT_PATH + " " + String.join(" ", roots)));
+        poolExecutor.submit(() -> {
+            while (true) {
+                newListener(AppConf.FSEVENT_PATH + " " + String.join(" ", roots));
+                TimeUnit.SECONDS.sleep(5);
+            }
+
+        });
     }
 
     public List<FsLog> poll(int size) {
@@ -98,7 +104,6 @@ public class FsEventQ4notify {
                 p.destroy();
             }
             log.log(Level.SEVERE, "fsevent err");
-            Runtime.getRuntime().exit(-1);
         }
     }
 }

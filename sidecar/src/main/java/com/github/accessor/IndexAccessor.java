@@ -39,6 +39,8 @@ public class IndexAccessor {
     }
 
     private void initialize(String indexPath) {
+        log.info("init IndexAccessor");
+
         try {
             FSDirectory directory = FSDirectory.open(Paths.get(indexPath));
             indexWriter = new IndexWriter(directory, new IndexWriterConfig(new IKAnalyzer(false)));
