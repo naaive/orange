@@ -104,22 +104,32 @@ fn main() {
     unsafe {
         FRONT_USTORE = Some(clone_store.clone());
     }
-    // std::thread::spawn(move || loop {
-    //   let mut walker = FsWalker::new(clone_store.clone());
-    //   walker.start();
-    //   std::thread::sleep(Duration::from_secs(3600 * 1))
-    // });
+
 
     if cfg!(target_os = "windows") {
       unsafe {
           let drives = utils::get_win32_ready_drives();
+
+          let drivs_clone = drives.clone();
+          std::thread::spawn(move || loop {
+              let mut walker = FsWalker::new(clone_store.clone(), drivs_clone.clone());
+              walker.start();
+              std::thread::sleep(Duration::from_secs(3600 * 1))
+          });
+
           for driv in drives {
-              let uclone = ustore.clone();
+              let uclone1 = ustore.clone();
+              let driv_clone1 = driv.clone();
+
               std::thread::spawn(move || {
-                  let mut watcher = FsWatcher::new(uclone, driv);
+                  let mut watcher = FsWatcher::new(uclone1, driv_clone1);
                   watcher.start();
               });
+
           }
+
+
+
 
       }
 
@@ -127,6 +137,11 @@ fn main() {
         std::thread::spawn(move || {
             let mut watcher = FsWatcher::new(ustore.clone(), "/".to_string());
             watcher.start();
+        });
+        std::thread::spawn(move || loop {
+            let mut walker = FsWalker::new(clone_store.clone(), vec!["/".to_string()]);
+            walker.start();
+            std::thread::sleep(Duration::from_secs(3600 * 1))
         });
     }
 
