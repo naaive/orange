@@ -43,7 +43,7 @@ struct CustomResponse {
 async fn my_custom_command(
     window: Window<Wry>,
     number: usize,
-    kw: String,
+    mut kw: String,
     database: tauri::State<'_, Database>,
 ) -> Result<CustomResponse, String> {
     return match number {
@@ -61,6 +61,9 @@ async fn my_custom_command(
         0 => {
             unsafe {
                 let arc = FRONT_USTORE.clone().unwrap();
+                if kw.eq("") {
+                    kw = "*".to_string();
+                }
                 let vec = arc.read().unwrap().search(kw.as_str(), 100);
                 Ok(CustomResponse {
                     message: "".to_string(),

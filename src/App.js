@@ -14,7 +14,7 @@ function App() {
     const [kw, setKw] = useState('');
 
     useEffect(() => {
-        doTxtChange('*')
+        setTimeout(()=>doTxtChange('*'),200)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

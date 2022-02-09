@@ -71,10 +71,11 @@ impl UnitedStore<'_> {
             match file_opt {
                 None => {}
                 Some(fkv) => {
-
+                    let path = Path::new(fkv.abs_path.as_str());
+                    let option = path.file_name();
                     file_views.push(FileView {
                         abs_path: fkv.abs_path.clone(),
-                        name: Path::new(fkv.abs_path.as_str()).file_name().unwrap().to_str().unwrap().to_string(),
+                        name: option.unwrap().to_str().unwrap().to_string(),
                         created_at: fkv.created_at,
                         mod_at: fkv.mod_at,
                         size: fkv.size,
