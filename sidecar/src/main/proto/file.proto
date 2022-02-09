@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "com.github";
-option java_outer_classname = "FileMsg";
-
-message File {
-    uint64 created_at = 1;
-    uint64 modified_at = 2;
-    uint64 size = 3;
-}
