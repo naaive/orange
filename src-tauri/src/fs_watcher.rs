@@ -1,26 +1,33 @@
 extern crate notify;
-
+#[cfg(target_os = "windows")]
+use {
+    std::os::windows::fs::MetadataExt
+};
+#[cfg(target_os = "linux")]
+use {
+    std::os::unix::fs::MetadataExt
+};
 use crate::file_view::FileView;
 use crate::{UnitedStore};
 use notify::{raw_watcher, Op, RawEvent, RecursiveMode, Watcher};
-use std::os::unix::fs::MetadataExt;
 use std::sync::mpsc::channel;
 use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
 
 pub struct FsWatcher<'a> {
     ustore: Arc<RwLock<UnitedStore<'a>>>,
+    path:String
 }
 
 impl FsWatcher<'_> {
-    pub fn new<'a>(ustore: Arc<RwLock<UnitedStore<'a>>>) -> FsWatcher<'a> {
-        FsWatcher { ustore }
+    pub fn new<'a>(ustore: Arc<RwLock<UnitedStore<'a>>>, path: String) -> FsWatcher<'a> {
+        FsWatcher { ustore, path: path }
     }
 
     pub fn start(&mut self) {
         let (tx, rx) = channel();
         let mut watcher = raw_watcher(tx).unwrap();
-        watcher.watch("/", RecursiveMode::Recursive).unwrap();
+        watcher.watch(self.path.as_str(), RecursiveMode::Recursive).unwrap();
 
         loop {
             match rx.recv() {
@@ -40,10 +47,15 @@ impl FsWatcher<'_> {
                                 .unwrap_or_default()
                                 .to_string();
 
+
                             let created_at = Self::parse_ts(meta.created().unwrap());
                             let mod_at = Self::parse_ts(meta.modified().unwrap());
+                            let size = meta.file_size();
 
-                            let size = meta.size();
+                            let x1 = abs_path.contains("hello");
+                            if x1 {
+                                println!("{}", abs_path);
+                            }
 
                             if Op::REMOVE == op {
                                 self.ustore.write().unwrap().del(&abs_path);
@@ -84,7 +96,7 @@ mod tests {
     #[test]
     fn t1() {
         let store = UnitedStore::new();
-        let mut watcher = FsWatcher::new(Arc::new(RwLock::new(store)));
+        let mut watcher = FsWatcher::new(Arc::new(RwLock::new(store)), "".to_string());
         watcher.start();
     }
 }

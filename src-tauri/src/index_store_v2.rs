@@ -22,7 +22,7 @@ pub struct IndexStore {
 
 impl IndexStore {
     pub fn new() -> IndexStore {
-        let index_path = Path::new("./index");
+        let index_path = Path::new("./cachedata/index");
 
         let mut schema_builder = Schema::builder();
 

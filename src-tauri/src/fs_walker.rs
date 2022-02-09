@@ -1,6 +1,13 @@
+#[cfg(target_os = "windows")]
+use {
+    std::os::windows::fs::MetadataExt
+};
+#[cfg(target_os = "linux")]
+use {
+    std::os::unix::fs::MetadataExt
+};
 use crate::file_view::FileView;
 use crate::{KvStore, UnitedStore};
-use std::os::unix::fs::MetadataExt;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use walkdir::{WalkDir};
@@ -13,7 +20,7 @@ pub struct FsWalker<'a> {
 impl FsWalker<'_> {
     pub fn new(ustore: Arc<RwLock<UnitedStore>>) -> FsWalker {
         // let index_writer: Arc<RwLock<UnitedStore>>
-        let kv_store = KvStore::new("conf");
+        let kv_store = KvStore::new("./cachedata/conf");
         FsWalker { ustore, kv_store }
     }
     pub fn start(&mut self) {
@@ -51,7 +58,7 @@ impl FsWalker<'_> {
                 Ok(meta) => {
                     let created_at = Self::parse_ts(meta.created().ok().unwrap());
                     let mod_at = Self::parse_ts(meta.modified().ok().unwrap());
-                    let size = meta.size();
+                    let size = meta.file_size();
                     let view = FileView {
                         abs_path: x.path().to_str().unwrap().to_string(),
                         name: x.file_name().to_str().unwrap().to_string(),

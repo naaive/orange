@@ -1,3 +1,4 @@
+use std::path::Path;
 use crate::file_index::FileIndex;
 use crate::file_kv::FileKv;
 use crate::file_view::FileView;
@@ -11,7 +12,7 @@ pub struct UnitedStore<'a> {
 
 impl UnitedStore<'_> {
     pub fn new<'a>() -> UnitedStore<'a> {
-        let kv = KvStore::new("./kv");
+        let kv = KvStore::new("./cachedata/kv");
         let idx = IndexStore::new();
         UnitedStore { kv, idx }
     }
@@ -70,9 +71,10 @@ impl UnitedStore<'_> {
             match file_opt {
                 None => {}
                 Some(fkv) => {
+
                     file_views.push(FileView {
                         abs_path: fkv.abs_path.clone(),
-                        name: fkv.abs_path.split("/").last().unwrap().to_string(),
+                        name: Path::new(fkv.abs_path.as_str()).file_name().unwrap().to_str().unwrap().to_string(),
                         created_at: fkv.created_at,
                         mod_at: fkv.mod_at,
                         size: fkv.size,

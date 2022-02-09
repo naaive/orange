@@ -101,16 +101,33 @@ fn main() {
     unsafe {
         FRONT_USTORE = Some(clone_store.clone());
     }
-    std::thread::spawn(move || loop {
-      let mut walker = FsWalker::new(clone_store.clone());
-      walker.start();
-      std::thread::sleep(Duration::from_secs(3600 * 1))
-    });
+    // std::thread::spawn(move || loop {
+    //   let mut walker = FsWalker::new(clone_store.clone());
+    //   walker.start();
+    //   std::thread::sleep(Duration::from_secs(3600 * 1))
+    // });
 
-    std::thread::spawn(move || {
-      let mut watcher = FsWatcher::new(ustore);
-      watcher.start();
-    });
+    if cfg!(target_os = "windows") {
+      unsafe {
+          let drives = utils::get_win32_ready_drives();
+          for driv in drives {
+              let uclone = ustore.clone();
+              std::thread::spawn(move || {
+                  let mut watcher = FsWatcher::new(uclone, driv);
+                  watcher.start();
+              });
+          }
+
+      }
+
+    }else {
+        std::thread::spawn(move || {
+            let mut watcher = FsWatcher::new(ustore.clone(), "/".to_string());
+            watcher.start();
+        });
+    }
+
+
 
     start_tauri_app();
 }
@@ -120,6 +137,6 @@ fn start_tauri_app() {
     tauri::Builder::default()
         .manage(database)
         .invoke_handler(tauri::generate_handler![my_custom_command])
-        .run(tauri::generate_context!())
+        .run(    tauri::generate_context!())
         .expect("error while running tauri application");
 }
