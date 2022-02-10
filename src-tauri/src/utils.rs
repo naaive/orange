@@ -1,3 +1,6 @@
+#[cfg(windows)]
+use std::ffi::CString;
+
 use std::path::Path;
 use std::process::Command;
 extern crate kernel32;
@@ -21,14 +24,13 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
   let mut logical_drives = Vec::with_capacity(5);
   let mut bitfield = kernel32::GetLogicalDrives();
   let mut drive = 'A';
-  let mut rtstr = CString::new("");
 
   while bitfield != 0 {
     if bitfield & 1 == 1 {
       let strfulldl = drive.to_string() + ":\\";
       let cstrfulldl = CString::new(strfulldl.clone()).unwrap();
       let x = kernel32::GetDriveTypeA(cstrfulldl.as_ptr());
-      if (x == 3 || x == 2) {
+      if x == 3 || x == 2 {
         logical_drives.push(strfulldl);
         // println!("drive {0} is {1}", strfdl, x);
       }
