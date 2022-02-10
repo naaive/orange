@@ -54,6 +54,7 @@ name = "app"
 version = "0.1.0"
 dependencies = [
  "crossbeam-channel 0.4.4",
+ "dirs",
  "glob",
  "kernel32-sys",
  "kv",

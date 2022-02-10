@@ -14,7 +14,11 @@ pub fn open_file_path(path: &str) {
         .output()
         .expect("failed to execute process");
 }
-//
+
+pub fn home_dir() -> String {
+    let option = dirs::home_dir();
+    option.unwrap().to_str().unwrap().to_string()
+}
 
 #[cfg(windows)]
 pub unsafe fn get_win32_ready_drives() -> Vec<String>
@@ -56,5 +60,11 @@ mod tests {
             let vec = get_win32_ready_drives();
             println!("{:?}", vec);
         }
+    }
+
+    #[test]
+    fn t2() {
+        let dir = home_dir();
+        println!("{}", dir);
     }
 }

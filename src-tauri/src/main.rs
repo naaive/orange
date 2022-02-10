@@ -114,7 +114,7 @@ fn main() {
 
           let drivs_clone = drives.clone();
           std::thread::spawn(move || loop {
-              let mut walker = FsWalker::new(clone_store.clone(), drivs_clone.clone());
+              let mut walker = FsWalker::new(clone_store.clone(), drivs_clone.clone(), vec![]);
               walker.start();
               std::thread::sleep(Duration::from_secs(3600 * 1))
           });
@@ -129,10 +129,6 @@ fn main() {
               });
 
           }
-
-
-
-
       }
 
     }else {
@@ -140,13 +136,17 @@ fn main() {
             let mut watcher = FsWatcher::new(ustore.clone(), "/".to_string());
             watcher.start();
         });
+        let home = utils::home_dir();
         std::thread::spawn(move || loop {
-            let mut walker = FsWalker::new(clone_store.clone(), vec!["/".to_string()]);
+            let mut walker = FsWalker::new(clone_store.clone(), vec![home.clone()], vec![]);
             walker.start();
+
+            let mut walker = FsWalker::new(clone_store.clone(), vec!["/".to_string()], vec![home.clone()]);
+            walker.start();
+
             std::thread::sleep(Duration::from_secs(3600 * 1))
         });
     }
-
 
 
     start_tauri_app();
