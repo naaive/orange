@@ -54,13 +54,14 @@ function SearchExampleStandard({setItems, doTxtChange}) {
                 kw: data.value
             })
                 .then((res) => {
-                    let titles = R.map(
+                    let titles = R.uniq(R.map(
                         x => ({title: x.name})
-                    )(top6(res.file_views));
-                        console.log(titles)
+                    )(res.file_views));
+
+
                     dispatch({
                         type: 'FINISH_SEARCH',
-                        results: titles,
+                        results: top6(titles),
                     })
                     }
                 )

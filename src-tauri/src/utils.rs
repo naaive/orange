@@ -73,8 +73,10 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+  use std::collections::HashSet;
   use super::*;
   use std::fs;
+  use std::iter::FromIterator;
 
   #[cfg(windows)]
   #[test]
@@ -87,6 +89,8 @@ mod tests {
 
   #[test]
   fn t2() {
-
+    let vec1 = vec!["hi", "jack", "rose", "hi"];
+    let set:HashSet<&str> = HashSet::from_iter(vec1);
+    println!("{:?}", set);
   }
 }

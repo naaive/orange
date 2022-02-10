@@ -74,7 +74,7 @@ async fn my_custom_command(
     // suggest
     2 => unsafe {
       let arc = FRONT_USTORE.clone().unwrap();
-      let vec = arc.read().unwrap().search(kw.as_str(), 6);
+      let vec = arc.read().unwrap().search(kw.as_str(), 20);
       Ok(CustomResponse {
         message: "".to_string(),
         other_val: database.x,
