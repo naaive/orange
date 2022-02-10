@@ -1,11 +1,7 @@
-use std::ffi::CString;
 use std::path::Path;
 use std::process::Command;
-extern crate glob;
 extern crate kernel32;
 extern crate libc;
-
-use self::glob::glob;
 
 pub fn open_file_path(path: &str) {
   //mac os
@@ -46,10 +42,6 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
 #[cfg(test)]
 mod tests {
   use super::*;
-
-  extern crate glob;
-
-  use self::glob::glob;
 
   #[cfg(windows)]
   #[test]

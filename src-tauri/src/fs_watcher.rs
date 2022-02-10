@@ -34,7 +34,7 @@ impl FsWatcher<'_> {
         Ok(RawEvent {
           path: Some(path),
           op: Ok(op),
-          cookie,
+          cookie: _,
         }) => {
           let result = path.metadata();
           match result {

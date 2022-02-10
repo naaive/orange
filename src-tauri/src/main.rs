@@ -41,7 +41,7 @@ struct CustomResponse {
 
 #[tauri::command]
 async fn my_custom_command(
-  window: Window<Wry>,
+  _window: Window<Wry>,
   number: usize,
   mut kw: String,
   database: tauri::State<'_, Database>,

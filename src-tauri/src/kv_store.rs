@@ -20,13 +20,13 @@ impl KvStore<'_> {
   }
 
   pub fn del(&self, k: String) {
-    self.bucket.remove(k);
+    self.bucket.remove(k).ok();
   }
 
   pub fn put_str(&mut self, k: String, v: String) {
     let string = serde_json::to_string(&v).ok().unwrap();
     self.bucket.set(k, string).unwrap();
-    self.bucket.flush();
+    self.bucket.flush().ok();
   }
 
   pub fn get_str(&self, k: String) -> Option<String> {
