@@ -18,6 +18,7 @@ use crate::fs_walker::FsWalker;
 use crate::fs_watcher::FsWatcher;
 use crate::united_store::UnitedStore;
 use index_store_v2::IndexStore;
+
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 // Definition in main.rs
@@ -125,8 +126,11 @@ fn main() {
       watcher.start();
     });
     let home = utils::home_dir();
+    let sub_home = utils::home_sub_dir();
+
     std::thread::spawn(move || loop {
-      let mut walker = FsWalker::new(clone_store.clone(), vec![home.clone()], vec![]);
+      // Path::new(home)
+      let mut walker = FsWalker::new(clone_store.clone(), sub_home.clone(), vec![]);
       walker.start();
 
       let mut walker = FsWalker::new(

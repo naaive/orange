@@ -80,15 +80,11 @@ impl FsWalker<'_> {
   }
 
   fn do_start(&mut self) {
-    println!("start travel fs.");
-
     for path in self.root.clone() {
       // let walk = self.need_walk();
 
       self.walk_root(path.clone());
     }
-
-    println!("travel fs over.");
   }
 
   fn walk_root(&mut self, path: String) {
@@ -96,6 +92,7 @@ impl FsWalker<'_> {
     if !walk {
       return;
     }
+    println!("start travel {}.", path);
 
     for x in WalkDir::new(path.clone())
       .into_iter()
@@ -136,6 +133,8 @@ impl FsWalker<'_> {
       format!("{}#{}", last_walk_over_key.clone(), path.clone()),
       "1".to_string(),
     );
+
+    println!("travel {} over.", path);
   }
 
   fn parse_ts(time: SystemTime) -> u64 {

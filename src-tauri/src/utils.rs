@@ -1,6 +1,8 @@
 #[cfg(windows)]
 use std::ffi::CString;
 
+
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 extern crate kernel32;
@@ -17,6 +19,34 @@ pub fn open_file_path(path: &str) {
 pub fn home_dir() -> String {
   let option = dirs::home_dir();
   option.unwrap().to_str().unwrap().to_string()
+}
+
+pub fn home_sub_dir() -> Vec<String> {
+  let dir = home_dir();
+  let paths = fs::read_dir(dir).unwrap();
+  let subs: Vec<String> = paths
+    .into_iter()
+    .map(|x| x.unwrap().path().to_str().unwrap().to_string())
+    .collect();
+
+  let mut res1 = Vec::new();
+  let mut res2 = Vec::new();
+  for sub in subs {
+    let often = vec![
+      "Documents",
+      "Desktop",
+      "Downloads",
+      "Movies",
+      "Music",
+      "Pictures",
+    ];
+    if often.into_iter().any(|x3| sub.contains(x3)) {
+      res2.push(sub);
+    } else {
+      res1.push(sub);
+    };
+  }
+  [res2, res1].concat()
 }
 
 #[cfg(windows)]
@@ -44,6 +74,7 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use std::fs;
 
   #[cfg(windows)]
   #[test]
@@ -56,7 +87,6 @@ mod tests {
 
   #[test]
   fn t2() {
-    let dir = home_dir();
-    println!("{}", dir);
+
   }
 }
