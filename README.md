@@ -1,5 +1,5 @@
 <div align="center">
-<img height=150 src="https://github.com/naaive/orange/blob/master/ui/src-tauri/icons/icon.png" />
+<img height=150 src="https://github.com/naaive/orange/blob/master/src-tauri/icons/icon.png" />
 </div>
 
 <p align="center"><span>A cross-platform desktop application for searching local files.</span></p>
