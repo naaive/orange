@@ -3,11 +3,13 @@ use tantivy::collector::TopDocs;
 use tantivy::query::QueryParser;
 use tantivy::schema::*;
 use tantivy::{Index, IndexReader, IndexWriter, ReloadPolicy};
+use tantivy::schema::Schema;
+use tantivy::tokenizer::*;
 
 use crate::file_index::FileIndex;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 
 pub struct IndexStore {
     index_writer: Arc<RwLock<IndexWriter>>,
@@ -29,8 +31,17 @@ impl IndexStore {
         let abs_path = "abs_path";
         let name = "name";
 
-        schema_builder.add_text_field(abs_path, TEXT | STORED);
-        schema_builder.add_text_field(name, TEXT);
+        let text_field_indexing = TextFieldIndexing::default()
+            .set_tokenizer("jieba")
+            .set_index_option(IndexRecordOption::WithFreqsAndPositions);
+        let text_store_options = TextOptions::default()
+            .set_indexing_options(text_field_indexing.clone())
+            .set_stored();
+        let text_options = TextOptions::default()
+            .set_indexing_options(text_field_indexing);
+
+        schema_builder.add_text_field(abs_path, text_store_options);
+        schema_builder.add_text_field(name, text_options);
         let schema = schema_builder.build();
 
         let abs_path_filed = schema.get_field(abs_path).unwrap();
@@ -44,6 +55,9 @@ impl IndexStore {
                 .ok()
                 .unwrap();
         }
+        let tokenizer = tantivy_jieba::JiebaTokenizer {};
+        index.tokenizers()
+            .register("jieba", tokenizer);
         // let index_writer = index.writer(50_000_000).ok().unwrap();
         let index_writer: Arc<RwLock<IndexWriter>> =
             Arc::new(RwLock::new(index.writer(50_000_000).ok().unwrap()));
@@ -132,7 +146,51 @@ fn t1() {
         abs_path: "jeff".to_string(),
         name: "old".to_string(),
     });
-    std::thread::sleep(Duration::from_secs(5));
+    std::thread::sleep(Duration::from_secs(3));
+
+    // std::thread::sleep(Duration::from_secs(1));
+    let time = SystemTime::now();
     let vec = storev2.search(String::from("jeff"), 100);
+
+    let time2 = SystemTime::now();
+    println!("elapsed {} ms", time2.duration_since(time).unwrap().as_millis());
+
+    let time = SystemTime::now();
+    let vec = storev2.search(String::from("jeff"), 100);
+
+    let time2 = SystemTime::now();
+    println!("elapsed {} ms", time2.duration_since(time).unwrap().as_millis());
+
     println!("{:?}", vec);
+}
+
+
+#[test]
+fn t2() {
+    let mut storev2 = IndexStore::new();
+
+    storev2.add_doc(FileIndex {
+        abs_path: "大家安利等我".to_string(),
+        name: "大洪".to_string(),
+    });
+    storev2.add_doc(FileIndex {
+        abs_path: "节流阀立法法".to_string(),
+        name: "家乐福三个分".to_string(),
+    });
+    storev2.add_doc(FileIndex {
+        abs_path: "家乐福卡较大".to_string(),
+        name: "就够啦来发".to_string(),
+    });
+    storev2.add_doc(FileIndex {
+        abs_path: "就了看见".to_string(),
+        name: "空格；看完；好".to_string(),
+    });
+    // std::thread::sleep(Duration::from_secs(1));
+    let time = SystemTime::now();
+    let vec = storev2.search(String::from("空格"), 100);
+    let time2 = SystemTime::now();
+    println!("elapsed {} ms", time2.duration_since(time).unwrap().as_millis());
+
+    println!("{:?}", vec);
+
 }

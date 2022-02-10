@@ -107,6 +107,8 @@ fn main() {
 
 
     if cfg!(target_os = "windows") {
+
+      #[cfg(windows)]
       unsafe {
           let drives = utils::get_win32_ready_drives();
 

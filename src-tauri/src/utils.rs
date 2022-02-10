@@ -16,8 +16,7 @@ pub fn open_file_path(path: &str) {
 }
 //
 
-
-//getting all drive letters
+#[cfg(windows)]
 pub unsafe fn get_win32_ready_drives() -> Vec<String>
 {
     let mut logical_drives = Vec::with_capacity(5);
@@ -50,7 +49,7 @@ mod tests {
 
     use self::glob::glob;
 
-
+    #[cfg(windows)]
     #[test]
     fn t1() {
         unsafe {

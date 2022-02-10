@@ -24,7 +24,8 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.0.0-beta.8", features = ["api-all"] }
 crossbeam-channel = "0.4.0"
 notify = "4.0.17"
-tantivy = "0.16.1"
+tantivy = "0.15.3"
+tantivy-jieba = "0.5.1"
 tempfile = "3.3.0"
 kv = { version = "0.22.0" ,features = ["json-value"] }
 walkdir = "2"

@@ -2,6 +2,10 @@
 use {
     std::os::windows::fs::MetadataExt
 };
+#[cfg(target_os = "macos")]
+use {
+    std::os::unix::fs::MetadataExt
+};
 #[cfg(target_os = "linux")]
 use {
     std::os::unix::fs::MetadataExt
@@ -62,7 +66,10 @@ impl FsWalker<'_> {
                     Ok(meta) => {
                         let created_at = Self::parse_ts(meta.created().ok().unwrap());
                         let mod_at = Self::parse_ts(meta.modified().ok().unwrap());
+                        #[cfg(windows)]
                         let size = meta.file_size();
+                        #[cfg(unix)]
+                        let size = meta.size();
                         let view = FileView {
                             abs_path: x.path().to_str().unwrap().to_string(),
                             name: x.file_name().to_str().unwrap().to_string(),
@@ -97,7 +104,7 @@ mod tests {
 
     #[test]
     fn t1() {
-        let mut walker = FsWalker::new(Arc::new(RwLock::new(UnitedStore::new())), "".to_string());
+        let mut walker = FsWalker::new(Arc::new(RwLock::new(UnitedStore::new())), vec!["".to_string()]);
         walker.start();
     }
 }

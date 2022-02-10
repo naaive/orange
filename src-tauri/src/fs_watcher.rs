@@ -7,6 +7,10 @@ use {
 use {
     std::os::unix::fs::MetadataExt
 };
+#[cfg(target_os = "macos")]
+use {
+    std::os::unix::fs::MetadataExt
+};
 use crate::file_view::FileView;
 use crate::{UnitedStore};
 use notify::{raw_watcher, Op, RawEvent, RecursiveMode, Watcher};
@@ -50,12 +54,13 @@ impl FsWatcher<'_> {
 
                             let created_at = Self::parse_ts(meta.created().unwrap());
                             let mod_at = Self::parse_ts(meta.modified().unwrap());
-                            let size = meta.file_size();
 
-                            let x1 = abs_path.contains("hello");
-                            if x1 {
-                                println!("{}", abs_path);
-                            }
+
+                            #[cfg(windows)]
+                            let size = meta.file_size();
+                            #[cfg(unix)]
+                            let size = meta.size();
+
 
                             if Op::REMOVE == op {
                                 self.ustore.write().unwrap().del(&abs_path);
