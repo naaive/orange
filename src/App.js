@@ -18,10 +18,11 @@ function App() {
 
         let handler;
         handler = setInterval(() => {
-            console.log(items)
             if (items.length === 0) {
                 doTxtChange('*');
-                clearInterval(handler);
+                if (items.length !== 0) {
+                    clearInterval(handler);
+                }
             }
         }, 200);
     }, []);

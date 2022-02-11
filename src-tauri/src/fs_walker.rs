@@ -24,7 +24,7 @@ impl FsWalker<'_> {
     exclude_path: Vec<String>,
   ) -> FsWalker {
     // let index_writer: Arc<RwLock<UnitedStore>>
-    let kv_store = KvStore::new("./cachedata/conf");
+    let kv_store = KvStore::new("./orangecachedata/conf");
     FsWalker {
       ustore,
       kv_store,

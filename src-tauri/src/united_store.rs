@@ -13,7 +13,7 @@ pub struct UnitedStore<'a> {
 
 impl UnitedStore<'_> {
   pub fn new<'a>() -> UnitedStore<'a> {
-    let kv = KvStore::new("./cachedata/kv");
+    let kv = KvStore::new("./orangecachedata/kv");
     let idx = IndexStore::new();
     UnitedStore { kv, idx }
   }

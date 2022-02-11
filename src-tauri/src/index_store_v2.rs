@@ -25,7 +25,7 @@ pub struct IndexStore {
 
 impl IndexStore {
   pub fn new() -> IndexStore {
-    let index_path = Path::new("./cachedata/index");
+    let index_path = Path::new("./orangecachedata/index");
 
     let mut schema_builder = Schema::builder();
 

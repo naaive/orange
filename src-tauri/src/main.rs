@@ -106,7 +106,7 @@ fn main() {
 
       let drivs_clone = drives.clone();
       std::thread::spawn(move || loop {
-        let mut walker = FsWalker::new(clone_store.clone(), drivs_clone.clone(), vec![]);
+        let mut walker = FsWalker::new(clone_store.clone(), drivs_clone.clone(), vec!["orangecachedata".to_string()]);
         walker.start();
         std::thread::sleep(Duration::from_secs(3600 * 1))
       });
@@ -131,13 +131,13 @@ fn main() {
 
     std::thread::spawn(move || loop {
       // Path::new(home)
-      let mut walker = FsWalker::new(clone_store.clone(), sub_home.clone(), vec![]);
+      let mut walker = FsWalker::new(clone_store.clone(), sub_home.clone(), vec!["orangecachedata".to_string()]);
       walker.start();
 
       let mut walker = FsWalker::new(
         clone_store.clone(),
         vec!["/".to_string()],
-        vec![home.clone()],
+        vec![home.clone(),"orangecachedata".to_string()],
       );
       walker.start();
 
