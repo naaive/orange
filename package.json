@@ -26,7 +26,7 @@
     "eject": "react-scripts eject",
     "tauri": "tauri",
     "tauri-dev": "tauri dev",
-    "tauri-build": "tauri build"
+    "tauri-build": "tauri build --verbose"
   },
   "eslintConfig": {
     "extends": [
