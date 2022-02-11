@@ -4,8 +4,16 @@ use std::ffi::CString;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
+use tauri::api::dialog::message;
+use tauri::{Manager, Window, Wry};
+
 extern crate kernel32;
 extern crate libc;
+
+pub fn msg(window: Window<Wry>) {
+  let parent_window = window.get_window("main").unwrap();
+  message(Some(&parent_window), "Title", "hellowold");
+}
 
 pub fn open_file_path(path: &str) {
   if cfg!(target_os = "windows") {
@@ -83,6 +91,10 @@ mod tests {
   use std::iter::FromIterator;
 
   #[cfg(windows)]
+  use crate::utils::get_win32_ready_drives;
+  use crate::utils::home_sub_dir;
+
+  #[cfg(windows)]
   #[test]
   fn t1() {
     unsafe {
@@ -96,5 +108,12 @@ mod tests {
     let vec1 = vec!["hi", "jack", "rose", "hi"];
     let set: HashSet<&str> = HashSet::from_iter(vec1);
     println!("{:?}", set);
+  }
+
+  #[test]
+  fn t3() {
+    let dir = home_sub_dir();
+
+    println!("{:?}", dir);
   }
 }

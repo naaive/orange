@@ -28,6 +28,7 @@ use crate::kv_store::KvStore;
 use tauri::{Manager, Window, Wry};
 
 static mut FRONT_USTORE: Option<UnitedStore> = None;
+static mut window: Option<Window<Wry>> = None;
 
 struct Database {
   x: usize,
@@ -47,11 +48,6 @@ async fn my_custom_command(
   mut kw: String,
   database: tauri::State<'_, Database>,
 ) -> Result<CustomResponse, String> {
-
-  let parent_window = _window.get_window("main").unwrap();
-
-  message(Some(&parent_window), "Title", "hellowold");
-
   return match number {
     // open file
     1 => {
@@ -93,18 +89,25 @@ async fn my_custom_command(
     }),
   };
 }
-use tauri::api::dialog::*; // Add tihs
+
+const STORE_PATH: &'static str = "orangecachedata";
 
 fn main() {
+  // std::thread::spawn(|| {
+  //   std::thread::sleep(Duration::from_secs(2));
+  //   unsafe {
+  //     utils::msg(window.clone().unwrap());
+  //   }
+  //
+  // });
   let store = UnitedStore::new();
 
-  //
-  // let ustore = Arc::new(RwLock::new(store.clone()));
-  // let clone_store = ustore.clone();
-  //
-  // unsafe {
-  //   FRONT_USTORE = Some(store.clone());
-  // }
+  let ustore = Arc::new(RwLock::new(store.clone()));
+  let clone_store = ustore.clone();
+
+  unsafe {
+    FRONT_USTORE = Some(store.clone());
+  }
 
   if cfg!(target_os = "windows") {
     #[cfg(windows)]
@@ -113,7 +116,21 @@ fn main() {
 
       let drivs_clone = drives.clone();
       std::thread::spawn(move || loop {
-        let mut walker = FsWalker::new(clone_store.clone(), drivs_clone.clone(), vec!["orangecachedata".to_string()]);
+        let home = utils::home_dir();
+        let sub_home = utils::home_sub_dir();
+
+        let mut walker = FsWalker::new(
+          clone_store.clone(),
+          sub_home.clone(),
+          vec![STORE_PATH.to_string()],
+        );
+        walker.start();
+
+        let mut walker = FsWalker::new(
+          clone_store.clone(),
+          drivs_clone.clone(),
+          vec![home.clone(), STORE_PATH.to_string()],
+        );
         walker.start();
         std::thread::sleep(Duration::from_secs(3600 * 1))
       });
@@ -129,27 +146,31 @@ fn main() {
       }
     }
   } else {
-  //   std::thread::spawn(move || {
-  //     let mut watcher = FsWatcher::new(ustore.clone(), "/".to_string());
-  //     watcher.start();
-  //   });
-  //   let home = utils::home_dir();
-  //   let sub_home = utils::home_sub_dir();
-  //
-  //   std::thread::spawn(move || loop {
-  //     // Path::new(home)
-  //     let mut walker = FsWalker::new(clone_store.clone(), sub_home.clone(), vec!["orangecachedata".to_string()]);
-  //     walker.start();
-  //
-  //     let mut walker = FsWalker::new(
-  //       clone_store.clone(),
-  //       vec!["/".to_string()],
-  //       vec![home.clone(),"orangecachedata".to_string()],
-  //     );
-  //     walker.start();
-  //
-  //     std::thread::sleep(Duration::from_secs(3600 * 1))
-  //   });
+    std::thread::spawn(move || {
+      let mut watcher = FsWatcher::new(ustore.clone(), "/".to_string());
+      watcher.start();
+    });
+    let home = utils::home_dir();
+    let sub_home = utils::home_sub_dir();
+
+    std::thread::spawn(move || loop {
+      // Path::new(home)
+      let mut walker = FsWalker::new(
+        clone_store.clone(),
+        sub_home.clone(),
+        vec![STORE_PATH.to_string()],
+      );
+      walker.start();
+
+      let mut walker = FsWalker::new(
+        clone_store.clone(),
+        vec!["/".to_string()],
+        vec![home.clone(), STORE_PATH.to_string()],
+      );
+      walker.start();
+
+      std::thread::sleep(Duration::from_secs(3600 * 1))
+    });
   }
 
   start_tauri_app();
@@ -158,13 +179,15 @@ fn main() {
 fn start_tauri_app() {
   let database = Database { x: 123 };
   tauri::Builder::default()
-      .setup(|x1| {
-        let option = x1.get_window("main");
-        let window = option.unwrap();
-        window
-      })
-      .manage(database)
-      .invoke_handler(tauri::generate_handler![my_custom_command])
+    .setup(|x1| {
+      let option = x1.get_window("main");
+      unsafe {
+        window = option;
+      }
+      Ok(())
+    })
+    .manage(database)
+    .invoke_handler(tauri::generate_handler![my_custom_command])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
