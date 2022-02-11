@@ -16,6 +16,15 @@ function App() {
     useEffect(() => {
         setTimeout(()=>doTxtChange('*'),200)
         // eslint-disable-next-line react-hooks/exhaustive-deps
+
+        let handler;
+        handler = setInterval(() => {
+            console.log(items)
+            if (items.length === 0) {
+                doTxtChange('*');
+                clearInterval(handler);
+            }
+        }, 200);
     }, []);
 
     function top6(json) {
