@@ -8,11 +8,18 @@ extern crate kernel32;
 extern crate libc;
 
 pub fn open_file_path(path: &str) {
-  //mac os
-  Command::new("open")
-    .args([Path::new(path).parent().unwrap().to_str().unwrap()])
-    .output()
-    .expect("failed to execute process");
+  if cfg!(target_os = "windows") {
+    Command::new("explorer")
+      .args([Path::new(path).parent().unwrap().to_str().unwrap()])
+      .output()
+      .expect("failed to execute process");
+  } else {
+    //mac os
+    Command::new("open")
+      .args([Path::new(path).parent().unwrap().to_str().unwrap()])
+      .output()
+      .expect("failed to execute process");
+  }
 }
 
 pub fn home_dir() -> String {
