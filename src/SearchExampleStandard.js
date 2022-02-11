@@ -1,5 +1,3 @@
-import _ from 'lodash'
-import faker from 'faker'
 import React from 'react'
 import {Grid, Search} from 'semantic-ui-react'
 import * as R from "ramda";

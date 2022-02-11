@@ -1,6 +1,7 @@
 use crate::file_kv::FileKv;
 use kv::*;
 
+#[derive(Clone)]
 pub struct KvStore<'a> {
   bucket: Bucket<'a, String, String>,
 }

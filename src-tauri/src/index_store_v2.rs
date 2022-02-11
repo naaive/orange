@@ -7,11 +7,11 @@ use tantivy::schema::*;
 use tantivy::{Index, IndexReader, IndexWriter, ReloadPolicy};
 
 use crate::file_index::FileIndex;
-use log::error;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
+#[derive(Clone)]
 pub struct IndexStore {
   index_writer: Arc<RwLock<IndexWriter>>,
   // index_reader: IndexReader,
@@ -86,22 +86,17 @@ impl IndexStore {
 
   pub fn search(&self, kw: String, limit: usize) -> Vec<String> {
     let searcher = self.index_reader.searcher();
-    error!("searcher");
     let mut query_parser =
       QueryParser::for_index(&self.index, vec![self.abs_path_filed, self.name_field]);
     query_parser.set_field_boost(self.abs_path_filed, 1.0f32);
     query_parser.set_field_boost(self.name_field, 4.0f32);
 
-    error!("query_parser");
-
     let query = query_parser.parse_query(kw.as_str()).ok().unwrap();
-    error!("query");
 
     let top_docs = searcher
       .search(&query, &TopDocs::with_limit(limit))
       .ok()
       .unwrap();
-    error!("top_docs");
 
     let mut vec1 = Vec::new();
     for (_score, doc_address) in top_docs {
@@ -115,7 +110,6 @@ impl IndexStore {
 
       vec1.push(x.to_string());
     }
-    error!("vec1");
 
     vec1
   }

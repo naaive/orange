@@ -5,6 +5,7 @@ use crate::kv_store::KvStore;
 use crate::IndexStore;
 use std::path::Path;
 
+#[derive(Clone)]
 pub struct UnitedStore<'a> {
   kv: KvStore<'a>,
   idx: IndexStore,

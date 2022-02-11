@@ -27,7 +27,7 @@ use crate::file_view::FileView;
 use crate::kv_store::KvStore;
 use tauri::{Window, Wry};
 
-static mut FRONT_USTORE: Option<Arc<RwLock<UnitedStore>>> = None;
+static mut FRONT_USTORE: Option<UnitedStore> = None;
 
 struct Database {
   x: usize,
@@ -64,7 +64,7 @@ async fn my_custom_command(
       if kw.eq("") {
         kw = "*".to_string();
       }
-      let vec = arc.read().unwrap().search(kw.as_str(), 50);
+      let vec = arc.search(kw.as_str(), 50);
       Ok(CustomResponse {
         message: "".to_string(),
         other_val: database.x,
@@ -74,7 +74,7 @@ async fn my_custom_command(
     // suggest
     2 => unsafe {
       let arc = FRONT_USTORE.clone().unwrap();
-      let vec = arc.read().unwrap().search(kw.as_str(), 20);
+      let vec = arc.search(kw.as_str(), 20);
       Ok(CustomResponse {
         message: "".to_string(),
         other_val: database.x,
@@ -91,11 +91,12 @@ async fn my_custom_command(
 
 fn main() {
   let store = UnitedStore::new();
-  let ustore = Arc::new(RwLock::new(store));
+
+  let ustore = Arc::new(RwLock::new(store.clone()));
   let clone_store = ustore.clone();
 
   unsafe {
-    FRONT_USTORE = Some(clone_store.clone());
+    FRONT_USTORE = Some(store.clone());
   }
 
   if cfg!(target_os = "windows") {
