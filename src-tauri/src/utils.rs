@@ -1,7 +1,6 @@
 #[cfg(windows)]
 use std::ffi::CString;
 
-
 use std::fs;
 use std::path::Path;
 use std::process::Command;

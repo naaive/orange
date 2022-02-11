@@ -87,8 +87,11 @@ impl IndexStore {
   pub fn search(&self, kw: String, limit: usize) -> Vec<String> {
     let searcher = self.index_reader.searcher();
     error!("searcher");
-    let query_parser =
+    let mut query_parser =
       QueryParser::for_index(&self.index, vec![self.abs_path_filed, self.name_field]);
+    query_parser.set_field_boost(self.abs_path_filed, 1.0f32);
+    query_parser.set_field_boost(self.name_field, 4.0f32);
+
     error!("query_parser");
 
     let query = query_parser.parse_query(kw.as_str()).ok().unwrap();
