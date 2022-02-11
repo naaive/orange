@@ -7,6 +7,7 @@ use tantivy::schema::*;
 use tantivy::{Index, IndexReader, IndexWriter, ReloadPolicy};
 
 use crate::file_index::FileIndex;
+use log::error;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
@@ -85,16 +86,20 @@ impl IndexStore {
 
   pub fn search(&self, kw: String, limit: usize) -> Vec<String> {
     let searcher = self.index_reader.searcher();
-
+    error!("searcher");
     let query_parser =
       QueryParser::for_index(&self.index, vec![self.abs_path_filed, self.name_field]);
+    error!("query_parser");
 
     let query = query_parser.parse_query(kw.as_str()).ok().unwrap();
+    error!("query");
 
     let top_docs = searcher
       .search(&query, &TopDocs::with_limit(limit))
       .ok()
       .unwrap();
+    error!("top_docs");
+
     let mut vec1 = Vec::new();
     for (_score, doc_address) in top_docs {
       let retrieved_doc = searcher.doc(doc_address).ok().unwrap();
@@ -107,6 +112,8 @@ impl IndexStore {
 
       vec1.push(x.to_string());
     }
+    error!("vec1");
+
     vec1
   }
   pub fn del(&self, abs_path: String) {
@@ -123,6 +130,7 @@ impl IndexStore {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use log::{debug, error};
   use std::time::SystemTime;
 
   #[test]
@@ -198,5 +206,38 @@ mod tests {
     );
 
     println!("{:?}", vec);
+  }
+
+  #[test]
+  fn t3() {
+    env_logger::init();
+
+    let storev2 = IndexStore::new();
+
+    // std::thread::sleep(Duration::from_secs(1));
+    let time = SystemTime::now();
+    storev2.search(String::from("思维"), 100);
+    let time2 = SystemTime::now();
+    println!(
+      "elapsed {} ms",
+      time2.duration_since(time).unwrap().as_millis()
+    );
+
+    let time = SystemTime::now();
+    let vec = storev2.search(String::from("抽象"), 100);
+    let time2 = SystemTime::now();
+    println!(
+      "elapsed {} ms",
+      time2.duration_since(time).unwrap().as_millis()
+    );
+    println!("{:?}", vec);
+  }
+
+  #[test]
+  fn t6() {
+    env_logger::init();
+
+    debug!("this is a debug {}", "message");
+    error!("this is printed by default");
   }
 }

@@ -64,7 +64,7 @@ async fn my_custom_command(
       if kw.eq("") {
         kw = "*".to_string();
       }
-      let vec = arc.read().unwrap().search(kw.as_str(), 100);
+      let vec = arc.read().unwrap().search(kw.as_str(), 50);
       Ok(CustomResponse {
         message: "".to_string(),
         other_val: database.x,
