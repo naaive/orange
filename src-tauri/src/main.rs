@@ -123,24 +123,27 @@ fn main() {
         let mut walker = FsWalker::new(
           clone_store.clone(),
           sub_home.clone(),
-          vec![STORE_PATH.to_string()],
-          kv_store.clone()
+          vec![STORE_PATH.to_string(), "$RECYCLE.BIN".to_string()],
+          kv_store.clone(),
         );
-        std::thread::spawn(move|| {
+        std::thread::spawn(move || {
           walker.start();
         });
-
 
         let mut walker = FsWalker::new(
           clone_store.clone(),
           drivs_clone.clone(),
-          vec![home.clone(), STORE_PATH.to_string()],
-          kv_store.clone()
+          vec![
+            home.clone(),
+            STORE_PATH.to_string(),
+            "$RECYCLE.BIN".to_string(),
+          ],
+          kv_store.clone(),
         );
-        // std::thread::spawn(move|| {
+        std::thread::spawn(move || {
           walker.start();
-        // });
-        std::thread::sleep(Duration::from_secs(3600 * 24*1))
+        });
+        std::thread::sleep(Duration::from_secs(3600 * 24 * 1))
       });
 
       for driv in drives {
@@ -163,7 +166,6 @@ fn main() {
       });
     }
 
-
     let home = utils::home_dir();
     let sub_home = utils::home_sub_dir();
 
@@ -173,7 +175,7 @@ fn main() {
         clone_store.clone(),
         sub_home.clone(),
         vec![STORE_PATH.to_string()],
-        kv_store.clone()
+        kv_store.clone(),
       );
       walker.start();
 
@@ -181,7 +183,7 @@ fn main() {
         clone_store.clone(),
         vec!["/".to_string()],
         vec![home.clone(), STORE_PATH.to_string()],
-        kv_store.clone()
+        kv_store.clone(),
       );
       walker.start();
 
