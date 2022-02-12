@@ -16,13 +16,16 @@ function App() {
         setTimeout(()=>doTxtChange('*'),200)
         // eslint-disable-next-line react-hooks/exhaustive-deps
 
+        let run =0;
         let handler;
         handler = setInterval(() => {
-            if (items.length === 0) {
-                doTxtChange('*');
-                if (items.length !== 0) {
-                    clearInterval(handler);
-                }
+            if (items.length === 0&& run ===0) {
+                run=1;
+                doTxtChange('*').then(()=>{
+                    if (items.length !== 0) {
+                        clearInterval(handler);
+                    }
+                })
             }
         }, 200);
     }, []);

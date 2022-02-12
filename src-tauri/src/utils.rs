@@ -63,6 +63,15 @@ pub fn home_sub_dir() -> Vec<String> {
   [res2, res1].concat()
 }
 
+pub fn sub_root()-> Vec<String> {
+  let paths = fs::read_dir("/").unwrap();
+  let subs: Vec<String> = paths
+      .into_iter()
+      .map(|x| x.unwrap().path().to_str().unwrap().to_string())
+      .collect();
+  subs
+}
+
 #[cfg(windows)]
 pub unsafe fn get_win32_ready_drives() -> Vec<String> {
   let mut logical_drives = Vec::with_capacity(5);
@@ -92,7 +101,7 @@ mod tests {
 
   #[cfg(windows)]
   use crate::utils::get_win32_ready_drives;
-  use crate::utils::home_sub_dir;
+  use crate::utils::{home_sub_dir, sub_root};
 
   #[cfg(windows)]
   #[test]
@@ -115,5 +124,11 @@ mod tests {
     let dir = home_sub_dir();
 
     println!("{:?}", dir);
+  }
+
+  #[test]
+  fn t4() {
+    let root = sub_root();
+    println!("{:?}", root);
   }
 }

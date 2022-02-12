@@ -146,10 +146,16 @@ fn main() {
       }
     }
   } else {
-    std::thread::spawn(move || {
-      let mut watcher = FsWatcher::new(ustore.clone(), "/".to_string());
-      watcher.start();
-    });
+    let sub_root = utils::sub_root();
+    for sub in sub_root {
+      let uclone1 = ustore.clone();
+      std::thread::spawn(move || {
+        let mut watcher = FsWatcher::new(uclone1, sub.clone());
+        watcher.start();
+      });
+    }
+
+
     let home = utils::home_dir();
     let sub_home = utils::home_sub_dir();
 
