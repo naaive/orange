@@ -28,7 +28,7 @@ use crate::kv_store::KvStore;
 use tauri::{Manager, Window, Wry};
 
 static mut FRONT_USTORE: Option<UnitedStore> = None;
-static mut window: Option<Window<Wry>> = None;
+static mut WINDOW: Option<Window<Wry>> = None;
 
 struct Database {
   x: usize,
@@ -96,7 +96,7 @@ fn main() {
   // std::thread::spawn(|| {
   //   std::thread::sleep(Duration::from_secs(2));
   //   unsafe {
-  //     utils::msg(window.clone().unwrap());
+  //     utils::msg(WINDOW.clone().unwrap());
   //   }
   //
   // });
@@ -108,6 +108,7 @@ fn main() {
   unsafe {
     FRONT_USTORE = Some(store.clone());
   }
+  let kv_store = KvStore::new("./orangecachedata/conf");
 
   if cfg!(target_os = "windows") {
     #[cfg(windows)]
@@ -123,16 +124,23 @@ fn main() {
           clone_store.clone(),
           sub_home.clone(),
           vec![STORE_PATH.to_string()],
+          kv_store.clone()
         );
-        walker.start();
+        std::thread::spawn(move|| {
+          walker.start();
+        });
+
 
         let mut walker = FsWalker::new(
           clone_store.clone(),
           drivs_clone.clone(),
           vec![home.clone(), STORE_PATH.to_string()],
+          kv_store.clone()
         );
-        walker.start();
-        std::thread::sleep(Duration::from_secs(3600 * 1))
+        // std::thread::spawn(move|| {
+          walker.start();
+        // });
+        std::thread::sleep(Duration::from_secs(3600 * 24*1))
       });
 
       for driv in drives {
@@ -165,6 +173,7 @@ fn main() {
         clone_store.clone(),
         sub_home.clone(),
         vec![STORE_PATH.to_string()],
+        kv_store.clone()
       );
       walker.start();
 
@@ -172,6 +181,7 @@ fn main() {
         clone_store.clone(),
         vec!["/".to_string()],
         vec![home.clone(), STORE_PATH.to_string()],
+        kv_store.clone()
       );
       walker.start();
 
@@ -188,7 +198,7 @@ fn start_tauri_app() {
     .setup(|x1| {
       let option = x1.get_window("main");
       unsafe {
-        window = option;
+        WINDOW = option;
       }
       Ok(())
     })

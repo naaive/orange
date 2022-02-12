@@ -96,6 +96,7 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
     drive = std::char::from_u32((drive as u32) + 1).unwrap();
     bitfield >>= 1;
   }
+  logical_drives.sort_by(|x1, x2| {x2.cmp(x1)});
   logical_drives
 }
 
