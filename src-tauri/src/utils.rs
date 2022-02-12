@@ -21,6 +21,11 @@ pub fn open_file_path(path: &str) {
       .args([Path::new(path).parent().unwrap().to_str().unwrap()])
       .output()
       .expect("failed to execute process");
+  } else if cfg!(target_os = "linux") {
+    Command::new("xdg-open")
+      .args([Path::new(path).parent().unwrap().to_str().unwrap()])
+      .output()
+      .expect("failed to execute process");
   } else {
     //mac os
     Command::new("open")
@@ -63,12 +68,12 @@ pub fn home_sub_dir() -> Vec<String> {
   [res2, res1].concat()
 }
 
-pub fn sub_root()-> Vec<String> {
+pub fn sub_root() -> Vec<String> {
   let paths = fs::read_dir("/").unwrap();
   let subs: Vec<String> = paths
-      .into_iter()
-      .map(|x| x.unwrap().path().to_str().unwrap().to_string())
-      .collect();
+    .into_iter()
+    .map(|x| x.unwrap().path().to_str().unwrap().to_string())
+    .collect();
   subs
 }
 
