@@ -5,14 +5,16 @@ use std::fs;
 
 use std::path::Path;
 use std::process::Command;
+use tauri::api::dialog::message;
+use tauri::{Manager, Window, Wry};
 
 extern crate kernel32;
 extern crate libc;
 //
-// pub fn msg(window: Window<Wry>) {
-//   let parent_window = window.get_window("main").unwrap();
-//   message(Some(&parent_window), "Title", "hellowold");
-// }
+pub fn msg(window: Window<Wry>, content: &str) {
+  let parent_window = window.get_window("main").unwrap();
+  message(Some(&parent_window), "Warm", content);
+}
 
 pub fn open_file_path(path: &str) {
   if cfg!(target_os = "windows") {

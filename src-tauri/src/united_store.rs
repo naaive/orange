@@ -19,13 +19,16 @@ impl UnitedStore<'_> {
   }
   pub fn save(&mut self, file: FileView) {
     #[cfg(windows)]
-    let abs_path:String =file.abs_path.chars()
-    .map(|x| match x {
-      '/' =>  '\\',
-      _ => x
-    }).collect();
+    let abs_path: String = file
+      .abs_path
+      .chars()
+      .map(|x| match x {
+        '/' => '\\',
+        _ => x,
+      })
+      .collect();
     #[cfg(unix)]
-    let abs_path:String =file.abs_path.to_string();
+    let abs_path: String = file.abs_path.to_string();
 
     let abs_path_clone1 = abs_path.clone();
     let abs_path_clone2 = abs_path.clone();

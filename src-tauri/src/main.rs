@@ -13,6 +13,7 @@ mod fs_watcher;
 mod index_store_v2;
 mod united_store;
 mod utils;
+use std::panic;
 
 use crate::fs_walker::FsWalker;
 use crate::fs_watcher::FsWatcher;
@@ -93,13 +94,6 @@ async fn my_custom_command(
 const STORE_PATH: &'static str = "orangecachedata";
 
 fn main() {
-  // std::thread::spawn(|| {
-  //   std::thread::sleep(Duration::from_secs(2));
-  //   unsafe {
-  //     utils::msg(WINDOW.clone().unwrap());
-  //   }
-  //
-  // });
   let store = UnitedStore::new();
 
   let ustore = Arc::new(RwLock::new(store.clone()));
@@ -163,7 +157,12 @@ fn main() {
 
         std::thread::spawn(move || {
           let mut watcher = FsWatcher::new(uclone1, driv_clone1);
-          watcher.start();
+          let result = panic::catch_unwind(move || {
+            watcher.start();
+          });
+          if result.is_err() {
+            warm("bad watcher,{}");
+          }
         });
       }
     }
@@ -206,6 +205,10 @@ fn main() {
   }
 
   start_tauri_app();
+}
+
+unsafe fn warm(content: &str) {
+  utils::msg(WINDOW.clone().unwrap(), content);
 }
 
 fn start_tauri_app() {
