@@ -130,19 +130,25 @@ fn main() {
           walker.start();
         });
 
-        let mut walker = FsWalker::new(
-          clone_store.clone(),
-          drivs_clone.clone(),
-          vec![
-            home.clone(),
-            STORE_PATH.to_string(),
-            "$RECYCLE.BIN".to_string(),
-          ],
-          kv_store.clone(),
-        );
-        std::thread::spawn(move || {
-          walker.start();
-        });
+        let sub_root = utils::sub_root();
+        for sub in sub_root {
+          let uclone1 = ustore.clone();
+
+          let mut walker = FsWalker::new(
+            clone_store.clone(),
+            sub.clone(),
+            vec![
+              home.clone(),
+              STORE_PATH.to_string(),
+              "$RECYCLE.BIN".to_string(),
+            ],
+            kv_store.clone(),
+          );
+          std::thread::spawn(move || {
+            walker.start();
+          });
+        }
+
         std::thread::sleep(Duration::from_secs(3600 * 24 * 1))
       });
 

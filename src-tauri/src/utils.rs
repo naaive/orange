@@ -73,7 +73,7 @@ pub fn home_sub_dir() -> Vec<String> {
   }
   [res2, res1].concat()
 }
-
+#[cfg(unix)]
 pub fn sub_root() -> Vec<String> {
   let paths = fs::read_dir("/").unwrap();
   let subs: Vec<String> = paths
@@ -82,6 +82,7 @@ pub fn sub_root() -> Vec<String> {
     .collect();
   subs
 }
+
 
 #[cfg(windows)]
 pub unsafe fn get_win32_ready_drives() -> Vec<String> {
@@ -104,6 +105,16 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
   }
   logical_drives.sort_by(|x1, x2| x2.cmp(x1));
   logical_drives
+}
+
+#[cfg(windows)]
+pub unsafe fn sub_root() -> Vec<String> {
+  let paths = fs::read_dir("/").unwrap();
+  let subs: Vec<String> = paths
+      .into_iter()
+      .map(|x| x.unwrap().path().to_str().unwrap().to_string())
+      .collect();
+  subs
 }
 
 fn parse_ts(time: SystemTime) -> u64 {
