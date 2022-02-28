@@ -16,8 +16,10 @@ extern crate libc;
 
 pub fn open_file_path(path: &str) {
   if cfg!(target_os = "windows") {
+    let x = Path::new(path).parent().unwrap().to_str().unwrap();
+    println!("{}", x);
     Command::new("explorer")
-      .args([Path::new(path).parent().unwrap().to_str().unwrap()])
+      .args([x])
       .output()
       .expect("failed to execute process");
   } else if cfg!(target_os = "linux") {
@@ -84,7 +86,7 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
 
   while bitfield != 0 {
     if bitfield & 1 == 1 {
-      let strfulldl = drive.to_string() + "://";
+      let strfulldl = drive.to_string() + ":/";
       let cstrfulldl = CString::new(strfulldl.clone()).unwrap();
       let x = kernel32::GetDriveTypeA(cstrfulldl.as_ptr());
       if x == 3 || x == 2 {
