@@ -113,10 +113,10 @@ fn main() {
   if cfg!(target_os = "windows") {
     #[cfg(windows)]
     unsafe {
+      // travel
       let drives = utils::get_win32_ready_drives();
-
-      let drivs_clone = drives.clone();
       std::thread::spawn(move || loop {
+        // home
         let home = utils::home_dir();
         let sub_home = utils::home_sub_dir();
 
@@ -125,24 +125,28 @@ fn main() {
           sub_home.clone(),
           vec![STORE_PATH.to_string(), "$RECYCLE.BIN".to_string()],
           kv_store.clone(),
+          3 * 1000000,
         );
         std::thread::spawn(move || {
           walker.start();
         });
 
+        //total
         let sub_root = utils::sub_root();
+        let nanos = 3 * 1000000 / sub_root.len();
         for sub in sub_root {
-          let uclone1 = ustore.clone();
+          // let uclone1 = ustore.clone();
 
           let mut walker = FsWalker::new(
             clone_store.clone(),
-            sub.clone(),
+            vec![sub.clone()],
             vec![
               home.clone(),
               STORE_PATH.to_string(),
               "$RECYCLE.BIN".to_string(),
             ],
             kv_store.clone(),
+            nanos as u64,
           );
           std::thread::spawn(move || {
             walker.start();
@@ -152,6 +156,7 @@ fn main() {
         std::thread::sleep(Duration::from_secs(3600 * 24 * 1))
       });
 
+      //watch
       for driv in drives {
         let uclone1 = ustore.clone();
         let driv_clone1 = driv.clone();
@@ -163,38 +168,41 @@ fn main() {
       }
     }
   } else {
-    let sub_root = utils::sub_root();
-    for sub in sub_root {
-      let uclone1 = ustore.clone();
-      std::thread::spawn(move || {
-        let mut watcher = FsWatcher::new(uclone1, sub.clone());
-        watcher.start();
+    #[cfg(unix)]
+    {
+      let sub_root = utils::sub_root();
+      for sub in sub_root {
+        let uclone1 = ustore.clone();
+        std::thread::spawn(move || {
+          let mut watcher = FsWatcher::new(uclone1, sub.clone());
+          watcher.start();
+        });
+      }
+
+      let home = utils::home_dir();
+      let sub_home = utils::home_sub_dir();
+
+      std::thread::spawn(move || loop {
+        // Path::new(home)
+        let mut walker = FsWalker::new(
+          clone_store.clone(),
+          sub_home.clone(),
+          vec![STORE_PATH.to_string()],
+          kv_store.clone(),
+        );
+        walker.start();
+
+        let mut walker = FsWalker::new(
+          clone_store.clone(),
+          vec!["/".to_string()],
+          vec![home.clone(), STORE_PATH.to_string()],
+          kv_store.clone(),
+        );
+        walker.start();
+
+        std::thread::sleep(Duration::from_secs(3600 * 1))
       });
     }
-
-    let home = utils::home_dir();
-    let sub_home = utils::home_sub_dir();
-
-    std::thread::spawn(move || loop {
-      // Path::new(home)
-      let mut walker = FsWalker::new(
-        clone_store.clone(),
-        sub_home.clone(),
-        vec![STORE_PATH.to_string()],
-        kv_store.clone(),
-      );
-      walker.start();
-
-      let mut walker = FsWalker::new(
-        clone_store.clone(),
-        vec!["/".to_string()],
-        vec![home.clone(), STORE_PATH.to_string()],
-        kv_store.clone(),
-      );
-      walker.start();
-
-      std::thread::sleep(Duration::from_secs(3600 * 1))
-    });
   }
 
   start_tauri_app();

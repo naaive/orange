@@ -15,6 +15,7 @@ pub struct FsWalker<'a> {
   kv_store: KvStore<'a>,
   root: Vec<String>,
   exclude_path: Vec<String>,
+  nanos: u64,
 }
 
 impl FsWalker<'_> {
@@ -22,7 +23,8 @@ impl FsWalker<'_> {
     ustore: Arc<RwLock<UnitedStore<'a>>>,
     root: Vec<String>,
     exclude_path: Vec<String>,
-    kv_store: KvStore<'a>
+    kv_store: KvStore<'a>,
+    nanos: u64,
   ) -> FsWalker<'a> {
     // let index_writer: Arc<RwLock<UnitedStore>>
     // let kv_store = KvStore::new("./orangecachedata/conf");
@@ -31,6 +33,7 @@ impl FsWalker<'_> {
       kv_store,
       root,
       exclude_path,
+      nanos,
     }
   }
   pub fn start(&mut self) {
@@ -105,7 +108,8 @@ impl FsWalker<'_> {
       })
       .filter_map(|v| v.ok())
     {
-      std::thread::sleep(Duration::from_millis(3));
+      //
+      std::thread::sleep(Duration::from_nanos(self.nanos));
       match x.metadata() {
         Ok(meta) => {
           let created_at = Self::parse_ts(meta.created().ok().unwrap());
@@ -154,7 +158,8 @@ mod tests {
       Arc::new(RwLock::new(UnitedStore::new())),
       vec!["".to_string()],
       vec![],
-      KvStore::new("./orangecachedata/conf")
+      KvStore::new("./orangecachedata/conf"),
+      3,
     );
     walker.start();
   }

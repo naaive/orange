@@ -1,25 +1,18 @@
 #[cfg(windows)]
 use std::ffi::CString;
 
-use crate::file_view::FileView;
-use std::collections::{HashSet, VecDeque};
-use std::ffi::OsStr;
 use std::fs;
-use std::iter::FromIterator;
-use std::os::windows::fs::MetadataExt;
+
 use std::path::Path;
 use std::process::Command;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use tauri::api::dialog::message;
-use tauri::{Manager, Window, Wry};
 
 extern crate kernel32;
 extern crate libc;
-
-pub fn msg(window: Window<Wry>) {
-  let parent_window = window.get_window("main").unwrap();
-  message(Some(&parent_window), "Title", "hellowold");
-}
+//
+// pub fn msg(window: Window<Wry>) {
+//   let parent_window = window.get_window("main").unwrap();
+//   message(Some(&parent_window), "Title", "hellowold");
+// }
 
 pub fn open_file_path(path: &str) {
   if cfg!(target_os = "windows") {
@@ -83,7 +76,6 @@ pub fn sub_root() -> Vec<String> {
   subs
 }
 
-
 #[cfg(windows)]
 pub unsafe fn get_win32_ready_drives() -> Vec<String> {
   let mut logical_drives = Vec::with_capacity(5);
@@ -109,94 +101,100 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
 
 #[cfg(windows)]
 pub unsafe fn sub_root() -> Vec<String> {
-  let paths = fs::read_dir("/").unwrap();
-  let subs: Vec<String> = paths
+  let drives = get_win32_ready_drives();
+  let mut res = vec![];
+  for driv in drives {
+    let paths = fs::read_dir(driv).unwrap();
+    let mut subs: Vec<String> = paths
       .into_iter()
       .map(|x| x.unwrap().path().to_str().unwrap().to_string())
       .collect();
-  subs
-}
-
-fn parse_ts(time: SystemTime) -> u64 {
-  let created_at = time.duration_since(UNIX_EPOCH).unwrap().as_millis() as u64;
-  created_at
-}
-pub fn bfs_travel<T>(exclude_path: Vec<String>, func: T, roots: Vec<String>)
-where
-  T: Fn(FileView) -> (),
-{
-  for root in roots {
-    // let root = path;
-    let mut deque = VecDeque::new();
-
-    let path1 = Path::new(root.as_str());
-    let view = parse_file_view(path1);
-    deque.push_back(view);
-    loop {
-      Duration::from_millis(3);
-
-      if deque.is_empty() {
-        break;
-      }
-      let len = deque.len();
-      for _i in 0..len {
-        let p = deque.pop_front().unwrap();
-        func(p.clone());
-        // println!("{:?}", p);
-        let result = fs::read_dir(p.abs_path);
-        if result.is_ok() {
-          let paths = result.unwrap();
-          for path in paths {
-            if path.is_ok() {
-              let buf = path.ok().unwrap().path();
-              let x = buf.as_path();
-              let file_view = parse_file_view(x);
-              if exclude_path.iter().any(|y| file_view.abs_path.contains(y)) {
-                continue;
-              }
-
-              deque.push_back(file_view);
-            }
-          }
-        }
-      }
-    }
+    res.append(&mut subs);
   }
-
+  res
 }
 
-fn parse_file_view(path1: &Path) -> FileView {
-  let result = path1.metadata();
+// fn parse_ts(time: SystemTime) -> u64 {
+//   let created_at = time.duration_since(UNIX_EPOCH).unwrap().as_millis() as u64;
+//   created_at
+// }
+// pub fn bfs_travel<T>(exclude_path: Vec<String>, func: T, roots: Vec<String>)
+// where
+//   T: Fn(FileView) -> (),
+// {
+//   for root in roots {
+//     // let root = path;
+//     let mut deque = VecDeque::new();
+//
+//     let path1 = Path::new(root.as_str());
+//     let view = parse_file_view(path1);
+//     deque.push_back(view);
+//     loop {
+//       Duration::from_millis(3);
+//
+//       if deque.is_empty() {
+//         break;
+//       }
+//       let len = deque.len();
+//       for _i in 0..len {
+//         let p = deque.pop_front().unwrap();
+//         func(p.clone());
+//         // println!("{:?}", p);
+//         let result = fs::read_dir(p.abs_path);
+//         if result.is_ok() {
+//           let paths = result.unwrap();
+//           for path in paths {
+//             if path.is_ok() {
+//               let buf = path.ok().unwrap().path();
+//               let x = buf.as_path();
+//               let file_view = parse_file_view(x);
+//               if exclude_path.iter().any(|y| file_view.abs_path.contains(y)) {
+//                 continue;
+//               }
+//
+//               deque.push_back(file_view);
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
 
-  let meta = result.unwrap();
-  #[cfg(windows)]
-  let size = meta.file_size();
-  #[cfg(unix)]
-  let size = meta.size();
-  let view = FileView {
-    abs_path: path1.to_str().unwrap().to_string(),
-    name: path1.file_name().unwrap_or(&OsStr::new("")).to_str().unwrap().to_string(),
-    created_at: parse_ts(meta.created().unwrap()),
-    mod_at: parse_ts(meta.modified().unwrap()),
-    size: size,
-    is_dir: meta.is_dir(),
-  };
-  view
-}
+// fn parse_file_view(path1: &Path) -> FileView {
+//   let result = path1.metadata();
+//
+//   let meta = result.unwrap();
+//   #[cfg(windows)]
+//   let size = meta.file_size();
+//   #[cfg(unix)]
+//   let size = meta.size();
+//   let view = FileView {
+//     abs_path: path1.to_str().unwrap().to_string(),
+//     name: path1
+//       .file_name()
+//       .unwrap_or(&OsStr::new(""))
+//       .to_str()
+//       .unwrap()
+//       .to_string(),
+//     created_at: parse_ts(meta.created().unwrap()),
+//     mod_at: parse_ts(meta.modified().unwrap()),
+//     size: size,
+//     is_dir: meta.is_dir(),
+//   };
+//   view
+// }
 
 #[cfg(test)]
 mod tests {
-  use crate::file_view::FileView;
-  use std::collections::{HashSet, VecDeque};
-  use std::fs;
+
+  use std::collections::HashSet;
+
   use std::iter::FromIterator;
-  use std::os::windows::fs::MetadataExt;
-  use std::path::Path;
-  use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
   #[cfg(windows)]
   use crate::utils::get_win32_ready_drives;
-  use crate::utils::{bfs_travel, home_sub_dir, sub_root};
+  use crate::utils::{home_sub_dir, sub_root};
 
   #[cfg(windows)]
   #[test]
@@ -221,6 +219,7 @@ mod tests {
     println!("{:?}", dir);
   }
 
+  #[cfg(unix)]
   #[test]
   fn t4() {
     let root = sub_root();
@@ -228,12 +227,13 @@ mod tests {
   }
 
   #[test]
-  fn t5() {
-    use std::collections::VecDeque;
-    use walkdir::WalkDir;
+  fn t5() {}
 
-    bfs_travel(vec!["Administrator".to_string()], |view| {
-      println!("{:?}", view);
-    },vec!["D://".to_string()]);
+  #[test]
+  fn t6() {
+    unsafe {
+      let vec = sub_root();
+      println!("{:?}", vec);
+    }
   }
 }
