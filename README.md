@@ -22,12 +22,17 @@
 
 ![Demo](screenshot/orange.gif)
 
-Orange is an easy to use file search software. It's based on Tauri, and running Orange on Windows, MacOS, or Linux gives you a consistent experience. Its features are summarized as follows:
+Orange is an easy-to-use file search software. It is built on Tauri and has a consistent experience across different desktop platforms. Its features are summarized as follows:
 
 - Near real-time search
 - Low memory and low cpu usage
 - Easy to use
 
+
+## Build 
+- setup Tauri dev environment (https://tauri.studio/docs/getting-started/setting-up-macos)
+- run `yarn`
+- run `yarn tauri-build`
 
 
 ## Download
