@@ -181,25 +181,30 @@ fn main() {
       let home = utils::home_dir();
       let sub_home = utils::home_sub_dir();
 
-      std::thread::spawn(move || loop {
-        // Path::new(home)
-        let mut walker = FsWalker::new(
-          clone_store.clone(),
-          sub_home.clone(),
-          vec![STORE_PATH.to_string()],
-          kv_store.clone(),
-        );
-        walker.start();
+      std::thread::spawn(move || {
+        loop {
+          // Path::new(home)
+          let nanos = 3 * 1000000;
+          let mut walker = FsWalker::new(
+            clone_store.clone(),
+            sub_home.clone(),
+            vec![STORE_PATH.to_string()],
+            kv_store.clone(),
+            nanos
+          );
+          walker.start();
 
-        let mut walker = FsWalker::new(
-          clone_store.clone(),
-          vec!["/".to_string()],
-          vec![home.clone(), STORE_PATH.to_string()],
-          kv_store.clone(),
-        );
-        walker.start();
+          let mut walker = FsWalker::new(
+            clone_store.clone(),
+            vec!["/".to_string()],
+            vec![home.clone(), STORE_PATH.to_string()],
+            kv_store.clone(),
+            nanos
+          );
+          walker.start();
 
-        std::thread::sleep(Duration::from_secs(3600 * 1))
+          std::thread::sleep(Duration::from_secs(3600 * 1))
+        }
       });
     }
   }
