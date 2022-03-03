@@ -30,15 +30,27 @@ Orange is an easy-to-use file search software. It is built on Tauri and has a co
 
 
 ## Build 
-- setup Tauri dev environment (https://tauri.studio/docs/getting-started/setting-up-macos)
-- run `yarn`
-- run `yarn setup`
-- run `yarn tauri-build`
+- Setup Tauri dev environment (https://tauri.studio/docs/getting-started/setting-up-macos)
+- Run `yarn`
+- Run `yarn setup`
+- Run `yarn tauri-build`
 
 
 ## Download
 
 Go to [release page](https://github.com/naaive/orange/releases).
+
+
+## Architecture
+![arch](doc/img.png)
+
+
+## Thanks
+- Tauri https://tauri.studio
+- Notify https://github.com/notify-rs/notify
+- React https://github.com/facebook/react
+- Tantivy https://github.com/quickwit-oss/tantivy
+- Kv https://docs.rs/kv/latest/kv/
 
 
 ## LICENSE
