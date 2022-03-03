@@ -24,10 +24,12 @@
 
 Orange is an easy-to-use file search software. It is built on Tauri and has a consistent experience across different desktop platforms. Its features are summarized as follows:
 
-- Near real-time search
+- Fast search response
 - Low memory and low cpu usage
-- Easy to use
-
+- Easy to use, comes with tokenization and auto completion
+- Monitor file changes in real time
+- Lightweight installation package
+- Simple and elegant UI
 
 ## Build 
 - Setup Tauri dev environment (https://tauri.studio/docs/getting-started/setting-up-macos)
