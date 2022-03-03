@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import SearchExampleStandard from "./SearchExampleStandard";
-import TableExampleCollapsing from "./TableExampleCollapsing";
+import Search from "./SearchBox";
+import Items from "./Items";
 
 import * as R from "ramda";
 import {invoke} from "@tauri-apps/api";
@@ -57,10 +57,10 @@ function App() {
     return (
         <div className="App">
             <div className="search">
-                <SearchExampleStandard setItems={setItems} doTxtChange={doTxtChange}/>
+                <Search setItems={setItems} doTxtChange={doTxtChange}/>
             </div>
             <div className="oitems">
-                <TableExampleCollapsing items={items} kw={kw}/>
+                <Items items={items} kw={kw}/>
             </div>
         </div>
     );

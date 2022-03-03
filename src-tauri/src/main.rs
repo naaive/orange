@@ -10,7 +10,7 @@ mod file_kv;
 mod file_view;
 mod fs_walker;
 mod fs_watcher;
-mod index_store_v2;
+mod index_store;
 mod united_store;
 mod utils;
 use std::panic;
@@ -18,7 +18,7 @@ use std::panic;
 use crate::fs_walker::FsWalker;
 use crate::fs_watcher::FsWatcher;
 use crate::united_store::UnitedStore;
-use index_store_v2::IndexStore;
+use index_store::IndexStore;
 
 use std::sync::{Arc, RwLock};
 use std::time::Duration;

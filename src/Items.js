@@ -14,7 +14,7 @@ function bytesToSize(bytes) {
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
 
-function TableExampleCollapsing({items, kw}) {
+function Items({items, kw}) {
 
     function handleClick(absPath) {
         invoke('my_custom_command', {
@@ -79,4 +79,4 @@ function TableExampleCollapsing({items, kw}) {
     </Table>;
 }
 
-export default TableExampleCollapsing
+export default Items

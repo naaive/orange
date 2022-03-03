@@ -32,7 +32,7 @@ function top6(json) {
     return R.take(6)(json);
 }
 
-function SearchExampleStandard({setItems, doTxtChange}) {
+function SearchBox({setItems, doTxtChange}) {
     const [state, dispatch] = React.useReducer(exampleReducer, initialState)
     const {loading, results, value} = state
 
@@ -106,4 +106,4 @@ function SearchExampleStandard({setItems, doTxtChange}) {
     )
 }
 
-export default SearchExampleStandard
+export default SearchBox
