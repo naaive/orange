@@ -52,7 +52,7 @@ Go to [release page](https://github.com/naaive/orange/releases).
 - Notify https://github.com/notify-rs/notify
 - React https://github.com/facebook/react
 - Tantivy https://github.com/quickwit-oss/tantivy
-- Kv https://docs.rs/kv/latest/kv/
+- Kv https://github.com/zshipko/rust-kv
 
 
 ## LICENSE
