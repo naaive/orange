@@ -190,7 +190,7 @@ fn main() {
             sub_home.clone(),
             vec![STORE_PATH.to_string()],
             kv_store.clone(),
-            nanos
+            nanos,
           );
           walker.start();
 
@@ -199,7 +199,7 @@ fn main() {
             vec!["/".to_string()],
             vec![home.clone(), STORE_PATH.to_string()],
             kv_store.clone(),
-            nanos
+            nanos,
           );
           walker.start();
 

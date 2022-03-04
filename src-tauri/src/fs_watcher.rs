@@ -36,10 +36,13 @@ impl FsWatcher<'_> {
           op: Ok(op),
           cookie: _,
         }) => {
+          if Op::REMOVE & op == Op::REMOVE {
+            self.ustore.write().unwrap().del(path.to_str().unwrap());
+          };
+
           let result = path.metadata();
           match result {
             Ok(meta) => {
-              // println!("{:?} {:?} ({:?})", op, path, cookie);
               let abs_path = path.to_str().unwrap().to_string();
               let name = path
                 .file_name()
@@ -55,19 +58,15 @@ impl FsWatcher<'_> {
               #[cfg(unix)]
               let size = meta.size();
 
-              if Op::REMOVE == op {
-                self.ustore.write().unwrap().del(&abs_path);
-              } else {
-                self.ustore.write().unwrap().save(FileView {
-                  abs_path,
-                  name,
-                  created_at,
-                  mod_at,
-                  size,
-                  // is_symbol,
-                  is_dir: meta.is_dir(),
-                });
-              }
+              self.ustore.write().unwrap().save(FileView {
+                abs_path,
+                name,
+                created_at,
+                mod_at,
+                size,
+                // is_symbol,
+                is_dir: meta.is_dir(),
+              });
             }
             Err(_) => {}
           }
@@ -90,11 +89,73 @@ impl FsWatcher<'_> {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use notify::watcher;
+  use std::time::Duration;
 
   #[test]
   fn t1() {
     let store = UnitedStore::new();
-    let mut watcher = FsWatcher::new(Arc::new(RwLock::new(store)), "".to_string());
+    let mut watcher = FsWatcher::new(
+      Arc::new(RwLock::new(store)),
+      "/Users/jeff/CLionProjects/orangemac/src-tauri/target/hi".to_string(),
+    );
     watcher.start();
+  }
+  #[test]
+  fn t2() {
+    // Create a channel to receive the events.
+    let (tx, rx) = channel();
+
+    // Create a watcher object, delivering debounced events.
+    // The notification back-end is selected based on the platform.
+    let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
+
+    // Add a path to be watched. All files and directories at that path and
+    // below will be monitored for changes.
+    watcher
+      .watch(
+        "/Users/jeff/CLionProjects/orangemac/src-tauri/target/hi",
+        RecursiveMode::Recursive,
+      )
+      .unwrap();
+
+    loop {
+      match rx.recv() {
+        Ok(event) => println!("{:?}", event),
+        Err(e) => println!("watch error: {:?}", e),
+      }
+    }
+  }
+  #[test]
+  fn t3() {
+    // Create a channel to receive the events.
+    let (tx, rx) = channel();
+
+    // Create a watcher object, delivering raw events.
+    // The notification back-end is selected based on the platform.
+    let mut watcher = raw_watcher(tx).unwrap();
+
+    // Add a path to be watched. All files and directories at that path and
+    // below will be monitored for changes.
+    watcher
+      .watch(
+        "/Users/jeff/CLionProjects/orangemac/src-tauri/target/hi",
+        RecursiveMode::Recursive,
+      )
+      .unwrap();
+
+    loop {
+      match rx.recv() {
+        Ok(RawEvent {
+          path: Some(path),
+          op: Ok(op),
+          cookie,
+        }) => {
+          println!("{:?} {:?} ({:?})", op, path, cookie)
+        }
+        Ok(event) => println!("broken event: {:?}", event),
+        Err(e) => println!("watch error: {:?}", e),
+      }
+    }
   }
 }
