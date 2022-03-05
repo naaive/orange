@@ -230,7 +230,7 @@ impl Watcher {
         record = &(*record_raw).V3;
       }
 
-      let (path, fileName) = get_usn_record_path(&self.volume_handle, &record);
+      let (path, file_name) = get_usn_record_path(&self.volume_handle, &record);
       let record = UsnRecord {
         usn: record.Usn,
         timestamp: get_usn_record_time(&record),
@@ -238,7 +238,7 @@ impl Watcher {
         parent_id: u128::from_le_bytes(record.ParentFileReferenceNumber.Identifier),
         reason: record.Reason,
         path: path,
-        file_name: fileName,
+        file_name,
       };
 
       if record.reason

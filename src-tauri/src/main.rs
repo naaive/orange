@@ -23,8 +23,8 @@ use crate::fs_watcher::FsWatcher;
 use crate::united_store::UnitedStore;
 use index_store::IndexStore;
 
-use std::sync::{mpsc, Arc, RwLock};
 use std::sync::mpsc::Sender;
+use std::sync::{mpsc, Arc, RwLock};
 use std::time::Duration;
 // Definition in main.rs
 
@@ -35,6 +35,7 @@ use crate::utils::{build_volume_path, parse_ts};
 use tauri::{Manager, Window, Wry};
 
 static mut FRONT_USTORE: Option<UnitedStore> = None;
+static mut CONF_KV_STORE: Option<KvStore> = None;
 static mut WINDOW: Option<Window<Wry>> = None;
 
 struct Database {
@@ -104,11 +105,12 @@ fn main() {
 
   let ustore = Arc::new(RwLock::new(store.clone()));
   let clone_store = ustore.clone();
+  let kv_store = KvStore::new("./orangecachedata/conf");
 
   unsafe {
     FRONT_USTORE = Some(store.clone());
+    CONF_KV_STORE = Some(kv_store.clone());
   }
-  let kv_store = KvStore::new("./orangecachedata/conf");
 
   if cfg!(target_os = "windows") {
     #[cfg(windows)]
@@ -240,9 +242,18 @@ unsafe fn maybe_usn_watch() -> bool {
   success
 }
 
-unsafe fn start_usn_watch(no: String, volume_path: String, tx_clone: Sender<bool>) {
+unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<bool>) {
+  // let kv_store_clone = kv_store.clone();
   thread::spawn(move || {
-    let result = Watcher::new(volume_path.as_str(), None, Some(0));
+    let mut kv_store = CONF_KV_STORE.clone().unwrap();
+    let key = format!("usn#next_usn#{}", volume_path.clone());
+    let next_usn = kv_store
+      .get_str(key.clone())
+      .unwrap_or("0".to_string())
+      .parse()
+      .unwrap();
+
+    let result = Watcher::new(volume_path.as_str(), None, Some(next_usn));
     if result.is_err() {
       tx_clone.send(false).unwrap();
       return;
@@ -255,28 +266,33 @@ unsafe fn start_usn_watch(no: String, volume_path: String, tx_clone: Sender<bool
       let records = watcher.read().unwrap();
       if records.is_empty() {
         thread::sleep(Duration::from_millis(500));
-      }
-      for record in records {
-        let path = record.path.to_str().unwrap();
-        let file_name = record.file_name;
-        let abs_path = format!("{}:{}", no.as_str(), path);
+      } else {
+        let usn_no = records.last().unwrap().usn.to_string();
 
-        match fs::metadata(abs_path.clone()) {
-          Ok(meta) => {
-            if abs_path.contains(STORE_PATH) {
-              return;
+        for record in records {
+          let path = record.path.to_str().unwrap();
+          let file_name = record.file_name;
+          let abs_path = format!("{}:{}", no.as_str(), path);
+
+          match fs::metadata(abs_path.clone()) {
+            Ok(meta) => {
+              if abs_path.contains(STORE_PATH) {
+                return;
+              }
+              FRONT_USTORE.clone().unwrap().save(FileView {
+                abs_path: abs_path,
+                name: file_name,
+                created_at: parse_ts(meta.created().ok().unwrap()),
+                mod_at: parse_ts(meta.modified().ok().unwrap()),
+                size: meta.file_size(),
+                is_dir: meta.is_dir(),
+              })
             }
-            FRONT_USTORE.clone().unwrap().save(FileView {
-              abs_path: abs_path,
-              name: file_name,
-              created_at: parse_ts(meta.created().ok().unwrap()),
-              mod_at: parse_ts(meta.modified().ok().unwrap()),
-              size: meta.file_size(),
-              is_dir: meta.is_dir(),
-            })
+            Err(_) => {}
           }
-          Err(_) => {}
         }
+
+        kv_store.put_str(key.clone(), usn_no);
       }
     }
   });
