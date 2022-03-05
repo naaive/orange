@@ -1,64 +1,25 @@
-.search-bar {
-    padding: 0 10px;
-}
-
-.search > .twelve {
-    background: white;
-
-}
-.ui.basic.table td{
-    white-space: nowrap;
-}
-.search {
+.search-box {
     z-index: 100;
-    position: -webkit-sticky;
+
     position: sticky;
-    top: 0;
+    padding: 0 12px;
+    margin: 10px auto;
 }
-
-.ui.search .prompt {
-    border-radius: .38571429rem !important;
-}
-
-.App {
-    /*max-width:800px ;*/
-    padding: 0 5px;
-    margin: 0 auto;
-}
-
-.omenu {
-    z-index: 100;
-}
-
-.search-bar.search {
-    padding: 16px 0 0 0;
-}
-
-.oitems {
-    margin: 16px 10px 0 10px;
-}
-
-.search-bar .input {
-    width: 100%;
-    margin: 0px 0;
-}
-
-.result {
-    margin: 20px 10px 0 10px;
+.items {
+    z-index: 1;
 }
 
 .icon {
     display: flex;
     align-items: center;
-    width: 30px;
+    /*width: 30px;*/
     margin: 16px;
 }
 
-.icon > img {
-    width: 35px;
+.icon>.img {
+    width: 25px !important;
     margin-right: 5px;
 }
-
-.oitems {
-    margin: 16px 10px 0 10px;
+.icon>img {
+    width: 35px;
 }

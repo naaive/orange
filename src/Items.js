@@ -1,5 +1,4 @@
 import React from 'react'
-import {Header, Table} from 'semantic-ui-react'
 import * as R from "ramda";
 import moment from "moment";
 import {defaultStyles, FileIcon} from 'react-file-icon';
@@ -23,7 +22,7 @@ function Items({items, kw}) {
         })
     }
 
-    return <Table unstackable selectable basic='very' size='small'>
+    return <Table compact unstackable selectable basic='very' size='small'>
 
         <Table.Header>
             <Table.Row>
