@@ -99,6 +99,7 @@ async fn my_custom_command(
 }
 
 const STORE_PATH: &'static str = "orangecachedata";
+const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
 
 fn main() {
   let store = UnitedStore::new();
@@ -117,12 +118,6 @@ fn main() {
     unsafe {
       let success = maybe_usn_watch();
 
-      if success {
-        println!("usn watch success");
-        start_tauri_app();
-        return;
-      }
-
       // travel
       let drives = utils::get_win32_ready_drives();
       std::thread::spawn(move || loop {
@@ -133,7 +128,7 @@ fn main() {
         let mut walker = FsWalker::new(
           clone_store.clone(),
           sub_home.clone(),
-          vec![STORE_PATH.to_string(), "$RECYCLE.BIN".to_string()],
+          vec![STORE_PATH.to_string(), RECYCLE_PATH.to_string()],
           kv_store.clone(),
           3 * 1000000,
         );
@@ -153,7 +148,7 @@ fn main() {
             vec![
               home.clone(),
               STORE_PATH.to_string(),
-              "$RECYCLE.BIN".to_string(),
+              RECYCLE_PATH.to_string(),
             ],
             kv_store.clone(),
             nanos as u64,
@@ -166,20 +161,24 @@ fn main() {
         std::thread::sleep(Duration::from_secs(3600 * 24 * 1))
       });
 
-      //watch
-      for driv in drives {
-        let uclone1 = ustore.clone();
-        let driv_clone1 = driv.clone();
+      if success {
+        println!("usn watch success");
+      }else {
+        //watch
+        for driv in drives {
+          let uclone1 = ustore.clone();
+          let driv_clone1 = driv.clone();
 
-        std::thread::spawn(move || {
-          let mut watcher = FsWatcher::new(uclone1, driv_clone1);
-          let result = panic::catch_unwind(move || {
-            watcher.start();
+          std::thread::spawn(move || {
+            let mut watcher = FsWatcher::new(uclone1, driv_clone1);
+            let result = panic::catch_unwind(move || {
+              watcher.start();
+            });
+            if result.is_err() {
+              warm("bad watcher,{}");
+            }
           });
-          if result.is_err() {
-            warm("bad watcher,{}");
-          }
-        });
+        }
       }
     }
   } else {
@@ -243,7 +242,8 @@ unsafe fn maybe_usn_watch() -> bool {
 }
 
 unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<bool>) {
-  // let kv_store_clone = kv_store.clone();
+  println!("start_usn_watch {}", volume_path);
+
   thread::spawn(move || {
     let mut kv_store = CONF_KV_STORE.clone().unwrap();
     let key = format!("usn#next_usn#{}", volume_path.clone());
@@ -260,11 +260,15 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
     }
 
     let mut watcher = result.unwrap();
-    tx_clone.send(true).unwrap();
-
+    tx_clone.send(true);
+    let mut loaded = false;
     loop {
       let records = watcher.read().unwrap();
       if records.is_empty() {
+        if !loaded {
+          loaded = true;
+          println!("volume {} usn history loaded", volume_path);
+        }
         thread::sleep(Duration::from_millis(500));
       } else {
         let usn_no = records.last().unwrap().usn.to_string();
@@ -276,11 +280,11 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
 
           match fs::metadata(abs_path.clone()) {
             Ok(meta) => {
-              if abs_path.contains(STORE_PATH) {
-                return;
+              if abs_path.contains(STORE_PATH) || abs_path.contains(RECYCLE_PATH) {
+                continue;
               }
               FRONT_USTORE.clone().unwrap().save(FileView {
-                abs_path: abs_path,
+                abs_path: abs_path.clone(),
                 name: file_name,
                 created_at: parse_ts(meta.created().ok().unwrap()),
                 mod_at: parse_ts(meta.modified().ok().unwrap()),
@@ -288,7 +292,9 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
                 is_dir: meta.is_dir(),
               })
             }
-            Err(_) => {}
+            Err(_) => {
+              FRONT_USTORE.clone().unwrap().del(abs_path.clone().as_str())
+            }
           }
         }
 

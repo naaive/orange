@@ -300,7 +300,7 @@ mod test {
 
   #[test]
   fn file_create() -> Result<(), std::io::Error> {
-    let option = Option::Some(0);
+    let option = Option::Some(235182840);
     // let option = Option::None;
     let volume_path = "D:";
     let mut watcher = Watcher::new(format!("{}{}", "\\\\?\\", volume_path), None, option)?;
@@ -316,11 +316,11 @@ mod test {
           Err(_) => {}
         }
         // println!("{:?}", metadata);
-        // println!("{}", path);
+        println!("{}", path);
       }
-      if results.is_empty() {
-        break;
-      };
+      // if results.is_empty() {
+      //   break;
+      // };
     }
     let since_the_epoch = start
       .duration_since(UNIX_EPOCH)
