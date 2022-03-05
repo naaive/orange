@@ -52,7 +52,7 @@ impl UnitedStore<'_> {
         self.kv.put(abs_path_clone1, kv);
         self.idx.add_doc(FileIndex {
           abs_path: abs_path_clone2,
-          name,
+          name:name.as_str().to_lowercase(),
         })
       }
       Some(_) => {
@@ -125,5 +125,18 @@ mod tests {
     let store = UnitedStore::new();
     let x = store.search("usr", 100);
     println!("{:?}", x);
+  }
+
+  #[test]
+  fn t3() {
+    let test_str = "übercode"; // type &str
+
+    let uppercase_test_string = test_str.to_uppercase(); // type String
+
+    let uppercase_test_str = uppercase_test_string.as_str(); // back to type &str
+
+    println!{"{}", test_str};
+    println!{"{:?}", uppercase_test_string};
+    println!{"{}", uppercase_test_str};
   }
 }

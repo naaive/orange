@@ -119,6 +119,7 @@ impl IndexStore {
   }
 
   pub fn add_doc(&mut self, file_index: FileIndex) {
+    self.del(file_index.abs_path.clone());
     let json = serde_json::to_string(&file_index).unwrap();
     let doc = self.schema.parse_document(&json).unwrap();
     self.index_writer.write().unwrap().add_document(doc);
@@ -150,7 +151,7 @@ mod tests {
       abs_path: "jeff".to_string(),
       name: "old".to_string(),
     });
-    std::thread::sleep(Duration::from_secs(3));
+    std::thread::sleep(Duration::from_secs(1));
 
     // std::thread::sleep(Duration::from_secs(1));
     let time = SystemTime::now();
@@ -162,7 +163,7 @@ mod tests {
     );
 
     let time = SystemTime::now();
-    let vec = storev2.search(String::from("jeff"), 100);
+    let vec = storev2.search(String::from("Lorem"), 100);
 
     let time2 = SystemTime::now();
     println!(
