@@ -5,6 +5,7 @@ use std::fs;
 
 use std::path::Path;
 use std::process::Command;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::api::dialog::message;
 use tauri::{Manager, Window, Wry};
 
@@ -103,6 +104,23 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
   logical_drives
 }
 
+pub fn parse_ts(time: SystemTime) -> u64 {
+  let created_at = time.duration_since(UNIX_EPOCH).unwrap().as_millis() as u64;
+  created_at
+}
+
+#[cfg(windows)]
+pub unsafe fn get_win32_ready_drives_no() -> Vec<String> {
+  let vec = get_win32_ready_drives();
+  let mut res = vec![];
+  for x in vec {
+    let s = str::replace(x.as_str(), ":/", "");
+    res.push(s);
+  }
+  res.sort();
+  res
+}
+
 #[cfg(windows)]
 pub unsafe fn sub_root() -> Vec<String> {
   let drives = get_win32_ready_drives();
@@ -118,6 +136,10 @@ pub unsafe fn sub_root() -> Vec<String> {
   res
 }
 
+#[cfg(windows)]
+pub unsafe fn build_volume_path(str: &str) -> String {
+  str::replace("\\\\?\\$:", "$", str)
+}
 // fn parse_ts(time: SystemTime) -> u64 {
 //   let created_at = time.duration_since(UNIX_EPOCH).unwrap().as_millis() as u64;
 //   created_at
@@ -198,14 +220,17 @@ mod tests {
 
   #[cfg(windows)]
   use crate::utils::get_win32_ready_drives;
-  use crate::utils::{home_sub_dir, sub_root};
+  use crate::utils::{build_volume_path, get_win32_ready_drives_no, home_sub_dir};
 
   #[cfg(windows)]
   #[test]
   fn t1() {
     unsafe {
-      let vec = get_win32_ready_drives();
-      println!("{:?}", vec);
+      let vec = get_win32_ready_drives_no();
+      for x in vec {
+        let string = build_volume_path(x.as_str());
+        println!("{}", string.as_str());
+      }
     }
   }
 
@@ -234,10 +259,5 @@ mod tests {
   fn t5() {}
 
   #[test]
-  fn t6() {
-    unsafe {
-      let vec = sub_root();
-      println!("{:?}", vec);
-    }
-  }
+  fn t6() {}
 }

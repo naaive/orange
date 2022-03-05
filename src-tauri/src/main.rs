@@ -12,20 +12,26 @@ mod fs_walker;
 mod fs_watcher;
 mod index_store;
 mod united_store;
+mod usn_journal_watcher;
 mod utils;
-use std::panic;
+
+use std::os::windows::fs::MetadataExt;
+use std::{fs, panic, thread};
 
 use crate::fs_walker::FsWalker;
 use crate::fs_watcher::FsWatcher;
 use crate::united_store::UnitedStore;
 use index_store::IndexStore;
 
-use std::sync::{Arc, RwLock};
+use std::sync::{mpsc, Arc, RwLock};
+use std::sync::mpsc::Sender;
 use std::time::Duration;
 // Definition in main.rs
 
 use crate::file_view::FileView;
 use crate::kv_store::KvStore;
+use crate::usn_journal_watcher::Watcher;
+use crate::utils::{build_volume_path, parse_ts};
 use tauri::{Manager, Window, Wry};
 
 static mut FRONT_USTORE: Option<UnitedStore> = None;
@@ -107,6 +113,14 @@ fn main() {
   if cfg!(target_os = "windows") {
     #[cfg(windows)]
     unsafe {
+      let success = maybe_usn_watch();
+
+      if success {
+        println!("usn watch success");
+        start_tauri_app();
+        return;
+      }
+
       // travel
       let drives = utils::get_win32_ready_drives();
       std::thread::spawn(move || loop {
@@ -210,6 +224,62 @@ fn main() {
   }
 
   start_tauri_app();
+}
+
+unsafe fn maybe_usn_watch() -> bool {
+  let (tx, rx) = mpsc::channel();
+  let nos = utils::get_win32_ready_drives_no();
+
+  for no in nos {
+    let volume_path = build_volume_path(no.as_str());
+    let tx_clone = tx.clone();
+    start_usn_watch(no, volume_path, tx_clone);
+  }
+
+  let success = rx.recv().unwrap();
+  success
+}
+
+unsafe fn start_usn_watch(no: String, volume_path: String, tx_clone: Sender<bool>) {
+  thread::spawn(move || {
+    let result = Watcher::new(volume_path.as_str(), None, Some(0));
+    if result.is_err() {
+      tx_clone.send(false).unwrap();
+      return;
+    }
+
+    let mut watcher = result.unwrap();
+    tx_clone.send(true).unwrap();
+
+    loop {
+      let records = watcher.read().unwrap();
+      if records.is_empty() {
+        thread::sleep(Duration::from_millis(500));
+      }
+      for record in records {
+        let path = record.path.to_str().unwrap();
+        let file_name = record.file_name;
+        let abs_path = format!("{}:{}", no.as_str(), path);
+
+        match fs::metadata(abs_path.clone()) {
+          Ok(meta) => {
+            if abs_path.contains(STORE_PATH) {
+              return;
+            }
+            FRONT_USTORE.clone().unwrap().save(FileView {
+              abs_path: abs_path,
+              name: file_name,
+              created_at: parse_ts(meta.created().ok().unwrap()),
+              mod_at: parse_ts(meta.modified().ok().unwrap()),
+              size: meta.file_size(),
+              is_dir: meta.is_dir(),
+            })
+          }
+          Err(_) => {}
+        }
+      }
+    }
+  });
 }
 
 unsafe fn warm(content: &str) {
