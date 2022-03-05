@@ -91,7 +91,7 @@ impl IndexStore {
     query_parser.set_field_boost(self.abs_path_filed, 1.0f32);
     query_parser.set_field_boost(self.name_field, 4.0f32);
 
-    let query = query_parser.parse_query(kw.as_str()).ok().unwrap();
+    let query = query_parser.parse_query(kw.as_str().to_lowercase().as_str()).ok().unwrap();
 
     let top_docs = searcher
       .search(&query, &TopDocs::with_limit(limit))
