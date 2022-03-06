@@ -38,7 +38,7 @@ use tauri::{Manager, Window, Wry};
 static mut FRONT_USTORE: Option<UnitedStore> = None;
 static mut CONF_KV_STORE: Option<KvStore> = None;
 static mut WINDOW: Option<Window<Wry>> = None;
-static TOTAL_NANOS: u32 = 5_000_000;
+static TOTAL_NANOS: u32 = 3_000_000;
 
 struct Database {
   x: usize,
@@ -126,14 +126,13 @@ fn main() {
         // home
         let home = utils::home_dir();
         let sub_home = utils::home_sub_dir();
-        let nanos = TOTAL_NANOS / sub_home.len() as u32;
         for sub in sub_home {
           let mut walker = FsWalker::new(
             clone_store.clone(),
             vec![sub.clone()],
             vec![STORE_PATH.to_string(), RECYCLE_PATH.to_string()],
             kv_store.clone(),
-            nanos as u64,
+            TOTAL_NANOS as u64,
           );
           std::thread::spawn(move || {
             walker.start();
@@ -142,7 +141,6 @@ fn main() {
 
         //total
         let sub_root = utils::sub_root();
-        let nanos = TOTAL_NANOS / sub_root.len() as u32;
         for sub in sub_root {
           // let uclone1 = ustore.clone();
 
@@ -155,7 +153,7 @@ fn main() {
               RECYCLE_PATH.to_string(),
             ],
             kv_store.clone(),
-            nanos as u64,
+            TOTAL_NANOS as u64,
           );
           std::thread::spawn(move || {
             walker.start();
