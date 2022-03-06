@@ -75,7 +75,7 @@ impl FsWalker<'_> {
         }
 
         let ts = last.parse::<u64>().unwrap();
-        if curr_ts - ts > 3600 * 24 * 5 {
+        if curr_ts - ts > 3600 * 24 * 30 {
           return true;
         }
       }
