@@ -4,7 +4,7 @@
 <p align="center">
 <span>English</span>
 <span> | </span>
-<a href="README.md">中文</a>
+<a href="README_cn.md">中文</a>
 </p>
 <p align="center"><span>A cross-platform desktop application for searching local files.</span></p>
 
