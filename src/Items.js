@@ -8,27 +8,6 @@ import Folder from "./folder.svg";
 import {defaultStyles, FileIcon} from "react-file-icon";
 import {invoke} from "@tauri-apps/api";
 
-const data = [
-    {
-        id: 1,
-        title: 'Cutting Costs',
-        by: 'me',
-        lastOpened: 'Aug 7 9:52 AM',
-    },
-    {
-        id: 2,
-        title: 'Wedding Planner',
-        by: 'me',
-        lastOpened: 'Sept 14 2:52 PM',
-    },
-    {
-        id: 3,
-        title: 'Expense Tracker',
-        by: 'me',
-        lastOpened: 'Sept 12 2:41 PM',
-    },
-
-];
 
 const customStyles = {
     headRow: {
@@ -44,7 +23,7 @@ const customStyles = {
     },
     rows: {
         highlightOnHoverStyle: {
-            backgroundColor: '#edf2f7',
+            backgroundColor: '#e8e8e8',
             borderBottomColor: '#FFFFFF',
             borderRadius: '5px',
             outline: '1px solid #FFFFFF',

@@ -2,11 +2,11 @@
 <img height=150 src="https://github.com/naaive/orange/blob/master/src-tauri/icons/icon.png" />
 </div>
 <p align="center">
-<span>English</span>
+<a href="README.md">English</a>
 <span> | </span>
-<a href="README.md">中文</a>
+<span >中文</span>
 </p>
-<p align="center"><span>A cross-platform desktop application for searching local files.</span></p>
+<p align="center"><span>跨平台的文件搜索引擎</span></p>
 
 
 
@@ -21,35 +21,35 @@
 [![Linux Support](https://img.shields.io/badge/linux-1793D1?style=flat&logo=linux&logoColor=white)](https://github.com/naaive/orange/releases)
 </div>
 
-## What is Orange?
+## 介绍
 
 ![Demo](screenshot/orange.gif)
 
-Orange is an easy-to-use file search software. It is built on Tauri and has a consistent experience across different desktop platforms. Its features are summarized as follows:
+Orange是一款跨平台的文件搜索引擎，可根据关键词快速定文件或文件夹位置。它基于Tauri，特点如下:
 
-- Fast search response
-- Low memory and low cpu usage
-- Easy to use, comes with tokenization and auto completion
-- Monitor file changes in real time
-- Lightweight installation package
-- Simple and elegant UI
+- 使用简单，自带中文分词、拼音、补全
+- 毫秒级搜索响应
+- 低CPU、内存资源占用
+- 实时监听文件变化
+- 轻量安装包
+- 简单大方UI
 
-## Build 
-- Setup Tauri dev environment (https://tauri.studio/docs/getting-started/setting-up-macos)
-- Run `yarn`
-- Run `yarn tauri-build`
-
-
-## Download
-
-Go to [release page](https://github.com/naaive/orange/releases).
+## 编译 
+- 搭建Tauri开发环境 (https://tauri.studio/docs/getting-started/setting-up-macos)
+- 运行 `yarn`
+- 运行 `yarn tauri-build`
 
 
-## Architecture
+## 下载
+
+点击 [release page](https://github.com/naaive/orange/releases).
+
+
+## 架构
 ![arch](doc/img.png)
 
 
-## Thanks
+## 感谢
 - Tauri https://tauri.studio
 - Notify https://github.com/notify-rs/notify
 - React https://github.com/facebook/react

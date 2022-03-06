@@ -18,6 +18,20 @@ body {
 #root > div > div:nth-child(2) > div:nth-child(1), .items > div {
     overflow-x: hidden !important;
 }
+input.chakra-input{
+    background: #e8e8e8;
+}
+input.chakra-input:enabled{
+    border: 1px solid #e2e8f0 ;
+    background: #e8e8e8;
+
+}
+.chakra-popover__content div:hover{
+    background: #e8e8e8 !important;
+}
+.chakra-popover__content div:active{
+    background: #e8e8e8 !important;
+}
 
 .items {
     z-index: 1;
