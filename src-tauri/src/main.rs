@@ -262,6 +262,7 @@ fn housekeeping(kv_store: &mut KvStore) {
   }
 }
 
+#[cfg(windows)]
 unsafe fn maybe_usn_watch() -> bool {
   let (tx, rx) = mpsc::channel();
   let nos = utils::get_win32_ready_drives_no();
@@ -276,6 +277,7 @@ unsafe fn maybe_usn_watch() -> bool {
   success
 }
 
+#[cfg(windows)]
 unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<bool>) {
   println!("start_usn_watch {}", volume_path);
 
