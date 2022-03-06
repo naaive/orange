@@ -16,7 +16,9 @@ mod united_store;
 mod usn_journal_watcher;
 mod utils;
 
+#[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
+
 use std::{fs, panic, thread};
 
 use crate::fs_walker::FsWalker;
