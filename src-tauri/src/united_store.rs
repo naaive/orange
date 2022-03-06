@@ -1,3 +1,6 @@
+use std::collections::HashSet;
+use std::fs;
+use std::iter::FromIterator;
 use crate::file_index::FileIndex;
 use crate::file_kv::FileKv;
 use crate::file_view::FileView;
@@ -5,6 +8,7 @@ use crate::kv_store::KvStore;
 use crate::pinyin_tokenizer::tokenize;
 use crate::IndexStore;
 use std::path::Path;
+use sha256::{digest, digest_bytes};
 
 #[derive(Clone)]
 pub struct UnitedStore<'a> {
@@ -33,6 +37,8 @@ impl UnitedStore<'_> {
 
     let abs_path_clone1 = abs_path.clone();
     let abs_path_clone2 = abs_path.clone();
+    let abs_path_clone3 = abs_path.clone();
+    let abs_path_clone4 = abs_path.clone();
     let name = file.name;
     let created_at = file.created_at;
     let size = file.size;
@@ -51,9 +57,11 @@ impl UnitedStore<'_> {
           is_dir, // is_symbol,
         };
         self.kv.put(abs_path_clone1, kv);
+
         self.idx.add_doc(FileIndex {
           abs_path: abs_path_clone2,
           name: tokenize(name.as_str().to_lowercase()),
+          id: digest( abs_path_clone3.as_str())
         })
       }
       Some(_) => {
@@ -70,6 +78,9 @@ impl UnitedStore<'_> {
   }
 
   pub fn del(&self, path: &str) {
+    if fs::metadata(path).is_ok() {
+      return;
+    }
     self.kv.del(String::from(path));
     self.idx.del(String::from(path));
   }
@@ -77,7 +88,8 @@ impl UnitedStore<'_> {
   pub fn search(&self, kw: &str, limit: usize) -> Vec<FileView> {
     let mut file_views = Vec::new();
     let arr = self.idx.search(String::from(kw), limit);
-    for x in arr {
+    let set: HashSet<String> = HashSet::from_iter(arr);
+    for x in set {
       let file_opt = self.kv.get(x);
       match file_opt {
         None => {}

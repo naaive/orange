@@ -135,46 +135,46 @@ fn main() {
 
       // travel
       let drives = utils::get_win32_ready_drives();
-      std::thread::spawn(move || loop {
-        // home
-        let home = utils::home_dir();
-        let sub_home = utils::home_sub_dir();
-        for sub in sub_home {
-          let mut walker = FsWalker::new(
-            clone_store.clone(),
-            vec![sub.clone()],
-            vec![STORE_PATH.to_string(), RECYCLE_PATH.to_string()],
-            kv_store.clone(),
-            TOTAL_NANOS as u64,
-          );
-          std::thread::spawn(move || {
-            walker.start();
-          });
-        }
-
-        //total
-        let sub_root = utils::sub_root();
-        for sub in sub_root {
-          // let uclone1 = ustore.clone();
-
-          let mut walker = FsWalker::new(
-            clone_store.clone(),
-            vec![sub.clone()],
-            vec![
-              home.clone(),
-              STORE_PATH.to_string(),
-              RECYCLE_PATH.to_string(),
-            ],
-            kv_store.clone(),
-            TOTAL_NANOS as u64,
-          );
-          std::thread::spawn(move || {
-            walker.start();
-          });
-        }
-
-        std::thread::sleep(Duration::from_secs(3600 * 24 * 1))
-      });
+      // std::thread::spawn(move || loop {
+      //   // home
+      //   let home = utils::home_dir();
+      //   let sub_home = utils::home_sub_dir();
+      //   for sub in sub_home {
+      //     let mut walker = FsWalker::new(
+      //       clone_store.clone(),
+      //       vec![sub.clone()],
+      //       vec![STORE_PATH.to_string(), RECYCLE_PATH.to_string()],
+      //       kv_store.clone(),
+      //       TOTAL_NANOS as u64,
+      //     );
+      //     std::thread::spawn(move || {
+      //       walker.start();
+      //     });
+      //   }
+      //
+      //   //total
+      //   let sub_root = utils::sub_root();
+      //   for sub in sub_root {
+      //     // let uclone1 = ustore.clone();
+      //
+      //     let mut walker = FsWalker::new(
+      //       clone_store.clone(),
+      //       vec![sub.clone()],
+      //       vec![
+      //         home.clone(),
+      //         STORE_PATH.to_string(),
+      //         RECYCLE_PATH.to_string(),
+      //       ],
+      //       kv_store.clone(),
+      //       TOTAL_NANOS as u64,
+      //     );
+      //     std::thread::spawn(move || {
+      //       walker.start();
+      //     });
+      //   }
+      //
+      //   std::thread::sleep(Duration::from_secs(3600 * 24 * 1))
+      // });
 
       if success {
         println!("usn watch success");
@@ -300,7 +300,12 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
     tx_clone.send(true);
     let mut loaded = false;
     loop {
-      let records = watcher.read().unwrap();
+      let read_res = watcher.read();
+      if read_res.is_err() {
+         watcher = Watcher::new(volume_path.as_str(), None, Some(0)).unwrap();
+        continue;
+      }
+      let records = read_res.unwrap();
       if records.is_empty() {
         if !loaded {
           loaded = true;

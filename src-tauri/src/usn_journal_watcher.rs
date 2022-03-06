@@ -300,15 +300,20 @@ mod test {
 
   #[test]
   fn file_create() -> Result<(), std::io::Error> {
-    let option = Option::Some(235182840);
+    let option = Option::Some(7417610240);
     // let option = Option::None;
-    let volume_path = "D:";
+    let volume_path = "C:";
     let mut watcher = Watcher::new(format!("{}{}", "\\\\?\\", volume_path), None, option)?;
 
     let start = SystemTime::now();
 
     loop {
-      let results = watcher.read()?;
+      let result = watcher.read();
+      if result.is_err() {
+        watcher = Watcher::new(format!("{}{}", "\\\\?\\", volume_path), None, Some(0)).unwrap();
+        continue;
+      }
+      let results = result?;
       for x in results.clone() {
         let path = x.path.to_str().unwrap();
         match fs::metadata(format!("{}{}", volume_path, path)) {

@@ -10,6 +10,7 @@ use crate::file_index::FileIndex;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
+use sha256::digest;
 
 #[derive(Clone)]
 pub struct IndexStore {
@@ -20,6 +21,7 @@ pub struct IndexStore {
   schema: Schema,
   index_reader: IndexReader,
   pub name_field: Field,
+  pub id_field: Field,
   pub abs_path_field: Field,
 }
 
@@ -29,6 +31,7 @@ impl IndexStore {
 
     let mut schema_builder = Schema::builder();
 
+    let id = "id";
     let abs_path = "abs_path";
     let name = "name";
 
@@ -40,10 +43,12 @@ impl IndexStore {
       .set_stored();
     let text_options = TextOptions::default().set_indexing_options(text_field_indexing);
 
+    schema_builder.add_text_field(id, TextOptions::default());
     schema_builder.add_text_field(abs_path, text_store_options);
     schema_builder.add_text_field(name, text_options.clone());
     let schema = schema_builder.build();
 
+    let id_field = schema.get_field(id).unwrap();
     let abs_path_field = schema.get_field(abs_path).unwrap();
     let name_field = schema.get_field(name).unwrap();
     let index;
@@ -77,6 +82,7 @@ impl IndexStore {
     return IndexStore {
       abs_path_field,
       name_field,
+      id_field,
       index_writer,
       index_reader,
       index,
@@ -117,12 +123,12 @@ impl IndexStore {
     vec1
   }
   pub fn del(&self, abs_path: String) {
-    let term = Term::from_field_text(self.abs_path_field, &abs_path);
+
+    let term = Term::from_field_text(self.id_field,&digest(&abs_path) );
     self.index_writer.write().unwrap().delete_term(term);
   }
 
   pub fn add_doc(&mut self, file_index: FileIndex) {
-    self.del(file_index.abs_path.clone());
     let json = serde_json::to_string(&file_index).unwrap();
     let doc = self.schema.parse_document(&json).unwrap();
     self.index_writer.write().unwrap().add_document(doc);
@@ -133,6 +139,7 @@ mod tests {
   use super::*;
   use log::{debug, error};
   use std::time::SystemTime;
+  use tantivy::tokenizer::Tokenizer;
 
   #[test]
   fn t3() {
@@ -165,5 +172,22 @@ mod tests {
 
     debug!("this is a debug {}", "message");
     error!("this is printed by default");
+  }
+  #[test]
+  fn t7() {
+    let x = "C:\\Users\\Administrator\\Desktop\\新建文件夹\\jason - 副本.txt";
+    let x1 = "C:\\Users\\Administrator\\Desktop\\新建文件夹\\jason - 副本 (2).txt";
+
+    let string = digest(x);
+    println!("{}", string);
+    let string1 = digest(x1);
+    println!("{}", string1);
+    let tokenizer = tantivy_jieba::JiebaTokenizer {};
+    let mut token_stream = tokenizer.token_stream(string.as_str());
+    println!("{}", token_stream.next().unwrap().text);
+
+    let tokenizer = tantivy_jieba::JiebaTokenizer {};
+    let mut token_stream = tokenizer.token_stream(string1.as_str());
+    println!("{}", token_stream.next().unwrap().text);
   }
 }
