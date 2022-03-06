@@ -39,7 +39,9 @@ use tauri::{SystemTray, SystemTrayEvent};
 use crate::file_view::FileView;
 use crate::kv_store::KvStore;
 use crate::usn_journal_watcher::Watcher;
-use crate::utils::{build_volume_path, parse_ts};
+#[cfg(windows)]
+use crate::utils::build_volume_path;
+use crate::utils::parse_ts;
 use tauri::{Manager, Window, Wry};
 
 static mut FRONT_USTORE: Option<UnitedStore> = None;
