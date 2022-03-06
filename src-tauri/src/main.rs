@@ -38,6 +38,7 @@ use tauri::{SystemTray, SystemTrayEvent};
 
 use crate::file_view::FileView;
 use crate::kv_store::KvStore;
+#[cfg(windows)]
 use crate::usn_journal_watcher::Watcher;
 #[cfg(windows)]
 use crate::utils::build_volume_path;
