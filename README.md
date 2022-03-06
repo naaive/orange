@@ -44,8 +44,6 @@ Orange is an easy-to-use file search software. It is built on Tauri and has a co
 
 Go to [release page](https://github.com/naaive/orange/releases).
 
-## Notice
-- Under Windows 11, please run with administrator role
 
 ## Architecture
 ![arch](doc/img.png)
