@@ -1,19 +1,33 @@
+body{
+    overflow: hidden; /* Hide scrollbars */
+
+}
 .search-box {
     z-index: 100;
 
-    position: sticky;
+    /*position: sticky;*/
     padding: 0 12px;
     margin: 10px auto;
 }
+.App {
+    height: 100vh;
+}
+
+#root > div > div:nth-child(2) > div:nth-child(1){
+    overflow-x: hidden !important;
+}
+
 .items {
     z-index: 1;
+    overflow: hidden; /* Hide scrollbars */
+
 }
 
 .icon {
     display: flex;
     align-items: center;
-    /*width: 30px;*/
-    margin: 16px;
+    width: 25px !important;
+    /*margin: 16px;*/
 }
 
 .icon>.img {
@@ -21,5 +35,5 @@
     margin-right: 5px;
 }
 .icon>img {
-    width: 35px;
+    width: 35px !important;
 }

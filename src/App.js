@@ -43,8 +43,6 @@ function App() {
             kw: v
         })
             .then((res) => {
-                    console.log(res.file_views)
-
                     setItems(res.file_views);
                     setSuggestions(top6(res.file_views));
                 }
@@ -54,19 +52,21 @@ function App() {
     }
 
 
-    return (<Scrollbars style={{  height: '100vh' }}>
+    return (
 
-            <div className="App">
+            <div className="App" >
                 <div className="search-box">
                     <Search setItems={setItems} doTxtChange={doTxtChange}/>
                 </div>
+                <Scrollbars autoHide     autoHideTimeout={500}
+                            autoHideDuration={200} style={{  height: '88vh' }}>
                 <div className="items">
                     <GoogleSheetsEsque items={items}></GoogleSheetsEsque>
                 </div>
+                </Scrollbars>
 
 
             </div>
-        </Scrollbars>
 
     );
 }

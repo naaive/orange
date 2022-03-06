@@ -57,7 +57,7 @@
     "windows": [
       {
         "title": "Orange",
-        "width": 800,
+        "width": 900,
         "height": 600,
         "resizable": true,
         "fullscreen": false

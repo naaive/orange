@@ -46,18 +46,10 @@ export default ({ row, onDeleteRow, size }) => {
 				open={Boolean(anchorEl)}
 				onClose={handleClose}
 			>
-				<MenuItem>Item One</MenuItem>
+				<MenuItem>Open</MenuItem>
+				<MenuItem>Copy Path</MenuItem>
 
-				<MenuItem>Item Two</MenuItem>
 
-				<Divider />
-
-				<MenuItem onClick={deleteRow}>
-					<ListItemIcon>
-						<DeleteIcon fontSize="small" color="secondary" />
-					</ListItemIcon>
-					<Typography variant="inherit">Delete</Typography>
-				</MenuItem>
 			</Menu>
 		</div>
 	);

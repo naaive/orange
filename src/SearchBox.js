@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import * as R from "ramda";
 import {invoke} from "@tauri-apps/api";
 
@@ -34,53 +34,19 @@ function top6(json) {
 }
 
 function SearchBox({setItems, doTxtChange}) {
-    const [state, dispatch] = React.useReducer(exampleReducer, initialState)
-    const {loading, results, value} = state
+    let [show,setShow] = useState(true);
 
-    const timeoutRef = React.useRef()
-    const handleSearchChange = React.useCallback((e, data) => {
-        clearTimeout(timeoutRef.current)
-        dispatch({type: 'START_SEARCH', query: data.value})
-
-        timeoutRef.current = setTimeout(async () => {
-            if (data.value.length === 0) {
-                dispatch({type: 'CLEAN_QUERY'})
-                return
-            }
-
-            invoke('my_custom_command', {
-                number: 2,
-                kw: data.value
-            })
-                .then((res) => {
-                    let titles = R.uniq(R.map(
-                        x => ({title: x.name})
-                    )(res.file_views));
-
-
-                    dispatch({
-                        type: 'FINISH_SEARCH',
-                        results: top6(titles),
-                    })
-                    }
-                )
-                .catch((e) => console.error(e))
-        }, 300)
-    }, [])
-
-
-    React.useEffect(() => {
-        return () => {
-            clearTimeout(timeoutRef.current)
-
-        }
-    }, [])
-
-    const options = ["apple", "appoint", "zap", "cap", "japan"];
+    // const options = ["apple", "appoint", "zap", "cap", "japan"];
+    let [options, setOptions] = useState(["apple", "appoint", "zap", "cap", "japan"]);
 
     return (
         <>
-            <AutoComplete rollNavigation>
+            <AutoComplete
+                closeOnBlur={true} rollNavigation onChange={v => {
+                doTxtChange(v);
+            }}
+
+            >
                 <InputGroup>
                     <InputLeftElement
                         pointerEvents="none"
@@ -94,19 +60,45 @@ function SearchBox({setItems, doTxtChange}) {
                             ></path>
                         </Icon>
                     </InputLeftElement>
-                    <AutoCompleteInput variant="filled" placeholder="Search..." />
+                    <AutoCompleteInput variant="filled" placeholder="Search..."
+                                       onKeyUp={(event) => {
+
+                                           if (event.keyCode === 13) {
+                                               doTxtChange(event.target.value)
+                                               // close suggest results
+                                               setShow(false)
+                                           }
+                                       }}
+                                       onChange={e => {
+                                           setShow(true)
+                                           invoke('my_custom_command', {
+                                               number: 2,
+                                               kw: e.target.value
+                                           })
+                                               .then((res) => {
+                                                       let titles = R.uniq(R.map(
+                                                           x => (x.name)
+                                                       )(res.file_views));
+                                                       setOptions(top6(titles));
+                                                   }
+                                               )
+                                               .catch((e) => console.error(e))
+                                       }}/>
                 </InputGroup>
-                <AutoCompleteList>
-                    {options.map((option, oid) => (
-                        <AutoCompleteItem
-                            key={`option-${oid}`}
-                            value={option}
-                            textTransform="capitalize"
-                        >
-                            {option}
-                        </AutoCompleteItem>
-                    ))}
-                </AutoCompleteList>
+                {
+                    show?<AutoCompleteList>
+                        {options.map((option, oid) => (
+                            <AutoCompleteItem
+                                key={`option-${oid}`}
+                                value={option}
+                                textTransform="capitalize"
+                            >
+                                {option}
+                            </AutoCompleteItem>
+                        ))}
+                    </AutoCompleteList>:<></>
+                }
+
             </AutoComplete>
         </>
     )
