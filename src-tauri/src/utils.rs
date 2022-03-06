@@ -217,6 +217,7 @@ mod tests {
   use std::collections::HashSet;
 
   use std::iter::FromIterator;
+  use std::time::UNIX_EPOCH;
 
   #[cfg(windows)]
   use crate::utils::get_win32_ready_drives;
@@ -259,5 +260,9 @@ mod tests {
   fn t5() {}
 
   #[test]
-  fn t6() {}
+  fn t6() {
+    let result = std::fs::metadata("D:\\Program Files (x86)\\Thunder Network\\Thunder\\Program\\resources\\bin\\TBC\\cef.pak");
+    let i = result.unwrap().modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_millis();
+    println!("{:?}", i as u64);
+  }
 }

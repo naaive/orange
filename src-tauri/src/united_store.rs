@@ -38,7 +38,6 @@ impl UnitedStore<'_> {
     let abs_path_clone1 = abs_path.clone();
     let abs_path_clone2 = abs_path.clone();
     let abs_path_clone3 = abs_path.clone();
-    let abs_path_clone4 = abs_path.clone();
     let name = file.name;
     let created_at = file.created_at;
     let size = file.size;

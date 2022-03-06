@@ -44,6 +44,8 @@ Orange是一款跨平台的文件搜索引擎，可根据关键词快速定文�
 
 点击 [release page](https://github.com/naaive/orange/releases).
 
+## 注意
+- 在Windows 11下, 请使用administrator角色运行
 
 ## 架构
 ![arch](doc/img.png)
