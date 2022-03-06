@@ -4,8 +4,8 @@ import Search from "./SearchBox";
 
 import * as R from "ramda";
 import {invoke} from "@tauri-apps/api";
-import GoogleSheetsEsque from "./CustomStylesGSheets.stories";
 import {Scrollbars} from 'react-custom-scrollbars';
+import Items from "./Items";
 
 function App() {
 
@@ -61,7 +61,7 @@ function App() {
                 <Scrollbars autoHide     autoHideTimeout={500}
                             autoHideDuration={200} style={{  height: '88vh' }}>
                 <div className="items">
-                    <GoogleSheetsEsque items={items}></GoogleSheetsEsque>
+                    <Items items={items}/>
                 </div>
                 </Scrollbars>
 

@@ -1,7 +1,8 @@
-body{
+body {
     overflow: hidden; /* Hide scrollbars */
 
 }
+
 .search-box {
     z-index: 100;
 
@@ -9,11 +10,12 @@ body{
     padding: 0 12px;
     margin: 10px auto;
 }
+
 .App {
     height: 100vh;
 }
 
-#root > div > div:nth-child(2) > div:nth-child(1){
+#root > div > div:nth-child(2) > div:nth-child(1), .items > div {
     overflow-x: hidden !important;
 }
 
@@ -30,10 +32,11 @@ body{
     /*margin: 16px;*/
 }
 
-.icon>.img {
+.icon > .img {
     width: 25px !important;
     margin-right: 5px;
 }
-.icon>img {
+
+.icon > img {
     width: 35px !important;
 }

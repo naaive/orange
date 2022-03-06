@@ -11,6 +11,7 @@ mod file_view;
 mod fs_walker;
 mod fs_watcher;
 mod index_store;
+mod pinyin_tokenizer;
 mod united_store;
 mod usn_journal_watcher;
 mod utils;
@@ -37,7 +38,7 @@ use tauri::{Manager, Window, Wry};
 static mut FRONT_USTORE: Option<UnitedStore> = None;
 static mut CONF_KV_STORE: Option<KvStore> = None;
 static mut WINDOW: Option<Window<Wry>> = None;
-static TOTAL_NANOS: u32 = 5_000_000 ;
+static TOTAL_NANOS: u32 = 5_000_000;
 
 struct Database {
   x: usize,
@@ -74,7 +75,7 @@ async fn my_custom_command(
       if kw.eq("") {
         kw = "*".to_string();
       }
-      let vec = arc.search(kw.as_str(), 30);
+      let vec = arc.search(kw.as_str(), 35);
       Ok(CustomResponse {
         message: "".to_string(),
         other_val: database.x,
@@ -132,13 +133,12 @@ fn main() {
             vec![sub.clone()],
             vec![STORE_PATH.to_string(), RECYCLE_PATH.to_string()],
             kv_store.clone(),
-            nanos  as u64,
+            nanos as u64,
           );
           std::thread::spawn(move || {
             walker.start();
           });
         }
-
 
         //total
         let sub_root = utils::sub_root();
@@ -167,7 +167,7 @@ fn main() {
 
       if success {
         println!("usn watch success");
-      }else {
+      } else {
         //watch
         for driv in drives {
           let uclone1 = ustore.clone();
@@ -296,9 +296,7 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
                 is_dir: meta.is_dir(),
               })
             }
-            Err(_) => {
-              FRONT_USTORE.clone().unwrap().del(abs_path.clone().as_str())
-            }
+            Err(_) => FRONT_USTORE.clone().unwrap().del(abs_path.clone().as_str()),
           }
         }
 

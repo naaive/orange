@@ -5,43 +5,19 @@ import {invoke} from "@tauri-apps/api";
 import {AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList,} from "@choc-ui/chakra-autocomplete";
 import {Icon, InputGroup, InputLeftElement,} from "@chakra-ui/react";
 
-const initialState = {
-    loading: false,
-    results: [],
-    value: '',
-}
-
-function exampleReducer(state, action) {
-    switch (action.type) {
-        case 'CLEAN_QUERY':
-            return initialState
-        case 'START_SEARCH':
-            return {...state, loading: true, value: action.query}
-        case 'FINISH_SEARCH':
-            return {...state, loading: false, results: action.results}
-        case 'UPDATE_SELECTION':
-            let value = action.selection.title;
-            action.selection.doTxtChange(value)
-            return {...state, value: value}
-
-        default:
-            throw new Error()
-    }
-}
 
 function top6(json) {
     return R.take(6)(json);
 }
 
 function SearchBox({setItems, doTxtChange}) {
-    let [show,setShow] = useState(true);
-
-    // const options = ["apple", "appoint", "zap", "cap", "japan"];
-    let [options, setOptions] = useState(["apple", "appoint", "zap", "cap", "japan"]);
+    let [show, setShow] = useState(true);
+    let [options, setOptions] = useState([]);
 
     return (
         <>
             <AutoComplete
+                filter={() => true}
                 closeOnBlur={true} rollNavigation onChange={v => {
                 doTxtChange(v);
             }}
@@ -79,6 +55,7 @@ function SearchBox({setItems, doTxtChange}) {
                                                        let titles = R.uniq(R.map(
                                                            x => (x.name)
                                                        )(res.file_views));
+                                                       console.log(titles)
                                                        setOptions(top6(titles));
                                                    }
                                                )
@@ -86,7 +63,7 @@ function SearchBox({setItems, doTxtChange}) {
                                        }}/>
                 </InputGroup>
                 {
-                    show?<AutoCompleteList>
+                    show ? <AutoCompleteList>
                         {options.map((option, oid) => (
                             <AutoCompleteItem
                                 key={`option-${oid}`}
@@ -96,7 +73,7 @@ function SearchBox({setItems, doTxtChange}) {
                                 {option}
                             </AutoCompleteItem>
                         ))}
-                    </AutoCompleteList>:<></>
+                    </AutoCompleteList> : <></>
                 }
 
             </AutoComplete>

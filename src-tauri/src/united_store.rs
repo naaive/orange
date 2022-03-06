@@ -2,6 +2,7 @@ use crate::file_index::FileIndex;
 use crate::file_kv::FileKv;
 use crate::file_view::FileView;
 use crate::kv_store::KvStore;
+use crate::pinyin_tokenizer::tokenize;
 use crate::IndexStore;
 use std::path::Path;
 
@@ -52,7 +53,7 @@ impl UnitedStore<'_> {
         self.kv.put(abs_path_clone1, kv);
         self.idx.add_doc(FileIndex {
           abs_path: abs_path_clone2,
-          name:name.as_str().to_lowercase(),
+          name:tokenize(name.as_str().to_lowercase()),
         })
       }
       Some(_) => {
@@ -135,8 +136,8 @@ mod tests {
 
     let uppercase_test_str = uppercase_test_string.as_str(); // back to type &str
 
-    println!{"{}", test_str};
-    println!{"{:?}", uppercase_test_string};
-    println!{"{}", uppercase_test_str};
+    println! {"{}", test_str};
+    println! {"{:?}", uppercase_test_string};
+    println! {"{}", uppercase_test_str};
   }
 }

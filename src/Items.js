@@ -1,10 +1,61 @@
-import React from 'react'
-import * as R from "ramda";
+import React from 'react';
+import DataTable from 'react-data-table-component';
+
+import CustomMaterialMenu from './shared/CustomMaterialMenu';
 import moment from "moment";
-import {defaultStyles, FileIcon} from 'react-file-icon';
+import * as R from "ramda";
 import Folder from "./folder.svg";
+import {defaultStyles, FileIcon} from "react-file-icon";
 import {invoke} from "@tauri-apps/api";
 
+const data = [
+    {
+        id: 1,
+        title: 'Cutting Costs',
+        by: 'me',
+        lastOpened: 'Aug 7 9:52 AM',
+    },
+    {
+        id: 2,
+        title: 'Wedding Planner',
+        by: 'me',
+        lastOpened: 'Sept 14 2:52 PM',
+    },
+    {
+        id: 3,
+        title: 'Expense Tracker',
+        by: 'me',
+        lastOpened: 'Sept 12 2:41 PM',
+    },
+
+];
+
+const customStyles = {
+    headRow: {
+        style: {
+            border: 'none',
+        },
+    },
+    headCells: {
+        style: {
+            color: '#202124',
+            fontSize: '14px',
+        },
+    },
+    rows: {
+        highlightOnHoverStyle: {
+            backgroundColor: '#edf2f7',
+            borderBottomColor: '#FFFFFF',
+            borderRadius: '5px',
+            outline: '1px solid #FFFFFF',
+        },
+    },
+    pagination: {
+        style: {
+            border: 'none',
+        },
+    },
+};
 
 function bytesToSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -13,69 +64,99 @@ function bytesToSize(bytes) {
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
 
+const columns = [
+    {
+        selector: row => {
+            let isDir = R.prop('is_dir')(row);
+            let name = R.prop("name")(row);
+            const extSplit = R.split('.');
+            let ext = R.last(extSplit(name));
+
+            let icon = isDir ? <img src={Folder}/> :
+                <FileIcon extension={ext} {...defaultStyles[ext]} />;
+            return <>
+                <div className="icon">
+                    <span className={"img"}>
+                    {icon}
+                </span>
+                </div>
+
+            </>;
+        },
+
+        width: '50px', // custom width for icon button
+        style: {
+            borderBottom: '1px solid #FFFFFF',
+            marginBottom: '-1px',
+        },
+    },
+    {
+        name: 'Name',
+        selector: row => {
+            return row.name;
+        },
+        style: {
+            color: '#202124',
+            fontSize: '14px',
+            fontWeight: 500,
+        },
+    },
+    {
+        name: 'Size',
+        maxWidth: '80px',
+
+        selector: row => bytesToSize(row.size),
+        style: {
+            color: 'rgba(0,0,0,.54)',
+        },
+    },
+    {
+        name: 'Last Modified',
+        maxWidth: '160px',
+        selector: row => moment(R.prop('mod_at', row.mod_at)).format("YYYY-MM-DD h:mm:ss"),
+        style: {
+            color: 'rgba(0,0,0,.54)',
+        },
+    },
+    {
+        name: 'Path',
+        grow: 3,
+        selector: row => {
+
+            return row.abs_path;
+        },
+        style: {
+            color: 'rgba(0,0,0,.54)',
+        },
+    },
+    // {
+    //     cell: row => <CustomMaterialMenu size="small" row={row}/>,
+    //     allowOverflow: true,
+    //     button: true,
+    //     grow: 3,
+    //
+    // },
+];
+
+
 function Items({items, kw}) {
 
-    function handleClick(absPath) {
+    function handleClick(row) {
         invoke('my_custom_command', {
             number: 1,
-            kw:absPath
+            kw:row.abs_path
         })
     }
 
-    return <Table compact unstackable selectable basic='very' size='small'>
-
-        <Table.Header>
-            <Table.Row>
-                <Table.HeaderCell>Name</Table.HeaderCell>
-                <Table.HeaderCell>Size</Table.HeaderCell>
-                <Table.HeaderCell>Last Modified</Table.HeaderCell>
-                <Table.HeaderCell>Path</Table.HeaderCell>
-            </Table.Row>
-        </Table.Header>
-
-        <Table.Body>
-            {
-                R.map(x => {
-                    let isDir = R.prop('is_dir')(x);
-                    let absPath = R.prop('abs_path', x);
-
-                    let name = R.prop("name")(x);
-
-                    const extSplit = R.split('.');
-                    let ext = R.last(extSplit(name));
-
-                    return <Table.Row key={absPath} onDoubleClick={() => handleClick(absPath)}>
-                        <Table.Cell>
-                            <Header as='h5' image>
-                                <div className="icon">
-                                    {
-                                        isDir ? <img src={Folder}/> :
-                                            <FileIcon extension={ext} {...defaultStyles[ext]} />
-                                    }
-
-                                </div>
-                                <Header.Content>
-                                    {name}
-                                </Header.Content>
-                            </Header>
-                        </Table.Cell>
-                        <Table.Cell>
-
-                            {bytesToSize(R.prop('size')(x))}
-                        </Table.Cell>
-                        <Table.Cell>
-                            {moment(R.prop('mod_at', x)).format("YYYY-MM-DD h:mm:ss")}
-                        </Table.Cell>
-                        <Table.Cell>
-                            {absPath}
-                        </Table.Cell>
-
-                    </Table.Row>
-                })(items)
-            }
-
-        </Table.Body>
-    </Table>;
+    return <DataTable
+        columns={columns}
+        onRowDoubleClicked={(row) => handleClick(row)}
+        data={items}
+        customStyles={customStyles}
+        highlightOnHover
+        pointerOnHover
+    />
 }
+
 
 export default Items
