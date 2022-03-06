@@ -10,6 +10,10 @@
     "beforeBuildCommand": "yarn build"
   },
   "tauri": {
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    },
     "bundle": {
       "active": true,
       "targets": "all",
@@ -21,7 +25,8 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": [],
+      "resources": [
+      ],
       "externalBin": [],
       "copyright": "",
       "category": "DeveloperTool",

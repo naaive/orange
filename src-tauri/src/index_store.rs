@@ -86,13 +86,8 @@ impl IndexStore {
 
   pub fn search(&self, kw: String, limit: usize) -> Vec<String> {
     let searcher = self.index_reader.searcher();
-    let mut query_parser = QueryParser::for_index(
-      &self.index,
-      vec![
-        self.abs_path_field,
-        self.name_field,
-      ],
-    );
+    let mut query_parser =
+      QueryParser::for_index(&self.index, vec![self.abs_path_field, self.name_field]);
     query_parser.set_field_boost(self.abs_path_field, 1.0f32);
     query_parser.set_field_boost(self.name_field, 4.0f32);
 
@@ -138,8 +133,6 @@ mod tests {
   use super::*;
   use log::{debug, error};
   use std::time::SystemTime;
-
-
 
   #[test]
   fn t3() {

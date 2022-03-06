@@ -1,13 +1,13 @@
-use std::collections::HashSet;
 use pinyin::ToPinyin;
-use tantivy::tokenizer::{Token, Tokenizer};
+use std::collections::HashSet;
+use tantivy::tokenizer::Tokenizer;
 use tantivy_jieba::JiebaTokenizer;
 
-static  tokenizer: JiebaTokenizer = tantivy_jieba::JiebaTokenizer {};
+static TOKENIZER: JiebaTokenizer = tantivy_jieba::JiebaTokenizer {};
 pub fn tokenize(hans: String) -> String {
-  let mut token_stream = tokenizer.token_stream(&hans);
+  let mut token_stream = TOKENIZER.token_stream(&hans);
 
-  let mut token_text: HashSet<String> = vec!().into_iter().collect();
+  let mut token_text: HashSet<String> = vec![].into_iter().collect();
 
   while let Some(token) = token_stream.next() {
     let raw = token.text.clone();
@@ -28,7 +28,6 @@ pub fn tokenize(hans: String) -> String {
   }
   token_text.insert(hans.clone());
   token_text.into_iter().collect::<Vec<String>>().join(" ")
-
 }
 
 #[cfg(test)]

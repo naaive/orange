@@ -53,7 +53,7 @@ impl UnitedStore<'_> {
         self.kv.put(abs_path_clone1, kv);
         self.idx.add_doc(FileIndex {
           abs_path: abs_path_clone2,
-          name:tokenize(name.as_str().to_lowercase()),
+          name: tokenize(name.as_str().to_lowercase()),
         })
       }
       Some(_) => {

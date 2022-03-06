@@ -28,6 +28,8 @@ use std::sync::mpsc::Sender;
 use std::sync::{mpsc, Arc, RwLock};
 use std::time::Duration;
 // Definition in main.rs
+use tauri::{CustomMenuItem, SystemTrayMenu, SystemTrayMenuItem};
+use tauri::{SystemTray, SystemTrayEvent};
 
 use crate::file_view::FileView;
 use crate::kv_store::KvStore;
@@ -309,6 +311,15 @@ unsafe fn warm(content: &str) {
 }
 
 fn start_tauri_app() {
+  // here `"quit".to_string()` defines the menu item id, and the second parameter is the menu item label.
+  let quit = CustomMenuItem::new("quit".to_string(), "Quit");
+  // let hide = CustomMenuItem::new("reindex".to_string(), "Reindex");
+  let tray_menu = SystemTrayMenu::new()
+    .add_item(quit)
+    .add_native_item(SystemTrayMenuItem::Separator);
+
+  let tray = SystemTray::new().with_menu(tray_menu);
+
   let database = Database { x: 123 };
   tauri::Builder::default()
     .setup(|x1| {
@@ -319,6 +330,22 @@ fn start_tauri_app() {
       Ok(())
     })
     .manage(database)
+    .system_tray(tray)
+    .on_system_tray_event(|app, event| match event {
+      SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+        "quit" => {
+          std::process::exit(0);
+        }
+        "reindex" => {
+          std::process::exit(0);
+        }
+        _ => {}
+      },
+      SystemTrayEvent::LeftClick { .. } => {}
+      SystemTrayEvent::RightClick { .. } => {}
+      SystemTrayEvent::DoubleClick { .. } => {}
+      _ => {}
+    })
     .invoke_handler(tauri::generate_handler![my_custom_command])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

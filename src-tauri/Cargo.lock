@@ -3415,6 +3415,7 @@ dependencies = [
  "raw-window-handle 0.3.4",
  "scopeguard",
  "serde",
+ "tauri-libappindicator",
  "unicode-segmentation",
  "winapi 0.3.9",
  "x11-dl",
@@ -3511,6 +3512,29 @@ dependencies = [
  "thiserror",
  "walkdir",
  "zstd",
+]
+
+[[package]]
+name = "tauri-libappindicator"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af6057bf1b03141122da159ad4136d8a474240db59d81af1840d7fce3b819ef2"
+dependencies = [
+ "glib",
+ "gtk",
+ "gtk-sys",
+ "log",
+ "tauri-libappindicator-sys",
+]
+
+[[package]]
+name = "tauri-libappindicator-sys"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c40a817171cf25d69dd31e3fa9360fd4367e54948e30f3356962f0b1d9f23dad"
+dependencies = [
+ "gtk-sys",
+ "pkg-config",
 ]
 
 [[package]]
