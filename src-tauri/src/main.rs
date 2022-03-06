@@ -104,13 +104,16 @@ async fn my_custom_command(
 
 const STORE_PATH: &'static str = "orangecachedata";
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
+const VERSION: &'static str = "0.0.4";
 
 fn main() {
-  let store = UnitedStore::new();
+  let mut kv_store = KvStore::new("./orangecachedata/conf");
 
+  housekeeping(&mut kv_store);
+
+  let store = UnitedStore::new();
   let ustore = Arc::new(RwLock::new(store.clone()));
   let clone_store = ustore.clone();
-  let kv_store = KvStore::new("./orangecachedata/conf");
 
   unsafe {
     FRONT_USTORE = Some(store.clone());
@@ -229,6 +232,26 @@ fn main() {
   }
 
   start_tauri_app();
+}
+
+fn housekeeping(kv_store: &mut KvStore) {
+  let version_opt = kv_store.get_str("version".to_string());
+  match version_opt {
+    None => {
+      std::fs::remove_dir_all("orangecachedata/index");
+      std::fs::remove_dir_all("orangecachedata/kv");
+      kv_store.put_str("version".to_string(), VERSION.to_string());
+      println!("init version {}", VERSION);
+    }
+    Some(version) => {
+      if !version.eq(VERSION) {
+        std::fs::remove_dir_all("orangecachedata/index");
+        std::fs::remove_dir_all("orangecachedata/kv");
+        kv_store.put_str("version".to_string(), VERSION.to_string());
+        println!("clean old version cachedata");
+      }
+    }
+  }
 }
 
 unsafe fn maybe_usn_watch() -> bool {
