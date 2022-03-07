@@ -1,14 +1,14 @@
-use std::collections::HashSet;
-use std::fs;
-use std::iter::FromIterator;
 use crate::file_index::FileIndex;
 use crate::file_kv::FileKv;
 use crate::file_view::FileView;
 use crate::kv_store::KvStore;
 use crate::pinyin_tokenizer::tokenize;
 use crate::IndexStore;
-use std::path::Path;
 use sha256::{digest, digest_bytes};
+use std::collections::HashSet;
+use std::fs;
+use std::iter::FromIterator;
+use std::path::Path;
 
 #[derive(Clone)]
 pub struct UnitedStore<'a> {
@@ -60,7 +60,7 @@ impl UnitedStore<'_> {
         self.idx.add_doc(FileIndex {
           abs_path: abs_path_clone2,
           name: tokenize(name.as_str().to_lowercase()),
-          id: digest( abs_path_clone3.as_str())
+          id: digest(abs_path_clone3.as_str()),
         })
       }
       Some(_) => {

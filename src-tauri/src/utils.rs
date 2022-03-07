@@ -71,6 +71,16 @@ pub fn home_sub_dir() -> Vec<String> {
   }
   [res2, res1].concat()
 }
+pub fn subs(str: &str) -> Vec<String> {
+  if let Ok(paths) = fs::read_dir(str) {
+    return paths
+      .into_iter()
+      .map(|x| x.unwrap().path().to_str().unwrap().to_string())
+      .collect();
+  }
+  vec![]
+}
+
 #[cfg(unix)]
 pub fn sub_root() -> Vec<String> {
   let paths = fs::read_dir("/").unwrap();
@@ -220,8 +230,13 @@ mod tests {
   use std::time::UNIX_EPOCH;
 
   #[cfg(windows)]
+  use crate::utils::build_volume_path;
+  #[cfg(windows)]
   use crate::utils::get_win32_ready_drives;
-  use crate::utils::{build_volume_path, get_win32_ready_drives_no, home_sub_dir};
+  #[cfg(windows)]
+  use crate::utils::get_win32_ready_drives_no;
+
+  use crate::utils::{home_sub_dir, subs};
 
   #[cfg(windows)]
   #[test]
@@ -252,17 +267,28 @@ mod tests {
   #[cfg(unix)]
   #[test]
   fn t4() {
-    let root = sub_root();
+    let root = crate::utils::sub_root();
     println!("{:?}", root);
   }
 
   #[test]
-  fn t5() {}
+  fn t5() {
+    let subs1 = subs("/bin");
+    println!("{:?}", subs1);
+  }
 
   #[test]
   fn t6() {
-    let result = std::fs::metadata("D:\\Program Files (x86)\\Thunder Network\\Thunder\\Program\\resources\\bin\\TBC\\cef.pak");
-    let i = result.unwrap().modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_millis();
+    let result = std::fs::metadata(
+      "D:\\Program Files (x86)\\Thunder Network\\Thunder\\Program\\resources\\bin\\TBC\\cef.pak",
+    );
+    let i = result
+      .unwrap()
+      .modified()
+      .unwrap()
+      .duration_since(UNIX_EPOCH)
+      .unwrap()
+      .as_millis();
     println!("{:?}", i as u64);
   }
 }

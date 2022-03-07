@@ -56,7 +56,14 @@
     "allowlist": {
       "all": true,
       "fs": {
-        "all": true
+        "all": true,
+        "copyFile": true,
+        "createDir": true,
+        "readDir": true,
+        "removeDir": true,
+        "removeFile": true,
+        "renameFile": true,
+        "writeFile": true
       }
     },
     "windows": [

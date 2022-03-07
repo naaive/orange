@@ -1,5 +1,7 @@
 extern crate notify;
+
 use crate::file_view::FileView;
+use crate::utils::subs;
 use crate::UnitedStore;
 use notify::{raw_watcher, Op, RawEvent, RecursiveMode, Watcher};
 #[cfg(target_os = "linux")]
@@ -8,9 +10,11 @@ use std::os::unix::fs::MetadataExt;
 use std::os::unix::fs::MetadataExt;
 #[cfg(target_os = "windows")]
 use std::os::windows::fs::MetadataExt;
+use std::path::PathBuf;
 use std::sync::mpsc::channel;
 use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
+use std::{fs, path};
 
 pub struct FsWatcher<'a> {
   ustore: Arc<RwLock<UnitedStore<'a>>>,
@@ -19,15 +23,17 @@ pub struct FsWatcher<'a> {
 
 impl FsWatcher<'_> {
   pub fn new<'a>(ustore: Arc<RwLock<UnitedStore<'a>>>, path: String) -> FsWatcher<'a> {
-    FsWatcher { ustore, path: path }
+    FsWatcher { ustore, path }
   }
 
   pub fn start(&mut self) {
     let (tx, rx) = channel();
     let mut watcher = raw_watcher(tx).unwrap();
-    watcher
-      .watch(self.path.as_str(), RecursiveMode::Recursive)
-      .unwrap();
+    let wt_res = watcher.watch(self.path.as_str(), RecursiveMode::Recursive);
+    if wt_res.is_err() {
+      println!("watch {} err ", self.path);
+      return;
+    }
 
     loop {
       match rx.recv() {
@@ -44,11 +50,10 @@ impl FsWatcher<'_> {
           match result {
             Ok(meta) => {
               let abs_path = path.to_str().unwrap().to_string();
-              let name = path
-                .file_name()
-                .map(|x| x.to_str().unwrap())
-                .unwrap_or_default()
-                .to_string();
+              if  abs_path.contains("target") {
+                println!("{}", abs_path);
+              }
+              let name = Self::get_filename(&path);
 
               let created_at = Self::parse_ts(meta.created().unwrap());
               let mod_at = Self::parse_ts(meta.modified().unwrap());
@@ -58,14 +63,25 @@ impl FsWatcher<'_> {
               #[cfg(unix)]
               let size = meta.size();
 
+              let is_dir = meta.is_dir();
+              if is_dir {
+                if let Some(path_str) = path.to_str() {
+                  self.save_subs(path_str);
+                }
+              }
+              if let Some(p) = path.parent() {
+                if let Some(parent_str) = p.to_str() {
+                  self.save_subs(parent_str);
+                }
+              }
+
               self.ustore.write().unwrap().save(FileView {
                 abs_path,
                 name,
                 created_at,
                 mod_at,
                 size,
-                // is_symbol,
-                is_dir: meta.is_dir(),
+                is_dir,
               });
             }
             Err(_) => {}
@@ -75,6 +91,38 @@ impl FsWatcher<'_> {
         Err(e) => println!("watch error: {:?}", e),
       }
     }
+  }
+
+  fn save_subs(&mut self, parent_str: &str) {
+    let subs = subs(parent_str);
+    for sub in subs {
+      let sub_path = path::Path::new(sub.as_str());
+      let name = sub_path
+        .file_name()
+        .map(|x| x.to_str().unwrap())
+        .unwrap_or_default()
+        .to_string();
+
+      if let Ok(m) = sub_path.metadata() {
+        self.ustore.write().unwrap().save(FileView {
+          abs_path: sub.clone(),
+          name,
+          created_at: Self::parse_ts(m.created().unwrap()),
+          mod_at: Self::parse_ts(m.modified().unwrap()),
+          size: m.size(),
+          is_dir: m.is_dir(),
+        });
+      }
+    }
+  }
+
+  fn get_filename(path: &PathBuf) -> String {
+    let name = path
+      .file_name()
+      .map(|x| x.to_str().unwrap())
+      .unwrap_or_default()
+      .to_string();
+    name
   }
 
   fn parse_ts(time: SystemTime) -> u64 {
@@ -97,7 +145,7 @@ mod tests {
     let store = UnitedStore::new();
     let mut watcher = FsWatcher::new(
       Arc::new(RwLock::new(store)),
-      "/Users/jeff/CLionProjects/orangemac/src-tauri/target/hi".to_string(),
+      "/Users/jeff/CLionProjects/orangemac/src-tauri/target".to_string(),
     );
     watcher.start();
   }
@@ -139,7 +187,7 @@ mod tests {
     // below will be monitored for changes.
     watcher
       .watch(
-        "/Users/jeff/CLionProjects/orangemac/src-tauri/target/hi",
+        "/Users/jeff/CLionProjects/orangemac/src-tauri/target",
         RecursiveMode::Recursive,
       )
       .unwrap();

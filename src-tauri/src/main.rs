@@ -18,8 +18,6 @@ mod united_store;
 mod usn_journal_watcher;
 
 mod utils;
-mod reindex_executor;
-
 
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
@@ -202,7 +200,7 @@ fn main() {
     #[cfg(unix)]
     {
       let sub_root = utils::sub_root();
-      for sub in sub_root {
+      for sub in sub_root.clone() {
         let uclone1 = ustore.clone();
         std::thread::spawn(move || {
           let mut watcher = FsWatcher::new(uclone1, sub.clone());
@@ -213,31 +211,36 @@ fn main() {
       let home = utils::home_dir();
       let sub_home = utils::home_sub_dir();
 
-      std::thread::spawn(move || {
-        loop {
-          // Path::new(home)
-          let nanos = 3 * 1000000;
+      for sub in sub_home {
+        let clone_store_bro = clone_store.clone();
+        let kv_store_bro = kv_store.clone();
+        thread::spawn(move || {
           let mut walker = FsWalker::new(
-            clone_store.clone(),
-            sub_home.clone(),
+            clone_store_bro,
+            vec![sub],
             vec![STORE_PATH.to_string()],
-            kv_store.clone(),
-            nanos,
+            kv_store_bro,
+            TOTAL_NANOS as u64,
           );
           walker.start();
+        });
+      }
 
+      for sub in sub_root {
+        let clone_store_bro = clone_store.clone();
+        let kv_store_bro = kv_store.clone();
+        let home_clone = home.clone();
+        std::thread::spawn(move || {
           let mut walker = FsWalker::new(
-            clone_store.clone(),
-            vec!["/".to_string()],
-            vec![home.clone(), STORE_PATH.to_string()],
-            kv_store.clone(),
-            nanos,
+            clone_store_bro,
+            vec![sub],
+            vec![home_clone, STORE_PATH.to_string()],
+            kv_store_bro,
+            TOTAL_NANOS as u64,
           );
           walker.start();
-
-          std::thread::sleep(Duration::from_secs(3600 * 1))
-        }
-      });
+        });
+      }
     }
   }
 
@@ -248,15 +251,15 @@ fn housekeeping(kv_store: &mut KvStore) {
   let version_opt = kv_store.get_str("version".to_string());
   match version_opt {
     None => {
-      std::fs::remove_dir_all("orangecachedata/index");
-      std::fs::remove_dir_all("orangecachedata/kv");
+      let _ = std::fs::remove_dir_all("orangecachedata/index");
+      let _ = std::fs::remove_dir_all("orangecachedata/kv");
       kv_store.put_str("version".to_string(), VERSION.to_string());
       println!("init version {}", VERSION);
     }
     Some(version) => {
       if !version.eq(VERSION) {
-        std::fs::remove_dir_all("orangecachedata/index");
-        std::fs::remove_dir_all("orangecachedata/kv");
+        let _ = std::fs::remove_dir_all("orangecachedata/index");
+        let _ = std::fs::remove_dir_all("orangecachedata/kv");
         kv_store.put_str("version".to_string(), VERSION.to_string());
         println!("clean old version cachedata");
       }
@@ -304,7 +307,7 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
     loop {
       let read_res = watcher.read();
       if read_res.is_err() {
-         watcher = Watcher::new(volume_path.as_str(), None, Some(0)).unwrap();
+        watcher = Watcher::new(volume_path.as_str(), None, Some(0)).unwrap();
         continue;
       }
       let records = read_res.unwrap();

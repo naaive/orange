@@ -12,7 +12,7 @@ fn t1() {
   let file = FileIndex {
     abs_path: String::from("jack"),
     name: String::from("rose"),
-    id: "".to_string()
+    id: "".to_string(),
   };
   let result = serde_json::to_string(&file);
   println!("{:?}", result);

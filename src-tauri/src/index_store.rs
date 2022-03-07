@@ -7,10 +7,10 @@ use tantivy::schema::*;
 use tantivy::{Index, IndexReader, IndexWriter, ReloadPolicy};
 
 use crate::file_index::FileIndex;
+use sha256::digest;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
-use sha256::digest;
 
 #[derive(Clone)]
 pub struct IndexStore {
@@ -123,8 +123,7 @@ impl IndexStore {
     vec1
   }
   pub fn del(&self, abs_path: String) {
-
-    let term = Term::from_field_text(self.id_field,&digest(&abs_path) );
+    let term = Term::from_field_text(self.id_field, &digest(&abs_path));
     self.index_writer.write().unwrap().delete_term(term);
   }
 
