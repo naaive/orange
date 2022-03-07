@@ -25,7 +25,9 @@
 
 ![Demo](screenshot/orange.gif)
 
-Orange is an easy-to-use file search software. It is built on Tauri and has a consistent experience across different desktop platforms. Its features are summarized as follows:
+Orange is a **file search** desktop application. 
+
+## ✨Features
 
 - Fast search response
 - Low memory and low cpu usage
