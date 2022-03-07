@@ -50,9 +50,6 @@ impl FsWatcher<'_> {
           match result {
             Ok(meta) => {
               let abs_path = path.to_str().unwrap().to_string();
-              if  abs_path.contains("target") {
-                println!("{}", abs_path);
-              }
               let name = Self::get_filename(&path);
 
               let created_at = Self::parse_ts(meta.created().unwrap());
