@@ -182,12 +182,7 @@ mod tests {
 
     // Add a path to be watched. All files and directories at that path and
     // below will be monitored for changes.
-    watcher
-      .watch(
-        "/Users/jeff/CLionProjects/orangemac/src-tauri/target",
-        RecursiveMode::Recursive,
-      )
-      .unwrap();
+    watcher.watch("/", RecursiveMode::Recursive).unwrap();
 
     loop {
       match rx.recv() {

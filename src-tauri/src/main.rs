@@ -200,10 +200,18 @@ fn main() {
     #[cfg(unix)]
     {
       let sub_root = utils::sub_root();
-      for sub in sub_root.clone() {
+      if cfg!(target_os = "linux") {
+        for sub in sub_root.clone() {
+          let uclone1 = ustore.clone();
+          std::thread::spawn(move || {
+            let mut watcher = FsWatcher::new(uclone1, sub.clone());
+            watcher.start();
+          });
+        }
+      } else {
         let uclone1 = ustore.clone();
         std::thread::spawn(move || {
-          let mut watcher = FsWatcher::new(uclone1, sub.clone());
+          let mut watcher = FsWatcher::new(uclone1, "/".to_string());
           watcher.start();
         });
       }
