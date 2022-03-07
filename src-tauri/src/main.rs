@@ -18,6 +18,8 @@ mod united_store;
 mod usn_journal_watcher;
 
 mod utils;
+mod reindex_executor;
+
 
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
