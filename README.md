@@ -46,6 +46,9 @@ Orange is a **file search** desktop application.
 
 Go to [release page](https://github.com/naaive/orange/releases).
 
+## Notice
+
+If you are Macos user, after install, please run `xattr -cr /Applications/Orange.app` to fix `“Orange” is damaged and can’t be opened. You should move it to the Trash.`
 
 ## Architecture
 ![arch](doc/img.png)
