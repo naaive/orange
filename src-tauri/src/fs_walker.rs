@@ -27,7 +27,7 @@ impl FsWalker<'_> {
     nanos: u64,
   ) -> FsWalker<'a> {
     // let index_writer: Arc<RwLock<UnitedStore>>
-    // let kv_store = KvStore::new("./orangecachedata/conf");
+    // let kv_store = KvStore::new(&format!("{}{}",data_dir(),"/orangecachedata/conf"));
     FsWalker {
       ustore,
       kv_store,
@@ -150,6 +150,7 @@ impl FsWalker<'_> {
 
 #[cfg(test)]
 mod tests {
+  use crate::utils::data_dir;
   use super::*;
 
   #[test]
@@ -158,7 +159,7 @@ mod tests {
       Arc::new(RwLock::new(UnitedStore::new())),
       vec!["".to_string()],
       vec![],
-      KvStore::new("./orangecachedata/conf"),
+      KvStore::new(&format!("{}{}",data_dir(),"/orangecachedata/conf")),
       3,
     );
     walker.start();

@@ -11,6 +11,7 @@ use sha256::digest;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
+use crate::utils::data_dir;
 
 #[derive(Clone)]
 pub struct IndexStore {
@@ -27,7 +28,8 @@ pub struct IndexStore {
 
 impl IndexStore {
   pub fn new() -> IndexStore {
-    let index_path = Path::new("./orangecachedata/index");
+    let string = format!("{}{}", data_dir(), "/orangecachedata/index");
+    let index_path = Path::new(&string);
 
     let mut schema_builder = Schema::builder();
 

@@ -11,6 +11,8 @@ use tauri::{Manager, Window, Wry};
 
 extern crate kernel32;
 extern crate libc;
+extern crate directories;
+use directories::ProjectDirs;
 //
 pub fn msg(window: Window<Wry>, content: &str) {
   let parent_window = window.get_window("main").unwrap();
@@ -37,6 +39,11 @@ pub fn open_file_path(path: &str) {
       .output()
       .expect("failed to execute process");
   }
+}
+
+pub fn data_dir()->String{
+  let project_dir= ProjectDirs::from("com", "github",  "Orange").unwrap();
+  project_dir.data_dir().to_str().unwrap().to_string()
 }
 
 pub fn home_dir() -> String {
@@ -236,7 +243,7 @@ mod tests {
   #[cfg(windows)]
   use crate::utils::get_win32_ready_drives_no;
 
-  use crate::utils::{home_sub_dir, subs};
+  use crate::utils::{data_dir, home_sub_dir, subs};
 
   #[cfg(windows)]
   #[test]
@@ -290,5 +297,11 @@ mod tests {
       .unwrap()
       .as_millis();
     println!("{:?}", i as u64);
+  }
+
+  #[test]
+  fn t7() {
+    let dir = data_dir();
+    println!("{}", dir);
   }
 }

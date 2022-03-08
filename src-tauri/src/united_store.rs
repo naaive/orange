@@ -9,6 +9,7 @@ use std::collections::HashSet;
 use std::fs;
 use std::iter::FromIterator;
 use std::path::Path;
+use crate::utils::data_dir;
 
 #[derive(Clone)]
 pub struct UnitedStore<'a> {
@@ -18,7 +19,7 @@ pub struct UnitedStore<'a> {
 
 impl UnitedStore<'_> {
   pub fn new<'a>() -> UnitedStore<'a> {
-    let kv = KvStore::new("./orangecachedata/kv");
+    let kv = KvStore::new(&format!("{}{}",data_dir(),"/orangecachedata/kv"));
     let idx = IndexStore::new();
     UnitedStore { kv, idx }
   }

@@ -42,8 +42,9 @@ use crate::kv_store::KvStore;
 use crate::usn_journal_watcher::Watcher;
 #[cfg(windows)]
 use crate::utils::build_volume_path;
-use crate::utils::parse_ts;
+use crate::utils::{data_dir, parse_ts};
 use tauri::{Manager, Window, Wry};
+
 
 static mut FRONT_USTORE: Option<UnitedStore> = None;
 static mut CONF_KV_STORE: Option<KvStore> = None;
@@ -115,7 +116,8 @@ const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
 const VERSION: &'static str = "0.0.4";
 
 fn main() {
-  let mut kv_store = KvStore::new("./orangecachedata/conf");
+
+  let mut kv_store = KvStore::new(&format!("{}{}",data_dir(),"/orangecachedata/conf"));
 
   housekeeping(&mut kv_store);
 
@@ -259,15 +261,15 @@ fn housekeeping(kv_store: &mut KvStore) {
   let version_opt = kv_store.get_str("version".to_string());
   match version_opt {
     None => {
-      let _ = std::fs::remove_dir_all("orangecachedata/index");
-      let _ = std::fs::remove_dir_all("orangecachedata/kv");
+      let _ = std::fs::remove_dir_all(&format!("{}{}",data_dir(),"/orangecachedata/index"));
+      let _ = std::fs::remove_dir_all(&format!("{}{}",data_dir(),"/orangecachedata/kv"));
       kv_store.put_str("version".to_string(), VERSION.to_string());
       println!("init version {}", VERSION);
     }
     Some(version) => {
       if !version.eq(VERSION) {
-        let _ = std::fs::remove_dir_all("orangecachedata/index");
-        let _ = std::fs::remove_dir_all("orangecachedata/kv");
+        let _ = std::fs::remove_dir_all(&format!("{}{}",data_dir(),"/orangecachedata/index"));
+        let _ = std::fs::remove_dir_all(&format!("{}{}",data_dir(),"/orangecachedata/kv"));
         kv_store.put_str("version".to_string(), VERSION.to_string());
         println!("clean old version cachedata");
       }
