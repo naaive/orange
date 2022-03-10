@@ -60,7 +60,7 @@ impl IndexStore {
 
     let index_reader = index
       .reader_builder()
-      .reload_policy(ReloadPolicy::Manual)
+      .reload_policy(ReloadPolicy::OnCommit)
       .try_into()
       .ok()
       .unwrap();
@@ -154,7 +154,7 @@ mod tests {
   use super::*;
   use crate::utils::data_dir;
   use std::time::SystemTime;
-  use walkdir::WalkDir;
+  use jwalk::WalkDir;
 
   #[test]
   fn t2() {

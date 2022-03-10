@@ -10,7 +10,7 @@ use std::os::unix::fs::MetadataExt;
 use std::os::windows::fs::MetadataExt;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use walkdir::WalkDir;
+use jwalk::WalkDir;
 
 pub struct FsWalker<'a> {
   index_store: Arc<IndexStore>,
@@ -94,19 +94,23 @@ impl FsWalker<'_> {
       return;
     }
     println!("start travel {}.", path);
+    let start = SystemTime::now();
 
     for entry1 in WalkDir::new(path.clone())
       .into_iter()
-      .filter_entry(|x| {
-        !self
-          .exclude_path
-          .iter()
-          .any(|y| x.path().to_str().unwrap().to_string().starts_with(y))
-      })
       .filter_map(|v| v.ok())
     {
+
       let buf = entry1.path();
       let abs_path = buf.to_str().unwrap();
+      //
+      // if self
+      //     .exclude_path
+      //     .iter()
+      //     .any(|y| abs_path.to_string().starts_with(y)) {
+      //   continue
+      // }
+
       let x1 = entry1.file_name().to_str().unwrap();
       let name = x1.to_string();
       self.index_store.add_doc(FileIndex { abs_path, name })
@@ -118,7 +122,8 @@ impl FsWalker<'_> {
       format!("{}#{}", last_walk_over_key.clone(), path.clone()),
       "1".to_string(),
     );
-    println!("travel {} over.", path);
+    let end = SystemTime::now();
+    println!("travel {} over, cost {} s", path,end.duration_since(start).unwrap().as_secs());
   }
 
   fn parse_ts(time: SystemTime) -> u64 {
@@ -142,17 +147,17 @@ mod tests {
       index_store.clone(),
       vec!["/Users/jeff/CLionProjects/orange2".to_string()],
       vec![],
-      kv_store,
+      kv_store.clone(),
     );
-
-    println!("start travel");
-    let mut cnt = 0;
-    let start = SystemTime::now();
     fs_walker.start();
 
-    let end = SystemTime::now();
-
-    println!("cost {} ms, total {} files", end.duration_since(start).unwrap().as_millis(), cnt);
+    let mut fs_walker = FsWalker::new(
+      index_store.clone(),
+      vec!["/Users/jeff/Music".to_string()],
+      vec![],
+      kv_store,
+    );
+    fs_walker.start();
 
 
     // let vec1 = index_store.search("build".to_string(), 100);
