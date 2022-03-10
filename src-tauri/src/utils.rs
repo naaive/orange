@@ -9,14 +9,18 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::api::dialog::message;
 use tauri::{Manager, Window, Wry};
 
+extern crate directories;
 extern crate kernel32;
 extern crate libc;
-extern crate directories;
 use directories::ProjectDirs;
 //
 pub fn msg(window: Window<Wry>, content: &str) {
   let parent_window = window.get_window("main").unwrap();
   message(Some(&parent_window), "Warm", content);
+}
+
+pub fn path2name(x: &str) -> Option<&str> {
+  x.split("/").into_iter().last()
 }
 
 pub fn open_file_path(path: &str) {
@@ -41,8 +45,8 @@ pub fn open_file_path(path: &str) {
   }
 }
 
-pub fn data_dir()->String{
-  let project_dir= ProjectDirs::from("com", "github",  "Orange").unwrap();
+pub fn data_dir() -> String {
+  let project_dir = ProjectDirs::from("com", "github", "Orange").unwrap();
   project_dir.data_dir().to_str().unwrap().to_string()
 }
 

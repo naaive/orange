@@ -24,7 +24,7 @@ impl KvStore<'_> {
     self.bucket.remove(k).ok();
   }
 
-  pub fn put_str(&mut self, k: String, v: String) {
+  pub fn put_str(&self, k: String, v: String) {
     let string = serde_json::to_string(&v).ok().unwrap();
     self.bucket.set(k, string).unwrap();
     self.bucket.flush().ok();

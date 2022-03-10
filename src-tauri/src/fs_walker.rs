@@ -1,5 +1,7 @@
+use crate::file_index::FileIndex;
 use crate::file_view::FileView;
-use crate::{KvStore, UnitedStore};
+use crate::index_store::IndexStore;
+use crate::KvStore;
 #[cfg(target_os = "macos")]
 use std::os::unix::fs::MetadataExt;
 #[cfg(target_os = "linux")]
@@ -11,29 +13,24 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use walkdir::WalkDir;
 
 pub struct FsWalker<'a> {
-  ustore: Arc<RwLock<UnitedStore<'a>>>,
-  kv_store: KvStore<'a>,
+  index_store: Arc<IndexStore>,
+  kv_store: Arc<KvStore<'a>>,
   root: Vec<String>,
   exclude_path: Vec<String>,
-  nanos: u64,
 }
 
 impl FsWalker<'_> {
   pub fn new<'a>(
-    ustore: Arc<RwLock<UnitedStore<'a>>>,
+    index_store: Arc<IndexStore>,
     root: Vec<String>,
     exclude_path: Vec<String>,
-    kv_store: KvStore<'a>,
-    nanos: u64,
+    kv_store: Arc<KvStore<'a>>,
   ) -> FsWalker<'a> {
-    // let index_writer: Arc<RwLock<UnitedStore>>
-    // let kv_store = KvStore::new(&format!("{}{}",data_dir(),"/orangecachedata/conf"));
     FsWalker {
-      ustore,
+      index_store,
       kv_store,
       root,
       exclude_path,
-      nanos,
     }
   }
   pub fn start(&mut self) {
@@ -70,7 +67,7 @@ impl FsWalker<'_> {
         return true;
       }
       Some(last) => {
-        if last_over_opt.unwrap().eq("0") {
+        if last_over_opt.unwrap_or("0".to_string()).eq("0") {
           return true;
         }
 
@@ -98,7 +95,7 @@ impl FsWalker<'_> {
     }
     println!("start travel {}.", path);
 
-    for x in WalkDir::new(path.clone())
+    for entry1 in WalkDir::new(path.clone())
       .into_iter()
       .filter_entry(|x| {
         !self
@@ -108,37 +105,19 @@ impl FsWalker<'_> {
       })
       .filter_map(|v| v.ok())
     {
-      //
-      std::thread::sleep(Duration::from_nanos(self.nanos));
-      match x.metadata() {
-        Ok(meta) => {
-          let created_at = Self::parse_ts(meta.created().ok().unwrap());
-          let mod_at = Self::parse_ts(meta.modified().ok().unwrap());
-          #[cfg(windows)]
-          let size = meta.file_size();
-          #[cfg(unix)]
-          let size = meta.size();
-          let view = FileView {
-            abs_path: x.path().to_str().unwrap().to_string(),
-            name: x.file_name().to_str().unwrap().to_string(),
-            created_at,
-            mod_at,
-            size,
-            is_dir: meta.is_dir(),
-          };
-          // println!("{:?}", view);
-          self.ustore.write().unwrap().save(view)
-        }
-        Err(_) => {}
-      }
+      let buf = entry1.path();
+      let abs_path = buf.to_str().unwrap();
+      let x1 = entry1.file_name().to_str().unwrap();
+      let name = x1.to_string();
+      self.index_store.add_doc(FileIndex { abs_path, name })
     }
 
+    self.index_store.commit();
     let last_walk_over_key = "last_walk_over".to_string();
     self.kv_store.put_str(
       format!("{}#{}", last_walk_over_key.clone(), path.clone()),
       "1".to_string(),
     );
-
     println!("travel {} over.", path);
   }
 
@@ -150,33 +129,33 @@ impl FsWalker<'_> {
 
 #[cfg(test)]
 mod tests {
-  use crate::utils::data_dir;
   use super::*;
+  use crate::utils::data_dir;
 
   #[test]
   fn t1() {
-    let mut walker = FsWalker::new(
-      Arc::new(RwLock::new(UnitedStore::new())),
-      vec!["".to_string()],
+    let mut index_store = Arc::new(IndexStore::new(
+      "/Users/jeff/IdeaProjects/orange2/tmp/index",
+    ));
+    let kv_store = Arc::new(KvStore::new("/Users/jeff/IdeaProjects/orange2/tmp/kv"));
+    let mut fs_walker = FsWalker::new(
+      index_store.clone(),
+      vec!["/Users/jeff/CLionProjects/orange2".to_string()],
       vec![],
-      KvStore::new(&format!("{}{}",data_dir(),"/orangecachedata/conf")),
-      3,
+      kv_store,
     );
-    walker.start();
-  }
 
-  #[test]
-  fn t2() {
-    let vec1 = vec!["hi", "jeff", "sam"];
-    let x1 = vec1.iter().any(|x| x.starts_with("w"));
-    println!("{}", x1);
-  }
+    println!("start travel");
+    let mut cnt = 0;
+    let start = SystemTime::now();
+    fs_walker.start();
 
-  #[test]
-  fn t3() {
-    let owned_string = "hi".to_string();
-    let jack = "another_owned_string".to_string();
-    let string = format!("{}{}", owned_string, jack);
-    println!("{}", string);
+    let end = SystemTime::now();
+
+    println!("cost {} ms, total {} files", end.duration_since(start).unwrap().as_millis(), cnt);
+
+
+    // let vec1 = index_store.search("build".to_string(), 100);
+    // println!("{:?}", vec1);
   }
 }

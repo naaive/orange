@@ -1,8 +1,9 @@
 extern crate notify;
 
+use crate::file_index::FileIndex;
 use crate::file_view::FileView;
+use crate::index_store::IndexStore;
 use crate::utils::subs;
-use crate::UnitedStore;
 use notify::{raw_watcher, Op, RawEvent, RecursiveMode, Watcher};
 #[cfg(target_os = "linux")]
 use std::os::unix::fs::MetadataExt;
@@ -12,18 +13,18 @@ use std::os::unix::fs::MetadataExt;
 use std::os::windows::fs::MetadataExt;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
-use std::sync::{Arc, RwLock};
-use std::time::SystemTime;
+use std::sync::Arc;
+use std::time::{Duration, SystemTime};
 use std::{fs, path};
 
-pub struct FsWatcher<'a> {
-  ustore: Arc<RwLock<UnitedStore<'a>>>,
+pub struct FsWatcher {
+  index_store: Arc<IndexStore>,
   path: String,
 }
 
-impl FsWatcher<'_> {
-  pub fn new<'a>(ustore: Arc<RwLock<UnitedStore<'a>>>, path: String) -> FsWatcher<'a> {
-    FsWatcher { ustore, path }
+impl FsWatcher {
+  pub fn new(index_store: Arc<IndexStore>, path: String) -> FsWatcher {
+    FsWatcher { index_store, path }
   }
 
   pub fn start(&mut self) {
@@ -35,6 +36,12 @@ impl FsWatcher<'_> {
       return;
     }
 
+    let arc = self.index_store.clone();
+    std::thread::spawn(move || {
+      arc.commit();
+      std::thread::sleep(Duration::from_secs(1));
+    });
+
     loop {
       match rx.recv() {
         Ok(RawEvent {
@@ -43,9 +50,8 @@ impl FsWatcher<'_> {
           cookie: _,
         }) => {
           if Op::REMOVE & op == Op::REMOVE {
-            self.ustore.write().unwrap().del(path.to_str().unwrap());
+            self.index_store.del(path.to_str().unwrap().to_string())
           };
-
           let result = path.metadata();
           match result {
             Ok(meta) => {
@@ -72,14 +78,8 @@ impl FsWatcher<'_> {
                 }
               }
 
-              self.ustore.write().unwrap().save(FileView {
-                abs_path,
-                name,
-                created_at,
-                mod_at,
-                size,
-                is_dir,
-              });
+              self.index_store.add_doc(FileIndex{ abs_path: &abs_path, name })
+
             }
             Err(_) => {}
           }
@@ -101,14 +101,8 @@ impl FsWatcher<'_> {
         .to_string();
 
       if let Ok(m) = sub_path.metadata() {
-        self.ustore.write().unwrap().save(FileView {
-          abs_path: sub.clone(),
-          name,
-          created_at: Self::parse_ts(m.created().unwrap()),
-          mod_at: Self::parse_ts(m.modified().unwrap()),
-          size: m.size(),
-          is_dir: m.is_dir(),
-        });
+        self.index_store.add_doc(FileIndex { abs_path: sub.clone().as_str(), name });
+
       }
     }
   }
@@ -139,12 +133,12 @@ mod tests {
 
   #[test]
   fn t1() {
-    let store = UnitedStore::new();
-    let mut watcher = FsWatcher::new(
-      Arc::new(RwLock::new(store)),
-      "/Users/jeff/CLionProjects/orangemac/src-tauri/target".to_string(),
-    );
-    watcher.start();
+
+    // let mut watcher = FsWatcher::new(
+    //   ,
+    //   "/Users/jeff/CLionProjects/orangemac/src-tauri/target".to_string(),
+    // );
+    // watcher.start();
   }
   #[test]
   fn t2() {

@@ -26,7 +26,6 @@ use std::{fs, panic, thread};
 
 use crate::fs_walker::FsWalker;
 use crate::fs_watcher::FsWatcher;
-use crate::united_store::UnitedStore;
 use index_store::IndexStore;
 
 use std::sync::mpsc::Sender;
@@ -45,9 +44,8 @@ use crate::utils::build_volume_path;
 use crate::utils::{data_dir, parse_ts};
 use tauri::{Manager, Window, Wry};
 
-
-static mut FRONT_USTORE: Option<UnitedStore> = None;
-static mut CONF_KV_STORE: Option<KvStore> = None;
+static mut FRONT_USTORE: Option<Arc<IndexStore>> = None;
+static mut CONF_KV_STORE: Option<Arc<KvStore>> = None;
 static mut WINDOW: Option<Window<Wry>> = None;
 static TOTAL_NANOS: u32 = 3_000_000;
 
@@ -86,7 +84,7 @@ async fn my_custom_command(
       if kw.eq("") {
         kw = "*".to_string();
       }
-      let vec = arc.search(kw.as_str(), 35);
+      let vec = arc.search(kw, 35);
       Ok(CustomResponse {
         message: "".to_string(),
         other_val: database.x,
@@ -96,7 +94,7 @@ async fn my_custom_command(
     // suggest
     2 => unsafe {
       let arc = FRONT_USTORE.clone().unwrap();
-      let vec = arc.search(kw.as_str(), 20);
+      let vec = arc.search(kw, 20);
       Ok(CustomResponse {
         message: "".to_string(),
         other_val: database.x,
@@ -116,18 +114,18 @@ const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
 const VERSION: &'static str = "0.0.4";
 
 fn main() {
+  let mut conf_kv_store = KvStore::new(&format!("{}{}", data_dir(), "/orangecachedata/conf"));
+  let rc_conf_kv_store = Arc::new(conf_kv_store);
 
-  let mut kv_store = KvStore::new(&format!("{}{}",data_dir(),"/orangecachedata/conf"));
+  housekeeping(rc_conf_kv_store.clone());
 
-  housekeeping(&mut kv_store);
+  let index_store = IndexStore::new(&format!("{}{}", data_dir(), "/orangecachedata/idx"));
 
-  let store = UnitedStore::new();
-  let ustore = Arc::new(RwLock::new(store.clone()));
-  let clone_store = ustore.clone();
+  let rc_index_store = Arc::new(index_store);
 
   unsafe {
-    FRONT_USTORE = Some(store.clone());
-    CONF_KV_STORE = Some(kv_store.clone());
+    FRONT_USTORE = Some(rc_index_store.clone());
+    CONF_KV_STORE = Some(rc_conf_kv_store.clone());
   }
 
   if cfg!(target_os = "windows") {
@@ -146,7 +144,7 @@ fn main() {
             clone_store.clone(),
             vec![sub.clone()],
             vec![STORE_PATH.to_string(), RECYCLE_PATH.to_string()],
-            kv_store.clone(),
+            conf_kv_store.clone(),
             TOTAL_NANOS as u64,
           );
           std::thread::spawn(move || {
@@ -167,7 +165,7 @@ fn main() {
               STORE_PATH.to_string(),
               RECYCLE_PATH.to_string(),
             ],
-            kv_store.clone(),
+            conf_kv_store.clone(),
             TOTAL_NANOS as u64,
           );
           std::thread::spawn(move || {
@@ -204,16 +202,17 @@ fn main() {
       let sub_root = utils::sub_root();
       if cfg!(target_os = "linux") {
         for sub in sub_root.clone() {
-          let uclone1 = ustore.clone();
+          let rclone = rc_index_store.clone();
           std::thread::spawn(move || {
-            let mut watcher = FsWatcher::new(uclone1, sub.clone());
+            let mut watcher = FsWatcher::new(rclone, sub.clone());
             watcher.start();
           });
         }
       } else {
-        let uclone1 = ustore.clone();
+        let store = rc_index_store.clone();
+
         std::thread::spawn(move || {
-          let mut watcher = FsWatcher::new(uclone1, "/".to_string());
+          let mut watcher = FsWatcher::new(store, "/".to_string());
           watcher.start();
         });
       }
@@ -222,31 +221,29 @@ fn main() {
       let sub_home = utils::home_sub_dir();
 
       for sub in sub_home {
-        let clone_store_bro = clone_store.clone();
-        let kv_store_bro = kv_store.clone();
+        let kv_store_bro = rc_conf_kv_store.clone();
+        let rclone = rc_index_store.clone();
         thread::spawn(move || {
           let mut walker = FsWalker::new(
-            clone_store_bro,
+            rclone,
             vec![sub],
             vec![STORE_PATH.to_string()],
             kv_store_bro,
-            TOTAL_NANOS as u64,
           );
           walker.start();
         });
       }
 
       for sub in sub_root {
-        let clone_store_bro = clone_store.clone();
-        let kv_store_bro = kv_store.clone();
+        let kv_store_bro = rc_conf_kv_store.clone();
+        let rc_clone = rc_index_store.clone();
         let home_clone = home.clone();
         std::thread::spawn(move || {
           let mut walker = FsWalker::new(
-            clone_store_bro,
+            rc_clone,
             vec![sub],
             vec![home_clone, STORE_PATH.to_string()],
             kv_store_bro,
-            TOTAL_NANOS as u64,
           );
           walker.start();
         });
@@ -257,19 +254,19 @@ fn main() {
   start_tauri_app();
 }
 
-fn housekeeping(kv_store: &mut KvStore) {
+fn housekeeping(kv_store: Arc<KvStore>) {
   let version_opt = kv_store.get_str("version".to_string());
   match version_opt {
     None => {
-      let _ = std::fs::remove_dir_all(&format!("{}{}",data_dir(),"/orangecachedata/index"));
-      let _ = std::fs::remove_dir_all(&format!("{}{}",data_dir(),"/orangecachedata/kv"));
+      let _ = std::fs::remove_dir_all(&format!("{}{}", data_dir(), "/orangecachedata/index"));
+      let _ = std::fs::remove_dir_all(&format!("{}{}", data_dir(), "/orangecachedata/kv"));
       kv_store.put_str("version".to_string(), VERSION.to_string());
       println!("init version {}", VERSION);
     }
     Some(version) => {
       if !version.eq(VERSION) {
-        let _ = std::fs::remove_dir_all(&format!("{}{}",data_dir(),"/orangecachedata/index"));
-        let _ = std::fs::remove_dir_all(&format!("{}{}",data_dir(),"/orangecachedata/kv"));
+        let _ = std::fs::remove_dir_all(&format!("{}{}", data_dir(), "/orangecachedata/index"));
+        let _ = std::fs::remove_dir_all(&format!("{}{}", data_dir(), "/orangecachedata/kv"));
         kv_store.put_str("version".to_string(), VERSION.to_string());
         println!("clean old version cachedata");
       }
