@@ -12,7 +12,7 @@ use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
 use crate::file_view::FileView;
 use crate::utils;
 use std::sync::{Arc, Mutex};
-use std::time::{Duration, SystemTime};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::pinyin_tokenizer::tokenize;
 
 pub struct IdxStore {
@@ -64,8 +64,8 @@ impl IdxStore {
                     file_views.push(FileView {
                         abs_path: utils::norm(&x),
                         name: utils::path2name(&utils::norm(&x)).unwrap_or("").to_string(),
-                        created_at: utils::parse_ts(meta.created().unwrap_or(SystemTime::now())),
-                        mod_at: utils::parse_ts(meta.modified().unwrap_or(SystemTime::now())),
+                        created_at: meta.created().unwrap().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+                        mod_at: meta.modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_secs(),
                         size: size,
                         // is_symbol: fkv.is_symbol
                         is_dir: meta.is_dir(),

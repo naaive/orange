@@ -54,7 +54,7 @@ pub fn parse_ts(time: SystemTime) -> u64 {
     let created_at = time
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()
-        .as_millis() as u64;
+        .as_secs() as u64;
     created_at
 }
 pub fn path2name(x: &str) -> Option<&str> {

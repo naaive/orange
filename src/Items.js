@@ -91,7 +91,7 @@ const columns = [
     {
         name: 'Last Modified',
         maxWidth: '160px',
-        selector: row => moment(R.prop('mod_at', row.mod_at)).format("YYYY-MM-DD h:mm:ss"),
+        selector: row => moment.unix(R.prop('mod_at')(row)).format("YYYY-MM-DD h:mm:ss"),
         style: {
             color: 'rgba(0,0,0,.54)',
         },
