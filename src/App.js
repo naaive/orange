@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import Search from "./SearchBox";
-// import Items from "./Items";
 
 import * as R from "ramda";
 import {invoke} from "@tauri-apps/api";
@@ -16,7 +15,6 @@ function App() {
 
     useEffect(() => {
         setTimeout(() => doTxtChange('*'), 200)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
 
         let run = 0;
         let handler;

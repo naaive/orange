@@ -98,6 +98,7 @@ pub unsafe fn build_volume_path(str: &str) -> String {
 
 #[test]
 fn t1() {
-    let string = data_dir();
+    let str = "c";
+    let string = unsafe{build_volume_path(str)};
     println!("{}", string);
 }

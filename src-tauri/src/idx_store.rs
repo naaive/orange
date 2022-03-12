@@ -12,7 +12,7 @@ use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
 use crate::file_view::FileView;
 use crate::utils;
 use std::sync::{Arc, Mutex};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, UNIX_EPOCH};
 use crate::pinyin_tokenizer::tokenize;
 
 pub struct IdxStore {
