@@ -20,7 +20,7 @@ pub fn open_file_path(path: &str) {
             .unwrap();
         println!("{}", x);
         std::process::Command::new("explorer")
-            .args([x])
+            .args([win_norm4explorer(x)])
             .output()
             .expect("failed to execute process");
     } else if cfg!(target_os = "linux") {
@@ -65,6 +65,9 @@ pub fn norm(path: &str) -> String {
     str::replace(path, "\\", "/")
 }
 
+pub fn win_norm4explorer(path: &str) -> String {
+    str::replace(path, "/", "\\")
+}
 #[cfg(windows)]
 pub unsafe fn get_win32_ready_drives() -> Vec<String> {
     let mut logical_drives = Vec::with_capacity(5);
