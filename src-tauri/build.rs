@@ -1,7 +1,7 @@
 fn main() {
-  if cfg!(target_os = "windows") {
-    let mut res = winres::WindowsResource::new();
-    res.set_manifest(
+    if cfg!(target_os = "windows") {
+        let mut res = winres::WindowsResource::new();
+        res.set_manifest(
       r#"
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
    <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
@@ -28,7 +28,7 @@ fn main() {
 </assembly>
 "#,
     );
-    res.compile().unwrap();
-  }
-  tauri_build::build()
+        res.compile().unwrap();
+    }
+    tauri_build::build()
 }
