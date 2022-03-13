@@ -15,8 +15,8 @@ mod pinyin_tokenizer;
 #[cfg(windows)]
 mod usn_journal_watcher;
 mod utils;
-mod win_walker;
-mod win_watcher;
+mod walk_exec;
+mod watcher_exec;
 
 use std::sync::Arc;
 

@@ -1,5 +1,5 @@
 
-use crate::{utils, win_walker, win_watcher, CONF_STORE, IDX_STORE};
+use crate::{utils, walk_exec, watcher_exec, CONF_STORE, IDX_STORE};
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -38,7 +38,7 @@ pub fn run() {
     if reindex {
         let conf_store_bro = conf_store.clone();
         let idx_store_bro = idx_store.clone();
-        win_walker::run(conf_store_bro, idx_store_bro);
+        walk_exec::run(conf_store_bro, idx_store_bro);
 
         conf_store.put_str(LAST_INDEX_TS.to_string(), curr_ts().to_string())
     };
@@ -49,7 +49,7 @@ pub fn run() {
     win_watch(idx_store_bro);
 
     #[cfg(unix)]
-    win_watcher::run(idx_store_bro);
+    watcher_exec::run(idx_store_bro);
 }
 
 #[cfg(windows)]
@@ -58,7 +58,7 @@ fn win_watch(idx_store_bro: Arc<IdxStore>) {
     if success {
         println!("usn success")
     } else {
-        win_watcher::run(idx_store_bro);
+        watcher_exec::run(idx_store_bro);
     }
 }
 
