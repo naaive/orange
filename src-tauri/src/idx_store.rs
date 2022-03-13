@@ -2,7 +2,11 @@ use std::collections::HashSet;
 
 use std::fs;
 
+#[cfg(unix)]
+use std::os::unix::fs::MetadataExt;
+#[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
+
 use tantivy::collector::TopDocs;
 use tantivy::query::QueryParser;
 use tantivy::schema::*;

@@ -45,6 +45,15 @@ pub fn run() {
 
     let idx_store_bro = idx_store.clone();
 
+    #[cfg(windows)]
+    win_watch(idx_store_bro);
+
+    #[cfg(unix)]
+    win_watcher::run(idx_store_bro);
+}
+
+#[cfg(windows)]
+fn win_watch(idx_store_bro: Arc<IdxStore>) {
     let success = unsafe { maybe_usn_watch() };
     if success {
         println!("usn success")

@@ -31,15 +31,12 @@ impl FsWatcher {
         let mut watcher = raw_watcher(tx).unwrap();
         let wt_res = watcher.watch(self.path.as_str(), RecursiveMode::Recursive);
         if wt_res.is_err() {
+            println!("{:?}", wt_res.err());
             println!("watch {} err ", self.path);
             return;
         }
 
-        let arc = self.index_store.clone();
-        std::thread::spawn(move || {
-            arc.commit();
-            std::thread::sleep(Duration::from_secs(1));
-        });
+
 
         loop {
             match rx.recv() {

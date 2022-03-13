@@ -2,7 +2,9 @@ use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
 
 use crate::utils;
+#[cfg(windows)]
 use crate::utils::get_win32_ready_drives;
+
 use jwalk::WalkDir;
 use std::sync::Arc;
 use std::time::SystemTime;
@@ -17,6 +19,27 @@ pub fn run(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>) {
 
     walk_home(conf_store.clone(), idx_store.clone(), &home);
 
+    #[cfg(windows)]
+    win_walk_root(conf_store, idx_store, home);
+
+    #[cfg(unix)]
+    unix_walk_root(conf_store, idx_store, home);
+}
+fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: String) {
+
+    let key = format!("walk:stat:{}", "/");
+    let opt = conf_store.get_str(key.clone());
+    if opt.is_some() {
+        return;
+    }
+    walk(idx_store.clone(), &"/".to_string(), Some(home.to_string()));
+    conf_store.put_str(key, "1".to_string());
+
+}
+
+
+#[cfg(windows)]
+fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: String) {
     let drives = unsafe { get_win32_ready_drives() };
 
     for mut driv in drives {
