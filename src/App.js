@@ -56,14 +56,13 @@ function App() {
                 <div className="search-box">
                     <Search setItems={setItems} doTxtChange={doTxtChange}/>
                 </div>
-                <Scrollbars autoHide     autoHideTimeout={500}
-                            autoHideDuration={200} style={{  height: '88vh' }}>
+
                 <div className="items">
+                    <Scrollbars autoHide     autoHideTimeout={500}
+                                autoHideDuration={200} >
                     <Items items={items}/>
+                    </Scrollbars>
                 </div>
-                </Scrollbars>
-
-
             </div>
 
     );

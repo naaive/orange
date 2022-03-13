@@ -36,9 +36,21 @@ input.chakra-input:enabled{
 .items {
     z-index: 1;
     overflow: hidden; /* Hide scrollbars */
-
+    height: 92%;
 }
-
+.search-box input{
+    height: 30px;
+}
+.items .rdt_Table>div>div{
+    border: 0 !important;
+}
+.search-box .chakra-input__left-element {
+    height: 30px!important;
+    width: 30px !important;
+}
+.items>div>div,.items>div>div>div {
+    overflow-x: hidden !important; /* Hide scrollbars */
+}
 .icon {
     display: flex;
     align-items: center;

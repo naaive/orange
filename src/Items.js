@@ -17,13 +17,13 @@ const customStyles = {
     headCells: {
         style: {
             color: '#202124',
-            fontSize: '14px',
+            fontSize: '13px',
         },
     },
     rows: {
         highlightOnHoverStyle: {
             backgroundColor: '#e8e8e8',
-            borderBottomColor: '#FFFFFF',
+            borderBottomColor: '#FFFFFF ' ,
             borderRadius: '5px',
             outline: '1px solid #FFFFFF',
         },
@@ -73,6 +73,7 @@ const columns = [
         selector: row => {
             return row.name;
         },
+        grow: 1,
         style: {
             color: '#202124',
             fontSize: '14px',
@@ -81,8 +82,9 @@ const columns = [
     },
 
     {
+
         name: 'Last Modified',
-        maxWidth: '160px',
+        width: '160px',
         selector: row => moment.unix(R.prop('mod_at')(row)).format("YYYY-MM-DD h:mm:ss"),
         style: {
             color: 'rgba(0,0,0,.54)',
@@ -91,7 +93,6 @@ const columns = [
     {
         name: 'Size',
         maxWidth: '80px',
-
         selector: row => row.is_dir ? '-' : bytesToSize(row.size),
         style: {
             color: 'rgba(0,0,0,.54)',
@@ -99,7 +100,7 @@ const columns = [
     },
     {
         name: 'Path',
-        grow: 3,
+        grow: 8,
         selector: row => {
 
             return row.abs_path;
@@ -108,13 +109,6 @@ const columns = [
             color: 'rgba(0,0,0,.54)',
         },
     },
-    // {
-    //     cell: row => <CustomMaterialMenu size="small" row={row}/>,
-    //     allowOverflow: true,
-    //     button: true,
-    //     grow: 3,
-    //
-    // },
 ];
 
 
@@ -128,6 +122,7 @@ function Items({items, kw}) {
     }
 
     return <DataTable
+        dense
         columns={columns}
         onRowDoubleClicked={(row) => handleClick(row)}
         data={items}
