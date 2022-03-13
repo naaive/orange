@@ -63,7 +63,7 @@ async fn my_custom_command(
     // suggest
     2 => unsafe {
       let arc = IDX_STORE.clone().unwrap();
-      let vec = arc.suggest(kw, 20);
+      let vec = arc.search(kw, 20);
       Ok(CustomResponse {
         message: "".to_string(),
         file_views: vec,
