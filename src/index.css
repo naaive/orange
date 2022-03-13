@@ -39,9 +39,16 @@ input.chakra-input:enabled{
     height: 100%;
 }
 .search-box input{
-    height: 30px;
+    height: 32px;
     font-size: 14px !important;
+    line-height: 32px !important;
 }
+.search-box input::-webkit-input-placeholder {
+    height: 32px;
+    font-size: 14px !important;
+    line-height: 37px !important;
+}
+
 .items .items-row {
     width: 100%;
     height: 32px;

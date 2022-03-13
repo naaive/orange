@@ -17,7 +17,7 @@ use crate::file_view::FileView;
 use crate::pinyin_tokenizer::tokenize;
 use crate::utils;
 use std::sync::{Arc, Mutex};
-use std::time::{Duration, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub struct IdxStore {
   pub writer: Arc<Mutex<IndexWriter>>,
@@ -113,13 +113,12 @@ impl IdxStore {
               .to_string(),
             created_at: meta
               .created()
-              .unwrap()
+              .unwrap_or(SystemTime::now())
               .duration_since(UNIX_EPOCH)
               .unwrap()
               .as_secs(),
             mod_at: meta
-              .modified()
-              .unwrap()
+              .modified().unwrap_or(SystemTime::now())
               .duration_since(UNIX_EPOCH)
               .unwrap()
               .as_secs(),
