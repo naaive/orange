@@ -79,19 +79,20 @@ const columns = [
             fontWeight: 500,
         },
     },
-    {
-        name: 'Size',
-        maxWidth: '80px',
 
-        selector: row => bytesToSize(row.size),
+    {
+        name: 'Last Modified',
+        maxWidth: '160px',
+        selector: row => moment.unix(R.prop('mod_at')(row)).format("YYYY-MM-DD h:mm:ss"),
         style: {
             color: 'rgba(0,0,0,.54)',
         },
     },
     {
-        name: 'Last Modified',
-        maxWidth: '160px',
-        selector: row => moment.unix(R.prop('mod_at')(row)).format("YYYY-MM-DD h:mm:ss"),
+        name: 'Size',
+        maxWidth: '80px',
+
+        selector: row => row.is_dir ? '-' : bytesToSize(row.size),
         style: {
             color: 'rgba(0,0,0,.54)',
         },

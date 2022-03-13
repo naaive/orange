@@ -295,50 +295,56 @@ impl Drop for Watcher {
 
 #[cfg(test)]
 mod test {
+    use std::fs;
     use std::fs::File;
     use std::io::Write;
-
+    use std::time::{SystemTime, UNIX_EPOCH};
 
 
     use super::*;
 
 
-    // #[test]
-    // fn file_create() -> Result<(), std::io::Error> {
-    //     let option = Option::Some(7417610240);
-    //     // let option = Option::None;
-    //     let volume_path = "C:";
-    //     let mut watcher = Watcher::new(format!("{}{}", "\\\\?\\", volume_path), None, option)?;
-    //
-    //     let _start = SystemTime::now();
-    //
-    //     loop {
-    //         let result = watcher.read();
-    //         if result.is_err() {
-    //             watcher =
-    //                 Watcher::new(format!("{}{}", "\\\\?\\", volume_path), None, Some(0)).unwrap();
-    //             continue;
-    //         }
-    //         let results = result?;
-    //         for x in results.clone() {
-    //             let path = x.path.to_str().unwrap();
-    //             match fs::metadata(format!("{}{}", volume_path, path)) {
-    //                 Ok(_meta) => {}
-    //                 Err(_) => {}
-    //             }
-    //             // println!("{:?}", metadata);
-    //             println!("{}", path);
-    //         }
-    //         // if results.is_empty() {
-    //         //   break;
-    //         // };
-    //     }
-    //     let since_the_epoch = start
-    //         .duration_since(UNIX_EPOCH)
-    //         .expect("Time went backwards");
-    //     println!("使用{:?}", since_the_epoch);
-    //     Ok(())
-    // }
+    #[test]
+    fn file_create() -> Result<(), std::io::Error> {
+        let option = Option::Some(0);
+        // let option = Option::None;
+        let volume_path = "C:";
+        let mut watcher = Watcher::new(format!("{}{}", "\\\\?\\", volume_path), None, option)?;
+
+        let _start = SystemTime::now();
+
+        let mut cnt = 0;
+        loop {
+            let result = watcher.read();
+            if result.is_err() {
+                watcher =
+                    Watcher::new(format!("{}{}", "\\\\?\\", volume_path), None, Some(0)).unwrap();
+                continue;
+            }
+            let results = result?;
+            for x in results.clone() {
+                cnt +=1;
+                let path = x.path.to_str().unwrap();
+                // match fs::metadata(format!("{}{}", volume_path, path)) {
+                //     Ok(_meta) => {}
+                //     Err(_) => {}
+                // }
+                // println!("{:?}", metadata);
+                // println!("{}", path);
+            }
+            if results.is_empty() {
+              break;
+
+            };
+        }
+        println!("{}", cnt);
+
+        let since_the_epoch = _start
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards");
+        println!("使用{:?}", since_the_epoch);
+        Ok(())
+    }
 
     #[test]
     fn file_move() -> Result<(), std::io::Error> {

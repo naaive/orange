@@ -16,7 +16,7 @@ mod pinyin_tokenizer;
 mod usn_journal_watcher;
 mod utils;
 mod walk_exec;
-mod watcher_exec;
+mod watch_exec;
 
 use std::sync::Arc;
 

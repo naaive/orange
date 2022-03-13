@@ -92,6 +92,18 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
 }
 
 #[cfg(windows)]
+pub unsafe fn get_win32_ready_drive_nos() -> Vec<String> {
+    let vec = get_win32_ready_drives();
+    let mut res = vec![];
+    for x in vec {
+        let s = str::replace(x.as_str(), ":/", "");
+        res.push(s);
+    }
+    res.sort();
+    res
+}
+
+#[cfg(windows)]
 pub unsafe fn build_volume_path(str: &str) -> String {
     str::replace("\\\\?\\$:", "$", str)
 }

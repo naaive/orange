@@ -1,5 +1,5 @@
 
-use crate::{utils, walk_exec, watcher_exec, CONF_STORE, IDX_STORE};
+use crate::{utils, walk_exec, watch_exec, CONF_STORE, IDX_STORE};
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -49,7 +49,7 @@ pub fn run() {
     win_watch(idx_store_bro);
 
     #[cfg(unix)]
-    watcher_exec::run(idx_store_bro);
+    watch_exec::run(idx_store_bro);
 }
 
 #[cfg(windows)]
@@ -58,7 +58,7 @@ fn win_watch(idx_store_bro: Arc<IdxStore>) {
     if success {
         println!("usn success")
     } else {
-        watcher_exec::run(idx_store_bro);
+        watch_exec::run(idx_store_bro);
     }
 }
 
@@ -117,10 +117,11 @@ fn housekeeping(kv_store: Arc<KvStore>) {
 #[cfg(windows)]
 unsafe fn maybe_usn_watch() -> bool {
     let (tx, rx) = mpsc::channel();
-    let nos = utils::get_win32_ready_drives();
+    let nos = utils::get_win32_ready_drive_nos();
 
     for no in nos {
         let volume_path = utils::build_volume_path(no.as_str());
+        println!("{}", volume_path);
         let tx_clone = tx.clone();
         start_usn_watch(no, volume_path, tx_clone);
     }
@@ -144,6 +145,7 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
 
         let result = Watcher::new(volume_path.as_str(), None, Some(next_usn));
         if result.is_err() {
+            println!(" {:?} ", result.err());
             let _ = tx_clone.send(false);
             return;
         }
