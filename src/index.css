@@ -63,6 +63,7 @@ ul.right-menu-list.theme-mac:hover li{
 }
 .rdt_TableRow div {
     padding: 0;
+    width: 100%;
 }
 
 .rdt_TableHeadRow div{
