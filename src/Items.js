@@ -100,7 +100,7 @@ borderBottom: '1px solid #FFFFFF',
         grow: 1,
         style: {
             color: '#202124',
-            fontSize: '14px',
+            fontSize: '13px',
             fontWeight: 500,
         },
     },

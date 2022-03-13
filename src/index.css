@@ -22,7 +22,7 @@ input.chakra-input{
     background: #e8e8e8;
 }
 input.chakra-input:enabled{
-    border: 1px solid #e2e8f0 ;
+    border: 1px solid #e8e8e8 ;
     background: #e8e8e8;
 
 }
@@ -53,10 +53,14 @@ input.chakra-input:enabled{
 ul.right-menu-list.theme-mac{
     background: #e8e8e8;
 }
+
 ul.right-menu-list.theme-mac:hover li{
     cursor: pointer !important;
 }
-
+#popover-content-2{
+    margin: 0;
+    font-size: 14px;
+}
 .rdt_TableRow div {
     padding: 0;
 }
