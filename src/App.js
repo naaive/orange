@@ -58,10 +58,15 @@ function App() {
                 </div>
 
                 <div className="items">
+
                     <Scrollbars autoHide     autoHideTimeout={500}
                                 autoHideDuration={200} >
                     <Items items={items}/>
+
+
                     </Scrollbars>
+
+
                 </div>
             </div>
 

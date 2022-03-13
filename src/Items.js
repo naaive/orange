@@ -6,6 +6,8 @@ import * as R from "ramda";
 import Folder from "./folder.svg";
 import {defaultStyles, FileIcon} from "react-file-icon";
 import {invoke} from "@tauri-apps/api";
+import RightMenu from '@right-menu/react'
+import copy from 'copy-to-clipboard';
 
 
 const customStyles = {
@@ -23,7 +25,7 @@ const customStyles = {
     rows: {
         highlightOnHoverStyle: {
             backgroundColor: '#e8e8e8',
-            borderBottomColor: '#FFFFFF ' ,
+            borderBottomColor: '#FFFFFF ',
             borderRadius: '5px',
             outline: '1px solid #FFFFFF',
         },
@@ -34,6 +36,24 @@ const customStyles = {
         },
     },
 };
+function options(row) {
+    
+    return [
+        {
+            type: 'li', 
+            text: 'Open location', 
+            callback: () => {
+                open_file_location(row)
+            }
+        },
+        {
+            type: 'li', 
+            text: 'Copy path', 
+            callback: () => copy(row.abs_path) 
+        },
+    ]
+}
+
 
 function bytesToSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -41,6 +61,7 @@ function bytesToSize(bytes) {
     const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
+
 
 const columns = [
     {
@@ -64,15 +85,18 @@ const columns = [
 
         width: '50px', // custom width for icon button
         style: {
-            borderBottom: '1px solid #FFFFFF',
+            padding: '0 16px !important',
+
+borderBottom: '1px solid #FFFFFF',
             marginBottom: '-1px',
         },
     },
     {
         name: 'Name',
-        selector: row => {
-            return row.name;
-        },
+        cell: row =>
+            <RightMenu theme="mac" options={options(row)} maxWidth={200} style={{cursor: "pointer"}}>
+                <div className={"items-row"}>{row.name}</div>
+            </RightMenu>,
         grow: 1,
         style: {
             color: '#202124',
@@ -85,7 +109,9 @@ const columns = [
 
         name: 'Last Modified',
         width: '160px',
-        selector: row => moment.unix(R.prop('mod_at')(row)).format("YYYY-MM-DD h:mm:ss"),
+        cell: row => <RightMenu theme="mac" options={options(row)} maxWidth={200} >
+            <div className={"items-row"}>{moment.unix(R.prop('mod_at')(row)).format("YYYY-MM-DD h:mm:ss")}</div>
+        </RightMenu>,
         style: {
             color: 'rgba(0,0,0,.54)',
         },
@@ -93,18 +119,19 @@ const columns = [
     {
         name: 'Size',
         maxWidth: '80px',
-        selector: row => row.is_dir ? '-' : bytesToSize(row.size),
+        cell: row => <RightMenu theme="mac" options={options(row)} maxWidth={200} >
+            <div className={"items-row"}>{row.is_dir ? '-' : bytesToSize(row.size)}</div>
+        </RightMenu>,
         style: {
             color: 'rgba(0,0,0,.54)',
         },
     },
     {
         name: 'Path',
-        grow: 8,
-        selector: row => {
-
-            return row.abs_path;
-        },
+        grow: 4,
+        selector: row => <RightMenu theme="mac" options={options(row)} maxWidth={200} >
+            <div className={"items-row"}>{row.abs_path}</div>
+        </RightMenu>,
         style: {
             color: 'rgba(0,0,0,.54)',
         },
@@ -112,13 +139,17 @@ const columns = [
 ];
 
 
+function open_file_location(row) {
+    invoke('my_custom_command', {
+        number: 1,
+        kw: row.abs_path
+    })
+}
+
 function Items({items, kw}) {
 
     function handleClick(row) {
-        invoke('my_custom_command', {
-            number: 1,
-            kw:row.abs_path
-        })
+        open_file_location(row);
     }
 
     return <DataTable

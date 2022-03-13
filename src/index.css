@@ -40,7 +40,31 @@ input.chakra-input:enabled{
 }
 .search-box input{
     height: 30px;
+    font-size: 14px !important;
 }
+.items .items-row {
+    width: 100%;
+    height: 32px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    line-height: 32px;
+}
+ul.right-menu-list.theme-mac{
+    background: #e8e8e8;
+}
+ul.right-menu-list.theme-mac:hover li{
+    cursor: pointer !important;
+}
+
+.rdt_TableRow div {
+    padding: 0;
+}
+
+.rdt_TableHeadRow div{
+    padding: 0;
+}
+
 .items .rdt_Table>div>div{
     border: 0 !important;
 }
