@@ -17,6 +17,8 @@ function SearchBox({setItems, doTxtChange}) {
     return (
         <>
             <AutoComplete
+                listAllValuesOnFocus={false}
+                selectOnFocus={false}
                 filter={() => true}
                 closeOnBlur={true} rollNavigation onChange={v => {
                 doTxtChange(v);
@@ -39,11 +41,18 @@ function SearchBox({setItems, doTxtChange}) {
                     <AutoCompleteInput variant="filled" placeholder="Search..."
                                        onKeyUp={(event) => {
 
-                                           if (event.keyCode === 13) {
+                                           let keyCode = event.keyCode;
+                                           if (keyCode === 13) {
                                                doTxtChange(event.target.value)
                                                // close suggest results
                                                setShow(false)
                                            }
+                                           if (keyCode === 27) {
+                                               doTxtChange(event.target.value)
+
+                                               setShow(false)
+                                           }
+
                                        }}
                                        onChange={e => {
                                            setShow(true)
