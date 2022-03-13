@@ -76,7 +76,8 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     generic = generic.process_read_dir(move |_depth, _path, _read_dir_state, children| {
       children.iter_mut().for_each(|dir_entry_result| {
         if let Ok(dir_entry) = dir_entry_result {
-          if utils::norm(dir_entry.path().to_str().unwrap_or("")).eq(skip_path.as_str()) {
+          let curr_path = utils::norm(dir_entry.path().to_str().unwrap_or(""));
+          if curr_path.eq(skip_path.as_str()) || curr_path.eq("/proc"){
             dir_entry.read_children_path = None;
           }
         }
