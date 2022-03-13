@@ -114,3 +114,7 @@ fn t1() {
   let string = unsafe { build_volume_path(str) };
   println!("{}", string);
 }
+#[test]
+fn t2() {
+  println!("{}", data_dir());
+}
