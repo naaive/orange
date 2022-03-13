@@ -36,20 +36,21 @@ const customStyles = {
         },
     },
 };
+
 function options(row) {
-    
+
     return [
         {
-            type: 'li', 
-            text: 'Open location', 
+            type: 'li',
+            text: 'Open location',
             callback: () => {
                 open_file_location(row)
             }
         },
         {
-            type: 'li', 
-            text: 'Copy path', 
-            callback: () => copy(row.abs_path) 
+            type: 'li',
+            text: 'Copy path',
+            callback: () => copy(row.abs_path)
         },
     ]
 }
@@ -87,7 +88,7 @@ const columns = [
         style: {
             padding: '0 16px !important',
 
-borderBottom: '1px solid #FFFFFF',
+            borderBottom: '1px solid #FFFFFF',
             marginBottom: '-1px',
         },
     },
@@ -95,7 +96,9 @@ borderBottom: '1px solid #FFFFFF',
         name: 'Name',
         cell: row =>
             <RightMenu theme="mac" options={options(row)} maxWidth={200} style={{cursor: "pointer"}}>
-                <div className={"items-row"}>{row.name}</div>
+                <div onDoubleClick={() => open_file_location(row)}>
+                    <div className={"items-row"}>{row.name}</div>
+                </div>
             </RightMenu>,
         grow: 1,
         style: {
@@ -109,8 +112,10 @@ borderBottom: '1px solid #FFFFFF',
 
         name: 'Last Modified',
         width: '160px',
-        cell: row => <RightMenu theme="mac" options={options(row)} maxWidth={200} >
-            <div className={"items-row"}>{moment.unix(R.prop('mod_at')(row)).format("YYYY-MM-DD h:mm:ss")}</div>
+        cell: row => <RightMenu theme="mac" options={options(row)} maxWidth={200}>
+            <div onDoubleClick={() => open_file_location(row)}>
+                <div className={"items-row"}>{moment.unix(R.prop('mod_at')(row)).format("YYYY-MM-DD h:mm:ss")}</div>
+            </div>
         </RightMenu>,
         style: {
             color: 'rgba(0,0,0,.54)',
@@ -119,8 +124,10 @@ borderBottom: '1px solid #FFFFFF',
     {
         name: 'Size',
         maxWidth: '80px',
-        cell: row => <RightMenu theme="mac" options={options(row)} maxWidth={200} >
-            <div className={"items-row"}>{row.is_dir ? '-' : bytesToSize(row.size)}</div>
+        cell: row => <RightMenu theme="mac" options={options(row)} maxWidth={200}>
+            <div onDoubleClick={() => open_file_location(row)}>
+                <div className={"items-row"}>{row.is_dir ? '-' : bytesToSize(row.size)}</div>
+            </div>
         </RightMenu>,
         style: {
             color: 'rgba(0,0,0,.54)',
@@ -129,8 +136,10 @@ borderBottom: '1px solid #FFFFFF',
     {
         name: 'Path',
         grow: 4,
-        selector: row => <RightMenu theme="mac" options={options(row)} maxWidth={200} >
-            <div className={"items-row"}>{row.abs_path}</div>
+        selector: row => <RightMenu theme="mac" options={options(row)} maxWidth={200}>
+            <div onDoubleClick={() => open_file_location(row)}>
+                <div className={"items-row"}>{row.abs_path}</div>
+            </div>
         </RightMenu>,
         style: {
             color: 'rgba(0,0,0,.54)',
@@ -148,14 +157,9 @@ function open_file_location(row) {
 
 function Items({items, kw}) {
 
-    function handleClick(row) {
-        open_file_location(row);
-    }
-
     return <DataTable
         dense
         columns={columns}
-        onRowDoubleClicked={(row) => handleClick(row)}
         data={items}
         customStyles={customStyles}
         highlightOnHover
