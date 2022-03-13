@@ -36,7 +36,7 @@ input.chakra-input:enabled{
 .items {
     z-index: 1;
     overflow: hidden; /* Hide scrollbars */
-    height: 92%;
+    height: 100%;
 }
 .search-box input{
     height: 30px;
