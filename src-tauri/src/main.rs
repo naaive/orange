@@ -4,6 +4,7 @@
 )]
 
 use crate::file_view::FileView;
+use tauri::{SystemTray, SystemTrayEvent};
 use tauri::{Window, Wry};
 
 mod file_view;
@@ -18,10 +19,10 @@ mod utils;
 mod walk_exec;
 mod watch_exec;
 
-use std::sync::Arc;
-
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
+use std::sync::Arc;
+use tauri::{CustomMenuItem, SystemTrayMenu, SystemTrayMenuItem};
 
 static mut IDX_STORE: Option<Arc<IdxStore>> = None;
 static mut CONF_STORE: Option<Arc<KvStore>> = None;
@@ -85,8 +86,22 @@ fn main() {
 }
 
 fn show() {
+  let quit = CustomMenuItem::new("quit".to_string(), "Quit");
+  let tray_menu = SystemTrayMenu::new().add_item(quit);
+  let tray = SystemTray::new().with_menu(tray_menu);
+
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![my_custom_command])
+    .system_tray(tray)
+    .on_system_tray_event(|app, event| match event {
+      SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+        "quit" => {
+          std::process::exit(0);
+        }
+        _ => {}
+      },
+      _ => {}
+    })
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
