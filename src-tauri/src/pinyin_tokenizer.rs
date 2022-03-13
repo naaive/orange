@@ -36,7 +36,7 @@ mod tests {
 
   #[test]
   fn t1() {
-    let hans = "巨大的辣椒粉";
+    let hans = "迅雷下载";
     let vec = tokenize(hans.to_string());
     println!("{:?}", vec);
   }

@@ -7,8 +7,8 @@ use std::os::unix::fs::MetadataExt;
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 
-use tantivy::collector::TopDocs;
-use tantivy::query::QueryParser;
+use tantivy::collector::{Count, TopDocs};
+use tantivy::query::{FuzzyTermQuery, QueryParser};
 use tantivy::schema::*;
 
 use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
@@ -36,6 +36,29 @@ impl IdxStore {
     file_views
   }
 
+  pub fn suggest(&self, kw: String, limit: usize) -> Vec<FileView> {
+    let searcher = self.reader.searcher();
+    let term = Term::from_field_text(self.name_field, &kw);
+    let query = FuzzyTermQuery::new(term, 1, true);
+    let top_docs = searcher
+      .search(&query, &TopDocs::with_limit(limit))
+      .unwrap();
+    let mut paths = Vec::new();
+    for (_score, doc_address) in top_docs {
+      let retrieved_doc = searcher.doc(doc_address).ok().unwrap();
+
+      let path = retrieved_doc
+        .get_first(self.path_field)
+        .unwrap()
+        .text()
+        .unwrap();
+
+      paths.push(path.to_string());
+    }
+    let file_views = self.parse_file_views(paths);
+    file_views
+  }
+
   fn search_paths(&self, kw: String, limit: usize) -> Vec<String> {
     let searcher = self.reader.searcher();
 
@@ -54,13 +77,13 @@ impl IdxStore {
     for (_score, doc_address) in top_docs {
       let retrieved_doc = searcher.doc(doc_address).ok().unwrap();
 
-      let x = retrieved_doc
+      let path = retrieved_doc
         .get_first(self.path_field)
         .unwrap()
         .text()
         .unwrap();
 
-      paths.push(x.to_string());
+      paths.push(path.to_string());
     }
     paths
   }
