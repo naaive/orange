@@ -23,7 +23,7 @@
 
 ## 介绍
 
-![Demo](screenshot/orange.gif)
+![Demo](screenshot/orange_0.0.5.gif)
 
 Orange是一款跨平台的**文件搜索**工具。
 
