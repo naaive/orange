@@ -12,34 +12,32 @@ pub fn subs(str: &str) -> Vec<String> {
   vec![]
 }
 pub fn open_file_path(path: &str) {
+  let curr_path = std::path::Path::new(path);
+  let arg ;
+  if curr_path.is_dir() {
+    arg = curr_path.to_str().unwrap();
+  }else {
+    arg=curr_path
+        .parent()
+        .unwrap()
+        .to_str()
+        .unwrap();
+  }
+
   if cfg!(target_os = "windows") {
-    let x = std::path::Path::new(path)
-      .parent()
-      .unwrap()
-      .to_str()
-      .unwrap();
-    println!("{}", x);
     std::process::Command::new("explorer")
-      .args([win_norm4explorer(x)])
+      .args([win_norm4explorer(arg)])
       .output()
       .expect("failed to execute process");
   } else if cfg!(target_os = "linux") {
     std::process::Command::new("xdg-open")
-      .args([std::path::Path::new(path)
-        .parent()
-        .unwrap()
-        .to_str()
-        .unwrap()])
+      .args([arg])
       .output()
       .expect("failed to execute process");
   } else {
     //mac os
     std::process::Command::new("open")
-      .args([std::path::Path::new(path)
-        .parent()
-        .unwrap()
-        .to_str()
-        .unwrap()])
+      .args([arg])
       .output()
       .expect("failed to execute process");
   }
