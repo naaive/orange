@@ -58,9 +58,12 @@ pub fn parse_ts(time: SystemTime) -> u64 {
   created_at
 }
 pub fn path2name(x: String) -> Option<String> {
-  x.as_str().split("/").into_iter().last().map(|x|x.to_string())
+  x.as_str()
+    .split("/")
+    .into_iter()
+    .last()
+    .map(|x| x.to_string())
 }
-
 
 pub fn norm(path: &str) -> String {
   str::replace(path, "\\", "/")

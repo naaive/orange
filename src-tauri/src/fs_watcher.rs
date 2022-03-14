@@ -14,7 +14,7 @@ use std::path;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
-use std::time::Duration;
+
 
 pub struct FsWatcher {
   index_store: Arc<IdxStore>,
@@ -58,7 +58,7 @@ impl FsWatcher {
               #[cfg(windows)]
               let _size = meta.file_size();
               #[cfg(unix)]
-              let size = meta.size();
+              let _size = meta.size();
 
               let is_dir = meta.is_dir();
               if is_dir {

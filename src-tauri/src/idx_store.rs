@@ -7,7 +7,7 @@ use std::os::unix::fs::MetadataExt;
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 
-use tantivy::collector::{Count, TopDocs};
+use tantivy::collector::{TopDocs};
 use tantivy::query::{FuzzyTermQuery, QueryParser};
 use tantivy::schema::*;
 
@@ -96,7 +96,7 @@ impl IdxStore {
     paths
   }
 
-  fn parse_file_views(&self, mut paths: Vec<String>) -> Vec<FileView> {
+  fn parse_file_views(&self, paths: Vec<String>) -> Vec<FileView> {
     let mut file_views = Vec::new();
 
     let mut uniques: HashSet<String> = HashSet::new();
@@ -116,20 +116,19 @@ impl IdxStore {
 
           file_views.push(FileView {
             abs_path: utils::norm(&path),
-            name: utils::path2name(utils::norm(&path))
-                .unwrap_or("".to_string()),
+            name: utils::path2name(utils::norm(&path)).unwrap_or("".to_string()),
             created_at: meta
-                .created()
-                .unwrap_or(SystemTime::now())
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs(),
+              .created()
+              .unwrap_or(SystemTime::now())
+              .duration_since(UNIX_EPOCH)
+              .unwrap()
+              .as_secs(),
             mod_at: meta
-                .modified()
-                .unwrap_or(SystemTime::now())
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs(),
+              .modified()
+              .unwrap_or(SystemTime::now())
+              .duration_since(UNIX_EPOCH)
+              .unwrap()
+              .as_secs(),
             size: size,
             is_dir: meta.is_dir(),
           });

@@ -41,7 +41,7 @@ mod tests {
 
   #[test]
   fn t1() {
-    let hans = "Q3绩效自评_洪峰.xlsx";
+    let hans = "迅雷下载";
     let vec = tokenize(hans.to_string());
     println!("{:?}", vec);
   }
