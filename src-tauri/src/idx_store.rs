@@ -47,7 +47,7 @@ impl IdxStore {
   pub fn suggest(&self, kw: String, limit: usize) -> Vec<FileView> {
     let searcher = self.reader.searcher();
     let term = Term::from_field_text(self.name_field, &kw);
-    let query = FuzzyTermQuery::new(term, 1, true);
+    let query = FuzzyTermQuery::new(term, 2, false);
     let top_docs = searcher
       .search(&query, &TopDocs::with_limit(limit))
       .unwrap();
