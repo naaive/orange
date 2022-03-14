@@ -22,6 +22,7 @@ mod watch_exec;
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
 use std::sync::Arc;
+use std::time::Duration;
 use tauri::{CustomMenuItem, SystemTrayMenu};
 
 static mut IDX_STORE: Option<Arc<IdxStore>> = None;
@@ -79,6 +80,7 @@ async fn my_custom_command(
 
 fn main() {
   std::thread::spawn(|| {
+    std::thread::sleep(Duration::from_secs(1));
     indexing::run();
   });
 

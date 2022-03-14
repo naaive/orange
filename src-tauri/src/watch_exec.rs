@@ -5,10 +5,10 @@ use crate::utils::get_win32_ready_drives;
 
 
 use std::sync::Arc;
+use crate::fs_watcher::FsWatcher;
 
 
-
-pub fn run(_idx_store: Arc<IdxStore>) {
+pub fn run(idx_store: Arc<IdxStore>) {
   #[cfg(windows)]
   win_run(idx_store);
 

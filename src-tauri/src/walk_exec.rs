@@ -41,14 +41,21 @@ fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Strin
 
   for mut driv in drives {
     driv = utils::norm(&driv);
-    let key = format!("walk:stat:{}", &driv);
-    let opt = conf_store.get_str(key.clone());
-    if opt.is_some() {
-      return;
+
+    let subs = utils::subs(&driv);
+    for sub in subs {
+
+      let key = format!("walk:stat:{}", &sub);
+      let opt = conf_store.get_str(key.clone());
+      if opt.is_some() {
+        continue;
+      }
+
+      walk(idx_store.clone(), &sub, Some(home.to_string()));
+      conf_store.put_str(key, "1".to_string());
     }
 
-    walk(idx_store.clone(), &driv, Some(home.to_string()));
-    conf_store.put_str(key, "1".to_string());
+
   }
 }
 
