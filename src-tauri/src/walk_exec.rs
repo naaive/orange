@@ -59,8 +59,8 @@ fn walk_home(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: &String) 
     return;
   }
 
-  let home_name = utils::path2name(&home).unwrap_or("");
-  idx_store.add(home_name, &home);
+  let home_name = utils::path2name(home.as_str().to_string()).unwrap_or("".to_string());
+  idx_store.add(&home_name, &home);
   walk(idx_store, &home, None);
   conf_store.put_str(key, "1".to_string());
 }
@@ -73,11 +73,15 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
   let mut generic = WalkDir::new(&path);
   if skip_path_opt.is_some() {
     let skip_path = skip_path_opt.unwrap();
+    let home_name = utils::path2name(skip_path.clone()).unwrap_or("".to_string());
     generic = generic.process_read_dir(move |_depth, _path, _read_dir_state, children| {
       children.iter_mut().for_each(|dir_entry_result| {
         if let Ok(dir_entry) = dir_entry_result {
           let curr_path = utils::norm(dir_entry.path().to_str().unwrap_or(""));
-          if curr_path.eq(skip_path.as_str()) || curr_path.eq("/proc"){
+          if curr_path.eq(skip_path.as_str())
+            || curr_path.eq("/proc")
+            || curr_path.eq(&format!("/System/Volumes/Data/Users/{}", home_name))
+          {
             dir_entry.read_children_path = None;
           }
         }
@@ -87,6 +91,9 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
 
   for entry in generic {
     cnt += 1;
+    if entry.is_err() {
+      continue;
+    }
     let en = entry.unwrap();
     let buf = en.path();
     let path = buf.to_str().unwrap();

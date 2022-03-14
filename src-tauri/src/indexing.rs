@@ -42,7 +42,7 @@ pub fn run() {
   };
 
   let idx_store_bro = idx_store.clone();
-
+  idx_store_bro.disable_full_indexing();
   #[cfg(windows)]
   win_watch(idx_store_bro);
 

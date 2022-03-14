@@ -1,3 +1,4 @@
+use crate::utils::is_ascii_alphanumeric;
 use pinyin::ToPinyin;
 use std::collections::HashSet;
 use tantivy::tokenizer::Tokenizer;
@@ -5,6 +6,9 @@ use tantivy_jieba::JiebaTokenizer;
 
 static TOKENIZER: JiebaTokenizer = tantivy_jieba::JiebaTokenizer {};
 pub fn tokenize(hans: String) -> String {
+  if is_ascii_alphanumeric(hans.as_str()) {
+    return hans;
+  }
   let mut token_stream = TOKENIZER.token_stream(&hans);
 
   let mut token_text: HashSet<String> = vec![].into_iter().collect();
@@ -13,6 +17,7 @@ pub fn tokenize(hans: String) -> String {
     let raw = token.text.clone();
     let mut first = String::new();
     let mut all = String::new();
+    token_text.insert(raw.clone());
     for pinyin in raw.as_str().to_pinyin() {
       if let Some(pinyin) = pinyin {
         first = format!("{}{}", first, pinyin.first_letter());
@@ -36,7 +41,7 @@ mod tests {
 
   #[test]
   fn t1() {
-    let hans = "迅雷下载";
+    let hans = "Q3绩效自评_洪峰.xlsx";
     let vec = tokenize(hans.to_string());
     println!("{:?}", vec);
   }

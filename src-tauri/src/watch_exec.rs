@@ -25,12 +25,6 @@ fn macos_run(idx_store: Arc<IdxStore>) {
   thread::spawn(move || {
     watcher.start();
   });
-
-  let idx_store_clone = idx_store.clone();
-  std::thread::spawn(move || {
-    idx_store_clone.commit();
-    std::thread::sleep(Duration::from_secs(1));
-  });
 }
 
 #[cfg(linux)]
@@ -42,12 +36,6 @@ fn linux_run(idx_store: Arc<IdxStore>) {
       watcher.start();
     });
   }
-
-  let idx_store_clone = idx_store.clone();
-  std::thread::spawn(move || {
-    idx_store_clone.commit();
-    std::thread::sleep(Duration::from_secs(1));
-  });
 }
 
 #[cfg(windows)]

@@ -27,7 +27,15 @@ pub struct IdxStore {
   pub query_parser: QueryParser,
 }
 
+static mut IS_FULL_INDEXING: bool = true;
+
 impl IdxStore {
+  pub fn disable_full_indexing(&self) {
+    unsafe {
+      IS_FULL_INDEXING = false;
+    }
+  }
+
   pub fn search(&self, kw: String, limit: usize) -> Vec<FileView> {
     let paths = self.search_paths(kw, limit);
 
@@ -108,23 +116,23 @@ impl IdxStore {
 
           file_views.push(FileView {
             abs_path: utils::norm(&path),
-            name: utils::path2name(&utils::norm(&path))
-              .unwrap_or("")
-              .to_string(),
+            name: utils::path2name(utils::norm(&path))
+                .unwrap_or("".to_string()),
             created_at: meta
-              .created()
-              .unwrap_or(SystemTime::now())
-              .duration_since(UNIX_EPOCH)
-              .unwrap()
-              .as_secs(),
+                .created()
+                .unwrap_or(SystemTime::now())
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
             mod_at: meta
-              .modified().unwrap_or(SystemTime::now())
-              .duration_since(UNIX_EPOCH)
-              .unwrap()
-              .as_secs(),
+                .modified()
+                .unwrap_or(SystemTime::now())
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
             size: size,
             is_dir: meta.is_dir(),
-          })
+          });
         }
         Err(_) => {}
       }
@@ -159,7 +167,13 @@ impl IdxStore {
     let writer_bro = writer.clone();
     std::thread::spawn(move || loop {
       writer_bro.lock().unwrap().commit();
-      std::thread::sleep(Duration::from_secs(1));
+      unsafe {
+        if IS_FULL_INDEXING {
+          std::thread::sleep(Duration::from_secs(5));
+        } else {
+          std::thread::sleep(Duration::from_secs(1));
+        }
+      }
     });
 
     let reader = index

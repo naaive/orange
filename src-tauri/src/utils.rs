@@ -57,9 +57,10 @@ pub fn parse_ts(time: SystemTime) -> u64 {
     .as_secs() as u64;
   created_at
 }
-pub fn path2name(x: &str) -> Option<&str> {
-  x.split("/").into_iter().last()
+pub fn path2name(x: String) -> Option<String> {
+  x.as_str().split("/").into_iter().last().map(|x|x.to_string())
 }
+
 
 pub fn norm(path: &str) -> String {
   str::replace(path, "\\", "/")
@@ -91,6 +92,10 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
   logical_drives
 }
 
+pub fn is_ascii_alphanumeric(raw: &str) -> bool {
+  raw.chars().all(|x| x.is_ascii())
+}
+
 #[cfg(windows)]
 pub unsafe fn get_win32_ready_drive_nos() -> Vec<String> {
   let vec = get_win32_ready_drives();
@@ -108,6 +113,7 @@ pub unsafe fn build_volume_path(str: &str) -> String {
   str::replace("\\\\?\\$:", "$", str)
 }
 
+#[cfg(windows)]
 #[test]
 fn t1() {
   let str = "c";
@@ -117,4 +123,10 @@ fn t1() {
 #[test]
 fn t2() {
   println!("{}", data_dir());
+}
+
+#[test]
+fn t3() {
+  let chines = is_ascii_alphanumeric("j dsadal");
+  println!("{:?}", chines);
 }
