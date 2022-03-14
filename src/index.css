@@ -49,7 +49,7 @@ input.chakra-input:enabled{
 .search-box input::-webkit-input-placeholder {
     height: 32px;
     font-size: 14px !important;
-    line-height: 37px !important;
+    line-height: 34px !important;
 }
 
 .items .items-row {
