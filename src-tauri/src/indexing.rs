@@ -1,12 +1,12 @@
 use crate::{utils, walk_exec, watch_exec, CONF_STORE, IDX_STORE};
 use std::sync::Arc;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::kv_store::KvStore;
 
 use crate::idx_store::IdxStore;
-use std::sync::mpsc;
-use std::sync::mpsc::Sender;
+
+
 
 #[cfg(windows)]
 use crate::usn_journal_watcher::Watcher;

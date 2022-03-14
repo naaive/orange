@@ -22,7 +22,7 @@ mod watch_exec;
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
 use std::sync::Arc;
-use tauri::{CustomMenuItem, SystemTrayMenu, SystemTrayMenuItem};
+use tauri::{CustomMenuItem, SystemTrayMenu};
 
 static mut IDX_STORE: Option<Arc<IdxStore>> = None;
 static mut CONF_STORE: Option<Arc<KvStore>> = None;
@@ -93,7 +93,7 @@ fn show() {
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![my_custom_command])
     .system_tray(tray)
-    .on_system_tray_event(|app, event| match event {
+    .on_system_tray_event(|_app, event| match event {
       SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
         "quit" => {
           std::process::exit(0);
