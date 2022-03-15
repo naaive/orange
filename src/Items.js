@@ -42,15 +42,24 @@ function options(row) {
     return [
         {
             type: 'li',
-            text: 'Open location',
+            text: 'Open',
             callback: () => {
                 open_file_location(row)
             }
         },
+        //
         {
             type: 'li',
-            text: 'Copy path',
+            text: 'Copy Path',
             callback: () => copy(row.abs_path)
+        },
+
+        {
+            type: 'li',
+            text: 'Open in Terminal',
+            callback: () => {
+                open_file_location_in_terminal(row)
+            }
         },
     ]
 }
@@ -147,6 +156,12 @@ const columns = [
     },
 ];
 
+function open_file_location_in_terminal(row) {
+    invoke('my_custom_command', {
+        number: 3,
+        kw: row.abs_path
+    })
+}
 
 function open_file_location(row) {
     invoke('my_custom_command', {

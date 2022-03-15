@@ -71,6 +71,16 @@ async fn my_custom_command(
         file_views: vec,
       })
     },
+
+    // open file in terminal
+    3 => {
+      utils::open_file_path_in_terminal(kw.as_str());
+      Ok(CustomResponse {
+        message: "".to_string(),
+        file_views: vec![],
+      })
+    }
+
     _ => Ok(CustomResponse {
       message: "".to_string(),
       file_views: vec![],

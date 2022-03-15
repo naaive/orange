@@ -43,6 +43,40 @@ pub fn open_file_path(path: &str) {
   }
 }
 
+pub fn open_file_path_in_terminal(path: &str) {
+  let curr_path = std::path::Path::new(path);
+  let arg ;
+  if curr_path.is_dir() {
+    arg = curr_path.to_str().unwrap();
+  }else {
+    arg=curr_path
+        .parent()
+        .unwrap()
+        .to_str()
+        .unwrap();
+  }
+
+  if cfg!(target_os = "windows") {
+    //cmd /K "cd C:\Windows\"
+    std::process::Command::new("cmd")
+        .args(["/K","pushd","\"",&win_norm4explorer(arg),"\""])
+        .output()
+        .expect("failed to execute process");
+  } else if cfg!(target_os = "linux") {
+    std::process::Command::new("xdg-open")
+        .args([arg])
+        .output()
+        .expect("failed to execute process");
+  } else {
+    //mac os
+    //open -a Terminal "/Library"
+    std::process::Command::new("open")
+        .args(["-a","Terminal",arg])
+        .output()
+        .expect("failed to execute process");
+  }
+}
+
 pub fn data_dir() -> String {
   // return  "/Users/jeff/IdeaProjects/orange2/src-tauri/target".to_string();
   let project_dir = ProjectDirs::from("com", "github", "Orange").unwrap();
@@ -131,4 +165,13 @@ fn t2() {
 fn t3() {
   let chines = is_ascii_alphanumeric("j dsadal");
   println!("{:?}", chines);
+}
+
+#[test]
+fn t4() {
+  let u: Vec<i32> = vec![1, 2, 3];
+  let x1 = u.iter().map(|&x| x + 2).collect::<Vec<_>>();
+  println!("{:?}", x1);
+  // let v = u.iter().map(|&x| x + 1).collect::<Vec<_>>();
+  // println!("{:?}", v);
 }

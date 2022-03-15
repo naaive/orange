@@ -70,7 +70,7 @@ function SearchBox({setItems, doTxtChange}) {
                                                    }
                                                )
                                                .catch((e) => console.error(e))
-                                       },100)}/>
+                                       },150)}/>
                 </InputGroup>
                 {
                     show ? <AutoCompleteList>

@@ -48,11 +48,20 @@ impl IdxStore {
 
   pub fn suggest(&self, kw: String, limit: usize) -> Vec<FileView> {
     let mut paths = self.search_paths(kw.clone(), limit);
-    println!("{:?}", paths);
     if paths.is_empty() {
       paths = self.suggest_path(kw, limit);
     }
-    let file_views = self.parse_file_views(paths);
+    let file_views = paths.into_iter().map(|x| {
+      return FileView {
+        abs_path: "".to_string(),
+        name: utils::path2name(x).unwrap_or("".to_string()),
+        created_at: 0,
+        mod_at: 0,
+        size: 0,
+        is_dir: false
+      }
+    }).collect::<Vec<FileView>>();
+    // let file_views = self.parse_file_views(paths);
     file_views
   }
 
