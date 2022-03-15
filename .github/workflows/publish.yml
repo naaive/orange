@@ -31,7 +31,6 @@ jobs:
       run: yarn && yarn build && yarn tauri-build
     - uses: tauri-apps/tauri-action@v0
       env:
-        CI: false
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tagName: orange-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version

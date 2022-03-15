@@ -14,8 +14,8 @@ impl KvStore<'_> {
     KvStore { bucket }
   }
 
-  pub fn del(&self, k: String) {
-    self.bucket.remove(k).ok();
+  pub fn _del(&self, k: String) {
+    let _ = self.bucket.remove(k).ok();
   }
 
   pub fn clear(&self) {

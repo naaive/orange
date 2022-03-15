@@ -8,7 +8,7 @@ use std::os::unix::fs::MetadataExt;
 use std::os::windows::fs::MetadataExt;
 
 use tantivy::collector::{TopDocs};
-use tantivy::query::{BooleanQuery, FuzzyTermQuery, Occur, QueryParser};
+use tantivy::query::{FuzzyTermQuery, QueryParser};
 use tantivy::schema::*;
 
 use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
@@ -185,7 +185,7 @@ impl IdxStore {
     let writer = Arc::new(Mutex::new(index.writer(50_000_000).unwrap()));
     let writer_bro = writer.clone();
     std::thread::spawn(move || loop {
-      writer_bro.lock().unwrap().commit();
+      let _ = writer_bro.lock().unwrap().commit();
       unsafe {
         if IS_FULL_INDEXING {
           std::thread::sleep(Duration::from_secs(5));

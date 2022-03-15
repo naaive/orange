@@ -25,6 +25,8 @@ pub fn run(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>) {
   #[cfg(unix)]
   unix_walk_root(conf_store, idx_store, home);
 }
+
+#[cfg(unix)]
 fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: String) {
   let subs = utils::subs("/");
   for sub in subs {

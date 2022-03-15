@@ -257,7 +257,8 @@ impl Watcher {
     Ok(results)
   }
 
-  pub fn match_rename(&self, record: &UsnRecord) -> Option<PathBuf> {
+  //noinspection RsExternalLinter
+  pub fn _match_rename(&self, record: &UsnRecord) -> Option<PathBuf> {
     if record.reason & Ioctl::USN_REASON_RENAME_NEW_NAME == 0 {
       return None;
     }
@@ -272,7 +273,7 @@ impl Watcher {
     }
   }
 
-  pub fn trim_history(&mut self, min_usn: Option<i64>) {
+  pub fn _trim_history(&mut self, min_usn: Option<i64>) {
     match min_usn {
       Some(usn) => self.history.retain(|r| r.usn > usn),
       None => self.history.clear(),
@@ -290,7 +291,7 @@ impl Drop for Watcher {
 
 #[cfg(test)]
 mod test {
-  use std::fs;
+
   use std::fs::File;
   use std::io::Write;
   use std::time::{SystemTime, UNIX_EPOCH};
@@ -314,9 +315,9 @@ mod test {
         continue;
       }
       let results = result?;
-      for x in results.clone() {
+      for _x in results.clone() {
         cnt += 1;
-        let path = x.path.to_str().unwrap();
+        // let path = x.path.to_str().unwrap();
         // match fs::metadata(format!("{}{}", volume_path, path)) {
         //     Ok(_meta) => {}
         //     Err(_) => {}
@@ -350,7 +351,7 @@ mod test {
     let results = watcher.read()?;
     for result in results {
       if (result.reason & Ioctl::USN_REASON_RENAME_NEW_NAME != 0) && result.path == path_new {
-        if let Some(path) = watcher.match_rename(&result) {
+        if let Some(path) = watcher._match_rename(&result) {
           assert_eq!(path, path_old);
         } else {
           panic!("No old path found for {}", result.path.to_str().unwrap());
