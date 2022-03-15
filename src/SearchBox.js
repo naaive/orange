@@ -1,10 +1,11 @@
 import React, {useState} from 'react'
 import * as R from "ramda";
 import {invoke} from "@tauri-apps/api";
-
 import {AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList,} from "@choc-ui/chakra-autocomplete";
 import {Icon, InputGroup, InputLeftElement,} from "@chakra-ui/react";
 
+
+import _ from "lodash";
 
 function top6(json) {
     return R.take(6)(json);
@@ -54,7 +55,7 @@ function SearchBox({setItems, doTxtChange}) {
                                            }
 
                                        }}
-                                       onChange={e => {
+                                       onChange={_.debounce(e => {
                                            setShow(true)
                                            invoke('my_custom_command', {
                                                number: 2,
@@ -69,7 +70,7 @@ function SearchBox({setItems, doTxtChange}) {
                                                    }
                                                )
                                                .catch((e) => console.error(e))
-                                       }}/>
+                                       },100)}/>
                 </InputGroup>
                 {
                     show ? <AutoCompleteList>
