@@ -14,6 +14,7 @@ pub fn run(idx_store: Arc<IdxStore>) {
   win_run(idx_store);
 
   if cfg!(target_os = "linux") {
+    #[cfg(unix)]
     linux_run(idx_store);
   }
   if cfg!(target_os = "macos") {
