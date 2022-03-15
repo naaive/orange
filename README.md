@@ -39,6 +39,7 @@ Orange is a **file search** desktop application.
 ## Build 
 - Setup Tauri dev environment (https://tauri.studio/docs/getting-started/setting-up-macos)
 - Run `yarn`
+- Run `yarn build`
 - Run `yarn tauri-build`
 
 

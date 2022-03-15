@@ -38,6 +38,7 @@ Orange是一款跨平台的**文件搜索**工具。
 ## 编译 
 - 搭建Tauri开发环境 (https://tauri.studio/docs/getting-started/setting-up-macos)
 - 运行 `yarn`
+- 运行 `yarn build`
 - 运行 `yarn tauri-build`
 
 
