@@ -19,7 +19,7 @@ pub fn run(idx_store: Arc<IdxStore>) {
   macos_run(idx_store);
 }
 
-#[cfg(linux)]
+#[cfg(macos)]
 fn macos_run(idx_store: Arc<IdxStore>) {
   let mut watcher = FsWatcher::new(idx_store.clone(), "/");
   thread::spawn(move || {
