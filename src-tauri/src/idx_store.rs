@@ -54,7 +54,7 @@ impl IdxStore {
     let file_views = paths.into_iter().map(|x| {
       return FileView {
         abs_path: "".to_string(),
-        name: utils::path2name(x).unwrap_or("".to_string()),
+        name: utils::path2name(utils::norm(&x)).unwrap_or("".to_string()),
         created_at: 0,
         mod_at: 0,
         size: 0,

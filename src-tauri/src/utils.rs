@@ -58,10 +58,8 @@ pub fn open_file_path_in_terminal(path: &str) {
 
   if cfg!(target_os = "windows") {
     //cmd /K "cd C:\Windows\"
-    let x = ["/c", "start", "cmd", "/K", "pushd", &format!("\"{}\"", win_norm4explorer(arg))];
-    println!("{:?}", x);
     std::process::Command::new("cmd")
-        .args(x)
+        .args(["/c", "start", "cmd", "/K", "pushd", &format!("{}", win_norm4explorer(arg))])
         .output()
         .expect("failed to execute process");
   } else if cfg!(target_os = "linux") {
