@@ -59,7 +59,7 @@ pub fn open_file_path_in_terminal(path: &str) {
   if cfg!(target_os = "windows") {
     //cmd /K "cd C:\Windows\"
     std::process::Command::new("cmd")
-        .args(["/K","pushd","\"",&win_norm4explorer(arg),"\""])
+        // .args(["/K","pushd","\"",&format!("\"{}\"",win_norm4explorer(arg)),"\""])
         .output()
         .expect("failed to execute process");
   } else if cfg!(target_os = "linux") {
@@ -169,9 +169,5 @@ fn t3() {
 
 #[test]
 fn t4() {
-  let u: Vec<i32> = vec![1, 2, 3];
-  let x1 = u.iter().map(|&x| x + 2).collect::<Vec<_>>();
-  println!("{:?}", x1);
-  // let v = u.iter().map(|&x| x + 1).collect::<Vec<_>>();
-  // println!("{:?}", v);
+  open_file_path_in_terminal(" C:\\Windows\\")
 }
