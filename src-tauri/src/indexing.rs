@@ -1,7 +1,13 @@
 use crate::{utils, walk_exec, watch_exec, CONF_STORE, IDX_STORE};
-use std::sync::{Arc, mpsc};
+use std::sync::Arc;
+#[cfg(windows)]
+use std::sync::mpsc;
+#[cfg(windows)]
 use std::sync::mpsc::Sender;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+#[cfg(windows)]
+use std::time::Duration;
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
 
 use crate::kv_store::KvStore;
 
@@ -11,8 +17,9 @@ use crate::idx_store::IdxStore;
 
 #[cfg(windows)]
 use crate::usn_journal_watcher::Watcher;
-
+#[cfg(windows)]
 const STORE_PATH: &'static str = "orangecachedata";
+#[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
 const VERSION: &'static str = "0.0.5";
 const LAST_INDEX_TS: &'static str = "last_index_ts";

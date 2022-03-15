@@ -160,7 +160,7 @@ impl IdxStore {
     file_views
   }
 
-  pub fn del(&self, abs_path: String) {
+  pub fn _del(&self, abs_path: String) {
     let term = Term::from_field_text(self.path_field, &abs_path);
     self.writer.lock().unwrap().delete_term(term);
   }

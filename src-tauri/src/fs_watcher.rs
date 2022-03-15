@@ -43,7 +43,7 @@ impl FsWatcher {
           cookie: _,
         }) => {
           if Op::REMOVE & op == Op::REMOVE {
-            self.index_store.del(path.to_str().unwrap().to_string())
+            self.index_store._del(path.to_str().unwrap().to_string())
           };
           let result = path.metadata();
           match result {

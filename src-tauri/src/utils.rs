@@ -1,4 +1,5 @@
 use directories::ProjectDirs;
+#[cfg(windows)]
 use std::ffi::CString;
 
 pub fn subs(str: &str) -> Vec<String> {
