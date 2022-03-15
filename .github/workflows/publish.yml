@@ -28,9 +28,10 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
     - name: install app dependencies and build it
-      run: CI=false && yarn && yarn build && yarn tauri-build
+      run: yarn && yarn build && yarn tauri-build
     - uses: tauri-apps/tauri-action@v0
       env:
+        CI: false
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tagName: orange-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
