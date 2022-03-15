@@ -1,7 +1,6 @@
 extern crate notify;
 
 use crate::idx_store::IdxStore;
-use crate::utils;
 use crate::utils::subs;
 use notify::{raw_watcher, Op, RawEvent, RecursiveMode, Watcher};
 #[cfg(target_os = "linux")]
@@ -52,8 +51,6 @@ impl FsWatcher {
               let abs_path = path.to_str().unwrap().to_string();
               let name = Self::get_filename(&path);
 
-              let _created_at = utils::parse_ts(meta.created().unwrap());
-              let _mod_at = utils::parse_ts(meta.modified().unwrap());
 
               #[cfg(windows)]
               let _size = meta.file_size();

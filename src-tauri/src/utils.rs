@@ -1,6 +1,5 @@
 use directories::ProjectDirs;
 use std::ffi::CString;
-use std::time::SystemTime;
 
 pub fn subs(str: &str) -> Vec<String> {
   if let Ok(paths) = std::fs::read_dir(str) {
@@ -83,13 +82,13 @@ pub fn data_dir() -> String {
   project_dir.data_dir().to_str().unwrap().to_string()
 }
 
-pub fn parse_ts(time: SystemTime) -> u64 {
-  let created_at = time
-    .duration_since(SystemTime::UNIX_EPOCH)
-    .unwrap()
-    .as_secs() as u64;
-  created_at
-}
+// pub fn parse_ts(time: SystemTime) -> u64 {
+//   let created_at = time
+//     .duration_since(SystemTime::UNIX_EPOCH)
+//     .unwrap()
+//     .as_secs() as u64;
+//   created_at
+// }
 pub fn path2name(x: String) -> Option<String> {
   x.as_str()
     .split("/")
