@@ -63,8 +63,9 @@ pub fn open_file_path_in_terminal(path: &str) {
         .output()
         .expect("failed to execute process");
   } else if cfg!(target_os = "linux") {
-    std::process::Command::new("xdg-open")
-        .args([arg])
+    // gnome-terminal -e "bash -c command;bash"
+    std::process::Command::new("gnome-terminal")
+        .args(["-e", &format!("bash -c 'cd {}';bash", arg) ])
         .output()
         .expect("failed to execute process");
   } else {
@@ -169,7 +170,7 @@ fn t3() {
 
 #[test]
 fn t4() {
-  open_file_path_in_terminal("C:\\Windows\\")
+  open_file_path_in_terminal("/home/jeff/CLionProjects/orange")
   // use std::process::Command;
   // Command::new("cmd")
   //     .args(&["/c", "start", "cmd"])

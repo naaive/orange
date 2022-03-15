@@ -6,33 +6,36 @@ use crate::utils::get_win32_ready_drives;
 
 use std::sync::Arc;
 use crate::fs_watcher::FsWatcher;
+use crate::utils;
 
 
 pub fn run(idx_store: Arc<IdxStore>) {
   #[cfg(windows)]
   win_run(idx_store);
 
-  #[cfg(linux)]
-  linux_run(idx_store);
-
-  #[cfg(macos)]
-  macos_run(idx_store);
+  if cfg!(target_os = "linux") {
+    linux_run(idx_store);
+  }
+  if cfg!(target_os = "macos") {
+    #[cfg(macos)]
+    macos_run(idx_store);
+  }
 }
 
 #[cfg(macos)]
 fn macos_run(idx_store: Arc<IdxStore>) {
   let mut watcher = FsWatcher::new(idx_store.clone(), "/");
-  thread::spawn(move || {
+  std::thread::spawn(move || {
     watcher.start();
   });
 }
 
-#[cfg(linux)]
+#[cfg(unix)]
 fn linux_run(idx_store: Arc<IdxStore>) {
   let sub_root = utils::subs("/");
   for sub in sub_root {
     let mut watcher = FsWatcher::new(idx_store.clone(), sub);
-    thread::spawn(move || {
+    std::thread::spawn(move || {
       watcher.start();
     });
   }
