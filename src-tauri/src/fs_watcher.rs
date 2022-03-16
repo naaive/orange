@@ -13,7 +13,7 @@ use std::path;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
-
+use log::error;
 
 pub struct FsWatcher {
   index_store: Arc<IdxStore>,
@@ -30,8 +30,8 @@ impl FsWatcher {
     let mut watcher = raw_watcher(tx).unwrap();
     let wt_res = watcher.watch(self.path.as_str(), RecursiveMode::Recursive);
     if wt_res.is_err() {
-      println!("{:?}", wt_res.err());
-      println!("watch {} err ", self.path);
+      error!("{:?}", wt_res.err());
+      error!("watch {} err ", self.path);
       return;
     }
 
@@ -50,7 +50,6 @@ impl FsWatcher {
             Ok(meta) => {
               let abs_path = path.to_str().unwrap().to_string();
               let name = Self::get_filename(&path);
-
 
               #[cfg(windows)]
               let _size = meta.file_size();
@@ -74,8 +73,8 @@ impl FsWatcher {
             Err(_) => {}
           }
         }
-        Ok(event) => println!("broken event: {:?}", event),
-        Err(e) => println!("watch error: {:?}", e),
+        Ok(event) => error!("broken event: {:?}", event),
+        Err(e) => error!("watch error: {:?}", e),
       }
     }
   }

@@ -25,6 +25,12 @@ use std::sync::Arc;
 use std::time::Duration;
 use tauri::{CustomMenuItem, SystemTrayMenu};
 
+use log::{LevelFilter};
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::file::FileAppender;
+use log4rs::config::{Appender, Config, Logger, Root};
+use log4rs::encode::pattern::PatternEncoder;
+
 static mut IDX_STORE: Option<Arc<IdxStore>> = None;
 static mut CONF_STORE: Option<Arc<KvStore>> = None;
 
@@ -52,15 +58,22 @@ async fn my_custom_command(
 
     // search
     0 => unsafe {
-      let arc = IDX_STORE.clone().unwrap();
-      if kw.eq("") {
-        kw = "*".to_string();
+      if IDX_STORE.is_none() {
+        Ok(CustomResponse {
+          message: "".to_string(),
+          file_views: vec![],
+        })
+      }else {
+        let arc = IDX_STORE.clone().unwrap();
+        if kw.eq("") {
+          kw = "*".to_string();
+        }
+        let vec = arc.search(kw, 100);
+        Ok(CustomResponse {
+          message: "".to_string(),
+          file_views: vec,
+        })
       }
-      let vec = arc.search(kw, 100);
-      Ok(CustomResponse {
-        message: "".to_string(),
-        file_views: vec,
-      })
     },
     // suggest
     2 => unsafe {
@@ -88,7 +101,33 @@ async fn my_custom_command(
   };
 }
 
+fn init_log() {
+  let stdout = ConsoleAppender::builder()
+    .encoder(Box::new(PatternEncoder::new("{d} - {l} -{t} - {m}{n}")))
+    .build();
+
+  let file = FileAppender::builder()
+    .encoder(Box::new(PatternEncoder::new("{d} - {l} - {t} - {m}{n}")))
+    .build(format!("{}/log/{}.log", utils::data_dir(), utils::today()))
+    .unwrap();
+
+  let config = Config::builder()
+      .appender(Appender::builder().build("stdout", Box::new(stdout)))
+      .appender(Appender::builder().build("file", Box::new(file)))
+      .logger(Logger::builder()
+          .appender("file")
+          .appender("stdout")
+          .additive(false)
+          .build("app", LevelFilter::Info))
+      .build(Root::builder().appender("stdout").build(LevelFilter::Error))
+      .unwrap();
+
+  let _ = log4rs::init_config(config).unwrap();
+}
+
 fn main() {
+  init_log();
+
   std::thread::spawn(|| {
     std::thread::sleep(Duration::from_secs(1));
     indexing::run();
