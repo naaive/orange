@@ -20,7 +20,7 @@ use crate::usn_journal_watcher::Watcher;
 const STORE_PATH: &'static str = "orangecachedata";
 #[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
-const VERSION: &'static str = "0.0.5";
+const VERSION: &'static str = "0.0.7";
 const LAST_INDEX_TS: &'static str = "last_index_ts";
 
 pub fn run() {

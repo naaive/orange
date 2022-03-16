@@ -80,10 +80,12 @@ impl IdxStore {
       let retrieved_doc = searcher.doc(doc_address).ok().unwrap();
 
       let path = retrieved_doc
-        .get_first(self.path_field)
-        .unwrap()
-        .text()
-        .unwrap();
+          .get_first(self.path_field)
+          .unwrap()
+          .bytes_value()
+          .map(|x| std::str::from_utf8(x))
+          .unwrap()
+          .unwrap();
 
       paths.push(path.to_string());
     }
@@ -111,7 +113,9 @@ impl IdxStore {
       let path = retrieved_doc
         .get_first(self.path_field)
         .unwrap()
-        .text()
+        .bytes_value()
+        .map(|x| std::str::from_utf8(x))
+        .unwrap()
         .unwrap();
 
       paths.push(path.to_string());
@@ -164,7 +168,7 @@ impl IdxStore {
   }
 
   pub fn _del(&self, abs_path: String) {
-    let term = Term::from_field_text(self.path_field, &abs_path);
+    let term = Term::from_field_bytes(self.path_field, abs_path.as_bytes());
     self.writer.lock().unwrap().delete_term(term);
   }
 
@@ -172,7 +176,7 @@ impl IdxStore {
     let index_path = std::path::Path::new(path);
     let mut schema_builder = Schema::builder();
     let name_field = schema_builder.add_text_field("name", TEXT | STORED);
-    let path_field = schema_builder.add_text_field("path", STORED);
+    let path_field = schema_builder.add_bytes_field("path", INDEXED | STORED);
     let schema = schema_builder.build();
 
     let index;
@@ -217,13 +221,33 @@ impl IdxStore {
   }
 
   pub fn add(&self, name: &str, path: &str) {
+    self._del(path.to_string());
     self.writer.lock().unwrap().add_document(doc!(
         self.name_field => tokenize(name.to_string()),
-        self.path_field=>path
+        self.path_field=>path.as_bytes()
     ));
   }
 
   pub fn commit(&self) {
     let _ = self.writer.lock().unwrap().commit();
+  }
+
+  pub fn num_docs(&self) -> u64 {
+    self.reader.searcher().num_docs()
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn t1() {
+    let mut store = IdxStore::new("./tmp");
+    store.add("jack", "rose");
+    store.add("jack", "rose大萨达");
+    store.commit();
+    let vec = store.search("jack".to_string(), 12);
+    println!("{}", store.num_docs());
   }
 }
