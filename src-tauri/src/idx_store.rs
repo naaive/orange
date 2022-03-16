@@ -7,7 +7,7 @@ use std::os::unix::fs::MetadataExt;
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 
-use tantivy::collector::{TopDocs};
+use tantivy::collector::TopDocs;
 use tantivy::query::{FuzzyTermQuery, QueryParser};
 use tantivy::schema::*;
 
@@ -51,16 +51,19 @@ impl IdxStore {
     if paths.is_empty() {
       paths = self.suggest_path(kw, limit);
     }
-    let file_views = paths.into_iter().map(|x| {
-      return FileView {
-        abs_path: "".to_string(),
-        name: utils::path2name(utils::norm(&x)).unwrap_or("".to_string()),
-        created_at: 0,
-        mod_at: 0,
-        size: 0,
-        is_dir: false
-      }
-    }).collect::<Vec<FileView>>();
+    let file_views = paths
+      .into_iter()
+      .map(|x| {
+        return FileView {
+          abs_path: "".to_string(),
+          name: utils::path2name(utils::norm(&x)).unwrap_or("".to_string()),
+          created_at: 0,
+          mod_at: 0,
+          size: 0,
+          is_dir: false,
+        };
+      })
+      .collect::<Vec<FileView>>();
     // let file_views = self.parse_file_views(paths);
     file_views
   }
@@ -70,17 +73,17 @@ impl IdxStore {
     let term = Term::from_field_text(self.name_field, &kw);
     let query = FuzzyTermQuery::new(term, 2, false);
     let top_docs = searcher
-        .search(&query, &TopDocs::with_limit(limit))
-        .unwrap();
+      .search(&query, &TopDocs::with_limit(limit))
+      .unwrap();
     let mut paths = Vec::new();
     for (_score, doc_address) in top_docs {
       let retrieved_doc = searcher.doc(doc_address).ok().unwrap();
 
       let path = retrieved_doc
-          .get_first(self.path_field)
-          .unwrap()
-          .text()
-          .unwrap();
+        .get_first(self.path_field)
+        .unwrap()
+        .text()
+        .unwrap();
 
       paths.push(path.to_string());
     }

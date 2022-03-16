@@ -1,6 +1,8 @@
 use directories::ProjectDirs;
 #[cfg(windows)]
 use std::ffi::CString;
+extern crate chrono;
+use chrono::Local;
 
 pub fn subs(str: &str) -> Vec<String> {
   if let Ok(paths) = std::fs::read_dir(str) {
@@ -13,15 +15,11 @@ pub fn subs(str: &str) -> Vec<String> {
 }
 pub fn open_file_path(path: &str) {
   let curr_path = std::path::Path::new(path);
-  let arg ;
+  let arg;
   if curr_path.is_dir() {
     arg = curr_path.to_str().unwrap();
-  }else {
-    arg=curr_path
-        .parent()
-        .unwrap()
-        .to_str()
-        .unwrap();
+  } else {
+    arg = curr_path.parent().unwrap().to_str().unwrap();
   }
 
   if cfg!(target_os = "windows") {
@@ -45,36 +43,39 @@ pub fn open_file_path(path: &str) {
 
 pub fn open_file_path_in_terminal(path: &str) {
   let curr_path = std::path::Path::new(path);
-  let arg ;
+  let arg;
   if curr_path.is_dir() {
     arg = curr_path.to_str().unwrap();
-  }else {
-    arg=curr_path
-        .parent()
-        .unwrap()
-        .to_str()
-        .unwrap();
+  } else {
+    arg = curr_path.parent().unwrap().to_str().unwrap();
   }
 
   if cfg!(target_os = "windows") {
     //cmd /K "cd C:\Windows\"
     std::process::Command::new("cmd")
-        .args(["/c", "start", "cmd", "/K", "pushd", &format!("{}", win_norm4explorer(arg))])
-        .output()
-        .expect("failed to execute process");
+      .args([
+        "/c",
+        "start",
+        "cmd",
+        "/K",
+        "pushd",
+        &format!("{}", win_norm4explorer(arg)),
+      ])
+      .output()
+      .expect("failed to execute process");
   } else if cfg!(target_os = "linux") {
     // gnome-terminal -e "bash -c command;bash"
     std::process::Command::new("gnome-terminal")
-        .args(["-e", &format!("bash -c 'cd {}';bash", arg) ])
-        .output()
-        .expect("failed to execute process");
+      .args(["-e", &format!("bash -c 'cd {}';bash", arg)])
+      .output()
+      .expect("failed to execute process");
   } else {
     //mac os
     //open -a Terminal "/Library"
     std::process::Command::new("open")
-        .args(["-a","Terminal",arg])
-        .output()
-        .expect("failed to execute process");
+      .args(["-a", "Terminal", arg])
+      .output()
+      .expect("failed to execute process");
   }
 }
 
@@ -101,6 +102,11 @@ pub fn path2name(x: String) -> Option<String> {
 
 pub fn norm(path: &str) -> String {
   str::replace(path, "\\", "/")
+}
+
+pub fn today() -> String {
+  let date = Local::now();
+  date.format("%Y-%m-%d").to_string()
 }
 
 pub fn win_norm4explorer(path: &str) -> String {

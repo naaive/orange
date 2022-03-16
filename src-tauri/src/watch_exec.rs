@@ -1,13 +1,10 @@
-
 use crate::idx_store::IdxStore;
 #[cfg(windows)]
 use crate::utils::get_win32_ready_drives;
 
-
-use std::sync::Arc;
 use crate::fs_watcher::FsWatcher;
 use crate::utils;
-
+use std::sync::Arc;
 
 pub fn run(idx_store: Arc<IdxStore>) {
   #[cfg(windows)]

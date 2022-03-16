@@ -8,6 +8,7 @@ use crate::utils::get_win32_ready_drives;
 use jwalk::WalkDir;
 use std::sync::Arc;
 use std::time::SystemTime;
+use log::info;
 
 pub fn home_dir() -> String {
   let option = dirs::home_dir();
@@ -17,8 +18,10 @@ pub fn home_dir() -> String {
 pub fn run(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>) {
   let home = utils::norm(&home_dir());
 
+  info!("start walk home {}",home);
   walk_home(conf_store.clone(), idx_store.clone(), &home);
 
+  info!("start walk root {}",home);
   #[cfg(windows)]
   win_walk_root(conf_store, idx_store, home);
 
@@ -33,12 +36,12 @@ fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Stri
     let key = format!("walk:stat:{}", &sub);
     let opt = conf_store.get_str(key.clone());
     if opt.is_some() {
+      info!("{} walked", sub);
       continue;
     }
     walk(idx_store.clone(), &sub, Some(home.to_string()));
     conf_store.put_str(key, "1".to_string());
   }
-
 }
 
 #[cfg(windows)]
@@ -50,18 +53,16 @@ fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Strin
 
     let subs = utils::subs(&driv);
     for sub in subs {
-
       let key = format!("walk:stat:{}", &sub);
       let opt = conf_store.get_str(key.clone());
       if opt.is_some() {
+        info!("{} walked", sub);
         continue;
       }
 
       walk(idx_store.clone(), &sub, Some(home.to_string()));
       conf_store.put_str(key, "1".to_string());
     }
-
-
   }
 }
 
@@ -69,6 +70,7 @@ fn walk_home(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: &String) 
   let key = format!("walk:stat:{}", home);
   let opt = conf_store.get_str(key.clone());
   if opt.is_some() {
+    info!("home walked {}",home);
     return;
   }
 
@@ -80,7 +82,7 @@ fn walk_home(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: &String) 
 
 fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
   let start = SystemTime::now();
-  println!("start travel {}", path);
+  info!("start travel {}", path);
   let mut cnt = 0;
 
   let mut generic = WalkDir::new(&path);
@@ -116,7 +118,7 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
   }
   let end = SystemTime::now();
   store.commit();
-  println!(
+  info!(
     "cost {} s, total {} files",
     end.duration_since(start).unwrap().as_secs(),
     cnt
