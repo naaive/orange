@@ -80,12 +80,12 @@ impl IdxStore {
       let retrieved_doc = searcher.doc(doc_address).ok().unwrap();
 
       let path = retrieved_doc
-          .get_first(self.path_field)
-          .unwrap()
-          .bytes_value()
-          .map(|x| std::str::from_utf8(x))
-          .unwrap()
-          .unwrap();
+        .get_first(self.path_field)
+        .unwrap()
+        .bytes_value()
+        .map(|x| std::str::from_utf8(x))
+        .unwrap()
+        .unwrap();
 
       paths.push(path.to_string());
     }
@@ -221,7 +221,11 @@ impl IdxStore {
   }
 
   pub fn add(&self, name: &str, path: &str) {
-    self._del(path.to_string());
+    unsafe {
+      if !IS_FULL_INDEXING {
+        self._del(path.to_string());
+      }
+    }
     self.writer.lock().unwrap().add_document(doc!(
         self.name_field => tokenize(name.to_string()),
         self.path_field=>path.as_bytes()
