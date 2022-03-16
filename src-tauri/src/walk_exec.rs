@@ -6,9 +6,9 @@ use crate::utils;
 use crate::utils::get_win32_ready_drives;
 
 use jwalk::WalkDir;
+use log::info;
 use std::sync::Arc;
 use std::time::SystemTime;
-use log::info;
 
 pub fn home_dir() -> String {
   let option = dirs::home_dir();
@@ -18,10 +18,10 @@ pub fn home_dir() -> String {
 pub fn run(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>) {
   let home = utils::norm(&home_dir());
 
-  info!("start walk home {}",home);
+  info!("start walk home {}", home);
   walk_home(conf_store.clone(), idx_store.clone(), &home);
 
-  info!("start walk root {}",home);
+  info!("start walk root {}", home);
   #[cfg(windows)]
   win_walk_root(conf_store, idx_store, home);
 
@@ -70,7 +70,7 @@ fn walk_home(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: &String) 
   let key = format!("walk:stat:{}", home);
   let opt = conf_store.get_str(key.clone());
   if opt.is_some() {
-    info!("home walked {}",home);
+    info!("home walked {}", home);
     return;
   }
 

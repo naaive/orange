@@ -1,5 +1,5 @@
 use crate::{utils, walk_exec, watch_exec, CONF_STORE, IDX_STORE};
-use log::{ info};
+use log::{error, info};
 #[cfg(windows)]
 use std::sync::mpsc;
 #[cfg(windows)]
@@ -40,7 +40,7 @@ pub fn run() {
   }
 
   let reindex = need_reindex(conf_store.clone());
-  info!("need reindex: {}",reindex);
+  info!("need reindex: {}", reindex);
   if reindex {
     let conf_store_bro = conf_store.clone();
     let idx_store_bro = idx_store.clone();
@@ -112,8 +112,8 @@ fn housekeeping(kv_store: Arc<KvStore>) {
         kv_store.clear();
         kv_store.put_str("version".to_string(), VERSION.to_string());
         info!("clean old version cachedata");
-      }else {
-        info!("no need to clean, current version:{}",VERSION);
+      } else {
+        info!("no need to clean, current version:{}", VERSION);
       }
     }
   }

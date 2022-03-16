@@ -2,6 +2,7 @@ extern crate notify;
 
 use crate::idx_store::IdxStore;
 use crate::utils::subs;
+use log::error;
 use notify::{raw_watcher, Op, RawEvent, RecursiveMode, Watcher};
 #[cfg(target_os = "linux")]
 use std::os::unix::fs::MetadataExt;
@@ -13,7 +14,6 @@ use std::path;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
-use log::error;
 
 pub struct FsWatcher {
   index_store: Arc<IdxStore>,
