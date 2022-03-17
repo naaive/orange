@@ -16,8 +16,9 @@ use crate::idx_store::IdxStore;
 
 #[cfg(windows)]
 use crate::usn_journal_watcher::Watcher;
-#[cfg(windows)]
+
 const STORE_PATH: &'static str = "orangecachedata";
+
 #[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
 const VERSION: &'static str = "0.0.7";
