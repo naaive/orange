@@ -42,7 +42,8 @@ input.chakra-input:enabled{
 .items {
     z-index: 1;
     overflow: hidden; /* Hide scrollbars */
-    height: 100%;
+    height: calc(100% - 42px);;
+
 }
 .search-box input{
     height: 32px;
