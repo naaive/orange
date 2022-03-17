@@ -24,6 +24,9 @@ body {
 input.chakra-input{
     background: #e8e8e8;
 }
+input.chakra-input::selection{
+    background: #bfbfbf;
+}
 input.chakra-input:enabled{
     border: 1px solid #e8e8e8 ;
     background: #e8e8e8;
@@ -63,10 +66,11 @@ input.chakra-input:enabled{
 ul.right-menu-list.theme-mac{
     background: #e8e8e8;
 }
-
-ul.right-menu-list.theme-mac:hover li{
-    cursor: pointer !important;
+ul.right-menu-list.theme-mac :hover{
+    background: #bfbfbf;
 }
+
+
 #popover-content-2{
     margin: 0;
     font-size: 14px;
@@ -74,6 +78,10 @@ ul.right-menu-list.theme-mac:hover li{
 .rdt_TableRow div {
     padding: 0;
     width: 100%;
+}
+.rdt_TableRow div:hover {
+    cursor: default;
+    /*cursor: auto !important;*/
 }
 
 .rdt_TableHeadRow div{
