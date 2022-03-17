@@ -124,9 +124,11 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     cnt
   );
 }
-
 #[test]
 fn t1() {
+  use crate::utils::init_log;
+  init_log();
+
   let conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
   let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
 

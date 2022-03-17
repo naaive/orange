@@ -2,7 +2,7 @@ extern crate notify;
 
 use crate::idx_store::IdxStore;
 use crate::utils::subs;
-use log::error;
+use log::{error, info};
 use notify::{raw_watcher, Op, RawEvent, RecursiveMode, Watcher};
 #[cfg(target_os = "linux")]
 use std::os::unix::fs::MetadataExt;
@@ -14,6 +14,7 @@ use std::path;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
+use crate::utils;
 
 pub struct FsWatcher {
   index_store: Arc<IdxStore>,
@@ -34,6 +35,7 @@ impl FsWatcher {
       error!("watch {} err ", self.path);
       return;
     }
+    info!("fs watcher started");
 
     loop {
       match rx.recv() {
@@ -42,13 +44,18 @@ impl FsWatcher {
           op: Ok(op),
           cookie: _,
         }) => {
+          let path_str = path.to_str().unwrap();
+          if path_str.contains("orangecachedata") {
+            continue;
+          }
           if Op::REMOVE & op == Op::REMOVE {
-            self.index_store._del(path.to_str().unwrap().to_string())
+            self.index_store._del(path_str.to_string())
           };
           let result = path.metadata();
           match result {
             Ok(meta) => {
               let abs_path = path.to_str().unwrap().to_string();
+
               let name = Self::get_filename(&path);
 
               #[cfg(windows)]
@@ -165,11 +172,27 @@ mod tests {
           op: Ok(op),
           cookie,
         }) => {
-          println!("{:?} {:?} ({:?})", op, path, cookie)
+          let x = path.to_str().unwrap();
+          if x.contains("orangecachedata") {
+            continue;
+          }
+          println!("{}", x);
+          // println!("{:?} {:?} ({:?})", op, path, cookie)
         }
         Ok(event) => println!("broken event: {:?}", event),
         Err(e) => println!("watch error: {:?}", e),
       }
     }
   }
+}
+
+#[test]
+fn t4() {
+
+  let conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
+  let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+
+  let idx_store = Arc::new(IdxStore::new(&idx_path));
+  let mut watcher = FsWatcher::new(idx_store, "/".to_string());
+  watcher.start();
 }

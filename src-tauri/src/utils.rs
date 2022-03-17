@@ -3,6 +3,11 @@ use directories::ProjectDirs;
 use std::ffi::CString;
 extern crate chrono;
 use chrono::Local;
+use log::LevelFilter;
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::file::FileAppender;
+use log4rs::config::{Appender, Config, Logger, Root};
+use log4rs::encode::pattern::PatternEncoder;
 
 pub fn subs(str: &str) -> Vec<String> {
   if let Ok(paths) = std::fs::read_dir(str) {
@@ -137,6 +142,32 @@ pub unsafe fn get_win32_ready_drives() -> Vec<String> {
 
 pub fn is_ascii_alphanumeric(raw: &str) -> bool {
   raw.chars().all(|x| x.is_ascii())
+}
+
+pub fn init_log() {
+  let stdout = ConsoleAppender::builder()
+    .encoder(Box::new(PatternEncoder::new("{d} - {l} -{t} - {m}{n}")))
+    .build();
+
+  let file = FileAppender::builder()
+    .encoder(Box::new(PatternEncoder::new("{d} - {l} - {t} - {m}{n}")))
+    .build(format!("{}/log/{}.log", data_dir(), today()))
+    .unwrap();
+
+  let config = Config::builder()
+    .appender(Appender::builder().build("stdout", Box::new(stdout)))
+    .appender(Appender::builder().build("file", Box::new(file)))
+    .logger(
+      Logger::builder()
+        .appender("file")
+        .appender("stdout")
+        .additive(false)
+        .build("app", LevelFilter::Info),
+    )
+    .build(Root::builder().appender("stdout").build(LevelFilter::Error))
+    .unwrap();
+
+  let _ = log4rs::init_config(config).unwrap();
 }
 
 #[cfg(windows)]
