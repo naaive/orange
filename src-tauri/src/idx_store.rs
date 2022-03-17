@@ -71,7 +71,7 @@ impl IdxStore {
   fn suggest_path(&self, kw: String, limit: usize) -> Vec<String> {
     let searcher = self.reader.searcher();
     let term = Term::from_field_text(self.name_field, &kw);
-    let query = FuzzyTermQuery::new(term, 2, false);
+    let query = FuzzyTermQuery::new_prefix(term, 0, true);
     let top_docs = searcher
       .search(&query, &TopDocs::with_limit(limit))
       .unwrap();
@@ -253,5 +253,17 @@ mod tests {
     store.commit();
     let vec = store.search("jack".to_string(), 12);
     println!("{}", store.num_docs());
+  }
+  #[test]
+  fn t2() {
+    let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+
+    let store = Arc::new(IdxStore::new(&idx_path));
+    let vec = store.search("jackr".to_string(), 12);
+    for x in vec {
+      println!("{}", x.name);
+    }
+    // println!("{:?}", vec);
+    // println!("{}", store.num_docs());
   }
 }
