@@ -1,6 +1,7 @@
 extern crate notify;
 
 use crate::idx_store::IdxStore;
+use crate::utils;
 use crate::utils::subs;
 use log::{error, info};
 use notify::{raw_watcher, Op, RawEvent, RecursiveMode, Watcher};
@@ -14,7 +15,6 @@ use std::path;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
-use crate::utils;
 
 pub struct FsWatcher {
   index_store: Arc<IdxStore>,
@@ -188,7 +188,6 @@ mod tests {
 
 #[test]
 fn t4() {
-
   let conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
   let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
 
