@@ -25,7 +25,7 @@ fn macos_run(idx_store: Arc<IdxStore>) {
   });
 }
 
-#[cfg(unix)]
+#[cfg(target_os = "linux")]
 fn linux_run(idx_store: Arc<IdxStore>) {
   let sub_root = utils::subs("/");
   for sub in sub_root {
