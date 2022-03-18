@@ -1,25 +1,51 @@
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
+use std::ops::Deref;
 
-use crate::utils;
 #[cfg(windows)]
 use crate::utils::get_win32_ready_drives;
+use crate::{utils, IDX_STORE};
 
+use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
 use jwalk::WalkDir;
 use log::info;
-use std::sync::Arc;
-use std::time::SystemTime;
+use std::sync::{Arc, Mutex, RwLock};
+use std::thread;
+use std::time::{Duration, SystemTime};
+
+static mut WALK_METRICS: Option<Arc<Mutex<WalkMetrics>>> = None;
 
 pub fn home_dir() -> String {
   let option = dirs::home_dir();
   option.unwrap().to_str().unwrap().to_string()
 }
 
+pub unsafe fn get_walk_matrix() -> WalkMatrixView {
+  let idx_store = IDX_STORE.clone();
+  if idx_store.is_none() {
+    return WalkMatrixView::default();
+  }
+  if WALK_METRICS.is_none() && !idx_store.clone().unwrap().is_full_indexing() {
+    return WalkMatrixView::new(100, idx_store.clone().unwrap().num_docs());
+  }
+  WALK_METRICS
+    .clone()
+    .unwrap()
+    .lock()
+    .unwrap()
+    .view(move || idx_store.clone().unwrap().num_docs())
+}
+
 pub fn run(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>) {
+  init_walk_matrix();
   let home = utils::norm(&home_dir());
+
+  start_walk_home_matrix();
 
   info!("start walk home {}", home);
   walk_home(conf_store.clone(), idx_store.clone(), &home);
+
+  end_walk_home_matrix();
 
   info!("start walk root {}", home);
   #[cfg(windows)]
@@ -29,10 +55,33 @@ pub fn run(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>) {
   unix_walk_root(conf_store, idx_store, home);
 }
 
+fn end_walk_home_matrix() {
+  unsafe {
+    let mut walk_matrix0 = WALK_METRICS.clone().unwrap();
+    walk_matrix0.lock().unwrap().end_home();
+  }
+}
+
+fn start_walk_home_matrix() {
+  unsafe {
+    let mut walk_matrix0 = WALK_METRICS.clone().unwrap();
+    walk_matrix0.lock().unwrap().start_home();
+  }
+}
+
+fn init_walk_matrix() {
+  unsafe {
+    WALK_METRICS = Some(Arc::new(Mutex::new(WalkMetrics::default())));
+  }
+}
+
 #[cfg(unix)]
 fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: String) {
   let subs = utils::subs("/");
-  for sub in subs {
+  let sz = subs.len();
+  for (i, sub) in subs.iter().enumerate() {
+    inc_root_walk_metrics(&idx_store, sz, i);
+
     let key = format!("walk:stat:{}", &sub);
     let opt = conf_store.get_str(key.clone());
     if opt.is_some() {
@@ -41,6 +90,17 @@ fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Stri
     }
     walk(idx_store.clone(), &sub, Some(home.to_string()));
     conf_store.put_str(key, "1".to_string());
+  }
+}
+
+fn inc_root_walk_metrics(idx_store: &Arc<IdxStore>, sz: usize, i: usize) {
+  unsafe {
+    WALK_METRICS
+      .clone()
+      .unwrap()
+      .lock()
+      .unwrap()
+      .root_inc_percent((i + 1) as u32, sz as u32, idx_store.num_docs());
   }
 }
 

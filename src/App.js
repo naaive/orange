@@ -28,6 +28,12 @@ function App() {
                 })
             }
         }, 200);
+
+        setInterval(()=>{
+            invoke("walk_metrics").then(value => {
+                console.log(value)
+            })
+        },1000)
     }, []);
 
     function top6(json) {

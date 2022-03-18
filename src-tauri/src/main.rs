@@ -17,10 +17,12 @@ mod pinyin_tokenizer;
 mod usn_journal_watcher;
 mod utils;
 mod walk_exec;
+mod walk_metrics;
 mod watch_exec;
 
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
+use crate::walk_metrics::WalkMatrixView;
 use std::sync::Arc;
 use std::time::Duration;
 use tauri::{CustomMenuItem, SystemTrayMenu};
@@ -32,6 +34,11 @@ static mut CONF_STORE: Option<Arc<KvStore>> = None;
 struct CustomResponse {
   message: String,
   file_views: Vec<FileView>,
+}
+
+#[tauri::command]
+fn walk_metrics() -> WalkMatrixView {
+  unsafe { walk_exec::get_walk_matrix() }
 }
 
 #[tauri::command]
@@ -112,7 +119,7 @@ fn show() {
   let tray = SystemTray::new().with_menu(tray_menu);
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![my_custom_command])
+    .invoke_handler(tauri::generate_handler![my_custom_command, walk_metrics])
     .system_tray(tray)
     .on_system_tray_event(|_app, event| match event {
       SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
