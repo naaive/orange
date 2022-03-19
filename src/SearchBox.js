@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import * as R from "ramda";
 import {invoke} from "@tauri-apps/api";
 import {AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList,} from "@choc-ui/chakra-autocomplete";
-import {Icon, InputGroup, InputLeftElement,} from "@chakra-ui/react";
+import {FormControl, HStack, Icon, InputGroup, InputLeftElement, Radio, RadioGroup,} from "@chakra-ui/react";
 
 
 import _ from "lodash";
@@ -74,6 +74,18 @@ function SearchBox({setItems, doTxtChange}) {
                 </InputGroup>
                 {
                     show ? <AutoCompleteList>
+                        <div className={"filter"}>
+                            <FormControl as='fieldset'>
+                                <RadioGroup defaultValue='Itachi'>
+                                    <HStack spacing='24px'>
+                                        <Radio  colorScheme='gray' value='All'>All</Radio>
+                                        <Radio colorScheme='gray' value='Image'>Image</Radio>
+                                        <Radio colorScheme='gray' value='Video'>Video</Radio>
+                                        <Radio colorScheme='gray' value='Code'>Code</Radio>
+                                    </HStack>
+                                </RadioGroup>
+                            </FormControl>
+                        </div>
                         {options.map((option, oid) => (
                             <AutoCompleteItem
                                 key={`option-${oid}`}

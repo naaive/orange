@@ -8,8 +8,6 @@ body {
 
 .search-box {
     z-index: 100;
-
-    /*position: sticky;*/
     padding: 0 12px;
     margin: 10px auto;
 }
@@ -30,10 +28,10 @@ input.chakra-input:enabled{
 
 }
 .chakra-popover__content div:hover{
-    background: #e8e8e8 !important;
+    /*background: #e8e8e8 !important;*/
 }
 .chakra-popover__content div:active{
-    background: #e8e8e8 !important;
+    /*background: #e8e8e8 !important;*/
 }
 
 .items {
@@ -60,12 +58,26 @@ input.chakra-input:enabled{
     overflow: hidden;
     line-height: 32px;
 }
+#popover-content-5>div,#popover-content-2{
+    font-size: 14px !important;
+    padding: 5px;
+}
 ul.right-menu-list.theme-mac{
     background: #e8e8e8;
 }
 
-ul.right-menu-list.theme-mac:hover li{
-    cursor: pointer !important;
+.Toastify__toast-theme--light{
+    margin: 0 !important;
+    /*background: #bfbfbf !important;*/
+
+}
+.Toastify__toast-body{
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 14px;
+}
+.Toastify__toast{
+    min-height: 20px !important;
 }
 #popover-content-2{
     margin: 0;
@@ -105,3 +117,22 @@ ul.right-menu-list.theme-mac:hover li{
 .icon > img {
     width: 35px !important;
 }
+div.filter{
+    margin: 0 !important  ;
+    cursor: default;
+    padding: 10px 10px ;
+    background: #ffffff !important;
+    width: 100%;
+}
+.filter:hover {
+    background: white !important;
+}
+.filter:hover{
+    background: white !important;
+    cursor: default;
+}
+
+div.filter > fieldset > div > div > label> span.chakra-radio__control{
+    box-shadow: none;
+}
+

@@ -5,6 +5,9 @@ import * as R from "ramda";
 import {invoke} from "@tauri-apps/api";
 import {Scrollbars} from 'react-custom-scrollbars';
 import Items from "./Items";
+import {ToastContainer, toast} from 'react-toastify';
+import {Zoom} from 'react-toastify';
+import {FormControl, HStack, Radio, RadioGroup} from "@chakra-ui/react";
 
 function App() {
 
@@ -14,6 +17,7 @@ function App() {
     const [kw, setKw] = useState('');
 
     useEffect(() => {
+
         setTimeout(() => doTxtChange('*'), 200)
 
         let run = 0;
@@ -28,6 +32,27 @@ function App() {
                 })
             }
         }, 200);
+
+        let done = false;
+        let toastId = toast.loading("0 files are indexed...");
+
+
+        setInterval(() => {
+            invoke("walk_metrics").then(({percent, total_files}) => {
+                console.log(percent)
+                if (percent === 100) {
+                    toast.update(toastId, {render: `${total_files} files indexed`, type: "success", isLoading: false});
+                    if (!done) {
+                        setTimeout(function () {
+                            toast.dismiss(toastId);
+                        }, 1000)
+                    }
+                    done = true;
+                } else {
+                    toast.update(toastId, {render: `${total_files} files indexed`, type: "success", isLoading: true});
+                }
+            })
+        }, 1000)
     }, []);
 
     function top6(json) {
@@ -52,23 +77,31 @@ function App() {
 
     return (
 
-            <div className="App" >
+        <div className="App">
+
+
                 <div className="search-box">
                     <Search setItems={setItems} doTxtChange={doTxtChange}/>
                 </div>
 
-                <div className="items">
+            <div className="items">
 
-                    <Scrollbars autoHide     autoHideTimeout={500}
-                                autoHideDuration={200} >
+                <Scrollbars autoHide autoHideTimeout={500}
+                            autoHideDuration={200}>
                     <Items items={items}/>
 
 
-                    </Scrollbars>
+                </Scrollbars>
 
 
-                </div>
             </div>
+            <ToastContainer position="bottom-center"
+                            hideProgressBar={false}
+                            theme={"light"}
+                            limit={1}
+                            transition={Zoom}
+            />
+        </div>
 
     );
 }
