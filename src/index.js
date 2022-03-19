@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const colors = {

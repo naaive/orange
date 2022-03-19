@@ -97,8 +97,6 @@ const columns = [
         style: {
             padding: '0 16px !important',
 
-            borderBottom: '1px solid #FFFFFF',
-            marginBottom: '-1px',
         },
     },
     {

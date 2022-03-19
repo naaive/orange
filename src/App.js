@@ -33,26 +33,26 @@ function App() {
             }
         }, 200);
 
-        let done = false;
+        let done=false;
         let toastId = toast.loading("0 files are indexed...");
 
 
-        setInterval(() => {
+        setInterval(()=>{
             invoke("walk_metrics").then(({percent, total_files}) => {
                 console.log(percent)
                 if (percent === 100) {
-                    toast.update(toastId, {render: `${total_files} files indexed`, type: "success", isLoading: false});
+                    toast.update(toastId, { render: `${total_files} files indexed`, type: "success", isLoading: false });
                     if (!done) {
                         setTimeout(function () {
                             toast.dismiss(toastId);
-                        }, 1000)
+                        },1000)
                     }
                     done = true;
                 } else {
-                    toast.update(toastId, {render: `${total_files} files indexed`, type: "success", isLoading: true});
+                    toast.update(toastId, { render: `${total_files} files indexed`, type: "success", isLoading: true });
                 }
             })
-        }, 1000)
+        },1000)
     }, []);
 
     function top6(json) {
@@ -75,9 +75,10 @@ function App() {
     }
 
 
+
     return (
 
-        <div className="App">
+            <div className="App" >
 
 
                 <div className="search-box">
@@ -94,14 +95,14 @@ function App() {
                 </Scrollbars>
 
 
+                </div>
+                <ToastContainer position="bottom-center"
+                                hideProgressBar={false}
+                                theme={"light"}
+                                limit={1}
+                                transition={Zoom}
+                />
             </div>
-            <ToastContainer position="bottom-center"
-                            hideProgressBar={false}
-                            theme={"light"}
-                            limit={1}
-                            transition={Zoom}
-            />
-        </div>
 
     );
 }
