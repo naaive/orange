@@ -91,7 +91,7 @@ ul.right-menu-list.theme-mac :hover{
     margin: 0;
     font-size: 13px !important;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px 0px;
-    padding: 0 0 10px 0 ;
+    padding: 10px 0 10px 0 ;
 }
 
 .rdt_TableRow div {
