@@ -5,6 +5,7 @@ import * as R from "ramda";
 import {invoke} from "@tauri-apps/api";
 import {Scrollbars} from 'react-custom-scrollbars';
 import Items from "./Items";
+import { ToastContainer, toast } from 'react-toastify';
 
 function App() {
 
@@ -12,8 +13,11 @@ function App() {
     const [items, setItems] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [kw, setKw] = useState('');
+    const [toastId, setToastId] = useState();
 
     useEffect(() => {
+        let toastId = notify();
+        setToastId(toastId);
         setTimeout(() => doTxtChange('*'), 200)
 
         let run = 0;
@@ -55,10 +59,13 @@ function App() {
 
     }
 
+    const notify = () => toast.loading("100 files are indexed...");
 
     return (
 
             <div className="App" >
+
+
                 <div className="search-box">
                     <Search setItems={setItems} doTxtChange={doTxtChange}/>
                 </div>
@@ -74,6 +81,12 @@ function App() {
 
 
                 </div>
+                <ToastContainer position="bottom-center"
+                                hideProgressBar={false}
+                                theme={"light"}
+                                limit={1}
+                                transition={"zoom"}
+                />
             </div>
 
     );

@@ -49,6 +49,7 @@ input.chakra-input:enabled{
     height: 32px;
     font-size: 14px !important;
     line-height: 32px !important;
+
 }
 .search-box input::-webkit-input-placeholder {
     height: 32px;
@@ -64,6 +65,9 @@ input.chakra-input:enabled{
     overflow: hidden;
     line-height: 32px;
 }
+#popover-content-5>div,#popover-content-2{
+    font-size: 14px !important;
+}
 ul.right-menu-list.theme-mac{
     background: #e8e8e8;
 }
@@ -72,6 +76,19 @@ ul.right-menu-list.theme-mac :hover{
 }
 
 
+.Toastify__toast-theme--light{
+    margin: 0 !important;
+    background: #bfbfbf !important;
+}
+.Toastify__toast-body{
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 14px;
+
+}
+.Toastify__toast{
+    min-height: 20px !important;
+}
 #popover-content-2{
     margin: 0;
     font-size: 14px;
