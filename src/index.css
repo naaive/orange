@@ -87,10 +87,13 @@ ul.right-menu-list.theme-mac :hover{
 .Toastify__toast{
     min-height: 20px !important;
 }
-#popover-content-2{
+#popover-content-2 {
     margin: 0;
-    font-size: 14px;
+    font-size: 13px !important;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px 0px;
+    padding: 0 0 10px 0 ;
 }
+
 .rdt_TableRow div {
     padding: 0;
     width: 100%;
