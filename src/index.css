@@ -24,6 +24,9 @@ body {
 input.chakra-input{
     background: #e8e8e8;
 }
+input.chakra-input::selection{
+    background: #bfbfbf;
+}
 input.chakra-input:enabled{
     border: 1px solid #e8e8e8 ;
     background: #e8e8e8;
@@ -39,12 +42,14 @@ input.chakra-input:enabled{
 .items {
     z-index: 1;
     overflow: hidden; /* Hide scrollbars */
-    height: 100%;
+    height: calc(100% - 42px);;
+
 }
 .search-box input{
     height: 32px;
     font-size: 14px !important;
     line-height: 32px !important;
+
 }
 .search-box input::-webkit-input-placeholder {
     height: 32px;
@@ -60,12 +65,29 @@ input.chakra-input:enabled{
     overflow: hidden;
     line-height: 32px;
 }
+#popover-content-5>div,#popover-content-2{
+    font-size: 14px !important;
+}
 ul.right-menu-list.theme-mac{
     background: #e8e8e8;
 }
+ul.right-menu-list.theme-mac :hover{
+    background: #bfbfbf;
+}
 
-ul.right-menu-list.theme-mac:hover li{
-    cursor: pointer !important;
+
+.Toastify__toast-theme--light{
+    margin: 0 !important;
+    /*background: #bfbfbf !important;*/
+}
+.Toastify__toast-body{
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 14px;
+
+}
+.Toastify__toast{
+    min-height: 20px !important;
 }
 #popover-content-2{
     margin: 0;
@@ -74,6 +96,10 @@ ul.right-menu-list.theme-mac:hover li{
 .rdt_TableRow div {
     padding: 0;
     width: 100%;
+}
+.rdt_TableRow div:hover {
+    cursor: default;
+    /*cursor: auto !important;*/
 }
 
 .rdt_TableHeadRow div{

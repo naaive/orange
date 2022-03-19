@@ -36,6 +36,12 @@ impl IdxStore {
     }
   }
 
+  pub fn is_full_indexing(&self) -> bool {
+    unsafe {
+      return IS_FULL_INDEXING;
+    }
+  }
+
   pub fn search(&self, kw: String, limit: usize) -> Vec<FileView> {
     let mut paths = self.search_paths(kw.clone(), limit);
     if paths.is_empty() {
