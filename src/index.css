@@ -31,10 +31,10 @@ input.chakra-input:enabled{
 
 }
 .chakra-popover__content div:hover{
-    background: #e8e8e8 !important;
+    /*background: #e8e8e8 !important;*/
 }
 .chakra-popover__content div:active{
-    background: #e8e8e8 !important;
+    /*background: #e8e8e8 !important;*/
 }
 
 .items {
