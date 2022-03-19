@@ -106,13 +106,20 @@ fn inc_root_walk_metrics(idx_store: &Arc<IdxStore>, sz: usize, i: usize) {
 
 #[cfg(windows)]
 fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: String) {
+  let len = win_subs_len();
+
   let drives = unsafe { get_win32_ready_drives() };
 
+  let mut idx = 0;
   for mut driv in drives {
     driv = utils::norm(&driv);
 
     let subs = utils::subs(&driv);
     for sub in subs {
+
+      inc_root_walk_metrics(&idx_store, len, idx);
+      idx+=1;
+
       let key = format!("walk:stat:{}", &sub);
       let opt = conf_store.get_str(key.clone());
       if opt.is_some() {
@@ -124,6 +131,17 @@ fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Strin
       conf_store.put_str(key, "1".to_string());
     }
   }
+}
+
+fn win_subs_len() -> usize {
+  let drives = unsafe { get_win32_ready_drives() };
+  let mut sz = 0;
+  for mut driv in drives {
+    driv = utils::norm(&driv);
+    let subs = utils::subs(&driv);
+    sz += subs.len();
+  }
+  sz
 }
 
 fn walk_home(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: &String) {

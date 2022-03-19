@@ -6,6 +6,7 @@ import {invoke} from "@tauri-apps/api";
 import {Scrollbars} from 'react-custom-scrollbars';
 import Items from "./Items";
 import { ToastContainer, toast } from 'react-toastify';
+import { Zoom} from 'react-toastify';
 
 function App() {
 
@@ -13,11 +14,9 @@ function App() {
     const [items, setItems] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [kw, setKw] = useState('');
-    const [toastId, setToastId] = useState();
 
-    useEffect(() => {
-        let toastId = notify();
-        setToastId(toastId);
+    useEffect( () => {
+
         setTimeout(() => doTxtChange('*'), 200)
 
         let run = 0;
@@ -33,9 +32,24 @@ function App() {
             }
         }, 200);
 
+        let done=false;
+        let toastId = toast.loading("0 files are indexed...");
+
+
         setInterval(()=>{
-            invoke("walk_metrics").then(value => {
-                console.log(value)
+            invoke("walk_metrics").then(({percent, total_files}) => {
+                console.log(percent)
+                if (percent === 100) {
+                    toast.update(toastId, { render: `${total_files} files indexed`, type: "success", isLoading: false });
+                    if (!done) {
+                        setTimeout(function () {
+                            toast.dismiss(toastId);
+                        },1000)
+                    }
+                    done = true;
+                } else {
+                    toast.update(toastId, { render: `${total_files} files indexed`, type: "success", isLoading: true });
+                }
             })
         },1000)
     }, []);
@@ -59,7 +73,7 @@ function App() {
 
     }
 
-    const notify = () => toast.loading("100 files are indexed...");
+
 
     return (
 
@@ -85,7 +99,7 @@ function App() {
                                 hideProgressBar={false}
                                 theme={"light"}
                                 limit={1}
-                                transition={"zoom"}
+                                transition={Zoom}
                 />
             </div>
 

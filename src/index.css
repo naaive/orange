@@ -78,7 +78,7 @@ ul.right-menu-list.theme-mac :hover{
 
 .Toastify__toast-theme--light{
     margin: 0 !important;
-    background: #bfbfbf !important;
+    /*background: #bfbfbf !important;*/
 }
 .Toastify__toast-body{
     margin: 0 !important;
