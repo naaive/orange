@@ -74,18 +74,18 @@ function SearchBox({setItems, doTxtChange}) {
                 </InputGroup>
                 {
                     show ? <AutoCompleteList>
-                        {/*<div className={"filter"}>*/}
-                        {/*    <FormControl as='fieldset'>*/}
-                        {/*        <RadioGroup defaultValue='Itachi'>*/}
-                        {/*            <HStack spacing='24px'>*/}
-                        {/*                <Radio  colorScheme='gray' value='All'>All</Radio>*/}
-                        {/*                <Radio colorScheme='gray' value='Image'>Image</Radio>*/}
-                        {/*                <Radio colorScheme='gray' value='Video'>Video</Radio>*/}
-                        {/*                <Radio colorScheme='gray' value='Code'>Code</Radio>*/}
-                        {/*            </HStack>*/}
-                        {/*        </RadioGroup>*/}
-                        {/*    </FormControl>*/}
-                        {/*</div>*/}
+                        <div className={"filter"}>
+                            <FormControl as='fieldset'>
+                                <RadioGroup defaultValue='Itachi'>
+                                    <HStack spacing='24px'>
+                                        <Radio  colorScheme='gray' value='All'>All</Radio>
+                                        <Radio colorScheme='gray' value='Image'>Image</Radio>
+                                        <Radio colorScheme='gray' value='Video'>Video</Radio>
+                                        <Radio colorScheme='gray' value='Code'>Code</Radio>
+                                    </HStack>
+                                </RadioGroup>
+                            </FormControl>
+                        </div>
                         {options.map((option, oid) => (
                             <AutoCompleteItem
                                 key={`option-${oid}`}
