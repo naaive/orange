@@ -133,6 +133,7 @@ fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Strin
   }
 }
 
+#[cfg(windows)]
 fn win_subs_len() -> usize {
   let drives = unsafe { get_win32_ready_drives() };
   let mut sz = 0;
