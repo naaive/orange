@@ -80,7 +80,7 @@ fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Stri
   let subs = utils::subs("/");
   let sz = subs.len();
   for (i, sub) in subs.iter().enumerate() {
-    inc_root_walk_metrics(&idx_store, sz, i);
+    inc_root_walk_metrics(sz, i);
 
     let key = format!("walk:stat:{}", &sub);
     let opt = conf_store.get_str(key.clone());
@@ -93,14 +93,14 @@ fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Stri
   }
 }
 
-fn inc_root_walk_metrics(idx_store: &Arc<IdxStore>, sz: usize, i: usize) {
+fn inc_root_walk_metrics(sz: usize, i: usize) {
   unsafe {
     WALK_METRICS
       .clone()
       .unwrap()
       .lock()
       .unwrap()
-      .root_inc_percent((i + 1) as u32, sz as u32, idx_store.num_docs());
+      .root_inc_percent((i + 1) as u32, sz as u32);
   }
 }
 
@@ -116,7 +116,7 @@ fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Strin
 
     let subs = utils::subs(&driv);
     for sub in subs {
-      inc_root_walk_metrics(&idx_store, len, idx);
+      inc_root_walk_metrics(len, idx);
       idx += 1;
 
       let key = format!("walk:stat:{}", &sub);
