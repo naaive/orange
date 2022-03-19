@@ -46,10 +46,6 @@ Orange是一款跨平台的**文件搜索**工具。
 
 点击 [release page](https://github.com/naaive/orange/releases).
 
-## 提示
-
-如果你是Macos用户, 安装后, 请执行`xattr -cr /Applications/Orange.app` 来修复 `“Orange” is damaged and can’t be opened. You should move it to the Trash.`问题。
-
 
 ## 架构
 ![arch](doc/img.png)

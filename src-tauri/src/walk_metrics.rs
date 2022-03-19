@@ -83,6 +83,4 @@ impl Default for WalkMetrics {
 }
 
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}

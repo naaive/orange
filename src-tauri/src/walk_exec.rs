@@ -116,9 +116,8 @@ fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Strin
 
     let subs = utils::subs(&driv);
     for sub in subs {
-
       inc_root_walk_metrics(&idx_store, len, idx);
-      idx+=1;
+      idx += 1;
 
       let key = format!("walk:stat:{}", &sub);
       let opt = conf_store.get_str(key.clone());

@@ -10,11 +10,11 @@ pub fn run(idx_store: Arc<IdxStore>) {
   #[cfg(windows)]
   win_run(idx_store);
 
-    #[cfg(target_os = "linux")]
-    linux_run(idx_store);
+  #[cfg(target_os = "linux")]
+  linux_run(idx_store);
 
-    #[cfg(target_os = "macos")]
-    macos_run(idx_store);
+  #[cfg(target_os = "macos")]
+  macos_run(idx_store);
 }
 
 #[cfg(target_os = "macos")]
