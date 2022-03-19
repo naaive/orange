@@ -77,7 +77,7 @@ impl IdxStore {
   fn suggest_path(&self, kw: String, limit: usize) -> Vec<String> {
     let searcher = self.reader.searcher();
     let term = Term::from_field_text(self.name_field, &kw);
-    let query = FuzzyTermQuery::new(term, 2, false);
+    let query = FuzzyTermQuery::new_prefix(term, 1, false);
     let top_docs = searcher
       .search(&query, &TopDocs::with_limit(limit))
       .unwrap();
