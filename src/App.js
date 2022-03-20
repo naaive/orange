@@ -7,7 +7,18 @@ import {Scrollbars} from 'react-custom-scrollbars';
 import Items from "./Items";
 import {ToastContainer, toast} from 'react-toastify';
 import {Zoom} from 'react-toastify';
-import {FormControl, HStack, Radio, RadioGroup} from "@chakra-ui/react";
+import {
+    Checkbox,
+    Divider,
+    FormControl,
+    HStack, Input,
+    InputGroup,
+    InputLeftAddon, InputRightAddon,
+    Radio,
+    RadioGroup,
+    Stack,
+    Text
+} from "@chakra-ui/react";
 
 function App() {
 
@@ -15,6 +26,9 @@ function App() {
     const [items, setItems] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [kw, setKw] = useState('');
+    const [isDir, setIsDir] = useState(true);
+    const [isFile, setIsFile] = useState(true);
+    const [ext, setExt] = useState(0);
 
     useEffect(() => {
 
@@ -39,13 +53,13 @@ function App() {
 
         setInterval(()=>{
             invoke("walk_metrics").then(({percent, total_files}) => {
-                console.log(percent)
+                // console.log(percent)
                 if (percent === 100) {
                     toast.update(toastId, { render: `${total_files} files indexed`, type: "success", isLoading: false });
                     if (!done) {
                         setTimeout(function () {
                             toast.dismiss(toastId);
-                        },1000)
+                        },2000)
                     }
                     done = true;
                 } else {
@@ -59,18 +73,29 @@ function App() {
         return R.pipe(R.map(R.prop('name')), R.take(6))(json);
     }
 
-    async function doTxtChange(v) {
-        setKw(v);
+    async function doTxtChange(kw,is_dir_opt,ext_opt,parent_dirs_opt) {
+        setKw(kw);
+        let isDirOpt;
+        if (isDir && isFile) {
+            isDirOpt = undefined;
+        }else if (isDir){
+            isDirOpt = true;
+        }else if (isFile) {
+            isDirOpt = false;
+        }
         invoke('my_custom_command', {
             number: 0,
-            kw: v
+            kw: kw,
+            isDirOpt:isDirOpt,
+            extOpt: undefined,
+            parentDirsOpt: undefined,
         })
             .then((res) => {
                     setItems(res.file_views);
                     setSuggestions(top6(res.file_views));
                 }
             )
-            .catch((e) => console.error(e))
+            .catch((e) => console.error(e));
 
     }
 
@@ -86,13 +111,50 @@ function App() {
                        <Search setItems={setItems} doTxtChange={doTxtChange}/>
                    </div>
                    <div className={"filter"}>
+
                        <FormControl as='fieldset'>
-                           <RadioGroup defaultValue='Itachi'>
+
+                           <RadioGroup value={ext}>
                                <HStack spacing='24px'>
-                                   <Radio  colorScheme='orange' value='All'>All</Radio>
-                                   <Radio colorScheme='orange' value='Image'>Image</Radio>
-                                   <Radio colorScheme='orange' value='Video'>Video</Radio>
-                                   <Radio colorScheme='orange' value='Code'>Code</Radio>
+                                   <Checkbox  colorScheme='yellow' isChecked={isDir} onChange={()=> {
+                                       if (isDir && !isFile) {
+                                           return
+                                       }
+                                       setIsDir(!isDir);
+                                   }}>
+                                       Folder
+                                   </Checkbox>
+                                   <Checkbox  colorScheme='yellow' isChecked={isFile} onChange={()=> {
+                                       if (isFile && !isDir) {
+                                           return
+                                       }
+                                       setIsFile(!isFile)
+                                   }}>
+                                       File
+                                   </Checkbox>
+
+
+                                   <span onClick={()=>setExt(0)}>
+                                     <Radio  colorScheme='yellow' value={0}  >All</Radio>
+                                   </span>
+                                   <span onClick={()=>setExt(1)}>
+                                    <Radio  colorScheme='yellow' value={1}>Image</Radio>
+                                   </span>
+                                   <span onClick={()=>setExt(2)}>
+                                      <Radio  colorScheme='yellow' value={2}>Video</Radio>
+                                   </span>
+                                   <span onClick={()=>setExt(3)}>
+                                    <Radio  colorScheme='yellow' value={3}>Code</Radio>
+                                   </span>
+                                   <InputGroup size='sm'>
+                                       <InputLeftAddon children='Type' />
+                                       <Input placeholder='pdf' />
+                                   </InputGroup>
+                                   <InputGroup size='sm'>
+                                       <InputLeftAddon children='Path' />
+                                       <Input placeholder='/' />
+                                   </InputGroup>
+
                                </HStack>
                            </RadioGroup>
                        </FormControl>

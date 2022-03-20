@@ -1,6 +1,8 @@
 use directories::ProjectDirs;
 #[cfg(windows)]
 use std::ffi::CString;
+use std::path::{Path, PathBuf};
+
 extern crate chrono;
 use chrono::Local;
 use log::LevelFilter;
@@ -104,6 +106,31 @@ pub fn path2name(x: String) -> Option<String> {
     .last()
     .map(|x| x.to_string())
 }
+pub fn file_ext(file_name: &str) -> &str {
+  file_name.split(".").last().unwrap_or("")
+}
+
+pub fn encode_path(path: &str) -> String {
+  path.replace(" ", "#nbsp#")
+
+}
+pub fn decode_path(path: &str) -> String {
+  path.replace("#nbsp#"," ")
+}
+
+pub fn parent_dirs(path_buf: PathBuf) -> Vec<String> {
+  let mut res = vec![];
+  let mut path_iter = path_buf.as_path();
+  loop {
+    let option = path_iter.parent();
+    if option.is_none() { break; };
+    let path = option.unwrap();
+    res.push(path.to_str().unwrap_or("").to_string());
+    path_iter = path;
+  }
+  return res;
+}
+
 
 pub fn norm(path: &str) -> String {
   str::replace(path, "\\", "/")
@@ -213,4 +240,41 @@ fn t4() {
   //     .args(&["/c", "start", "cmd"])
   //     .spawn()
   //     .unwrap();
+}
+
+#[test]
+fn t5() {
+  let ext = file_ext("dsalda.hi.cmd");
+  println!("{}", ext);
+}
+
+#[test]
+fn t6() {
+  let path = encode_path("hello/jack/skja tensor.cmd");
+  println!("{}", path);
+
+  let path1 = decode_path(&path);
+  println!("{}", path1);
+}
+
+#[test]
+fn t7() {
+  let vec = parent_dirs(PathBuf::from("/hi/jack/jrose"));
+  println!("{:?}", vec);
+
+  let vec = parent_dirs(PathBuf::from("c:/hi/jack/jrose"));
+  println!("{:?}", vec);
+
+  let vec = parent_dirs(PathBuf::from("c:/"));
+  println!("{:?}", vec);
+
+  let vec = parent_dirs(PathBuf::from("/"));
+  println!("{:?}", vec);
+
+  let vec = parent_dirs(PathBuf::from("c:/a/"));
+  println!("{:?}", vec);
+
+  let vec = parent_dirs(PathBuf::from("/a/"));
+  println!("{:?}", vec);
+
 }

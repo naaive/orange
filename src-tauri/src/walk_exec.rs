@@ -1,5 +1,6 @@
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
+use crate::file_doc::FileDoc;
 use std::ops::Deref;
 
 #[cfg(windows)]
@@ -7,11 +8,12 @@ use crate::utils::get_win32_ready_drives;
 use crate::{utils, IDX_STORE};
 
 use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
-use jwalk::WalkDir;
+use jwalk::{DirEntry, WalkDir};
 use log::info;
 use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
 use std::time::{Duration, SystemTime};
+
 
 static mut WALK_METRICS: Option<Arc<Mutex<WalkMetrics>>> = None;
 
@@ -153,7 +155,7 @@ fn walk_home(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: &String) 
   }
 
   let home_name = utils::path2name(home.as_str().to_string()).unwrap_or("".to_string());
-  idx_store.add(&home_name, &home);
+  // idx_store.add(&home_name, &home);
   walk(idx_store, &home, None);
   conf_store.put_str(key, "1".to_string());
 }
@@ -187,12 +189,9 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     if entry.is_err() {
       continue;
     }
-    let en = entry.unwrap();
-    let buf = en.path();
-    let path = buf.to_str().unwrap();
-    let name = en.file_name().to_str().unwrap();
-
-    store.add(name, path);
+    let en: DirEntry<((), ())> = entry.unwrap();
+    let doc = FileDoc::from(en);
+    store.add(doc);
   }
   let end = SystemTime::now();
   store.commit();
@@ -202,6 +201,7 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     cnt
   );
 }
+
 #[test]
 fn t1() {
   use crate::utils::init_log;

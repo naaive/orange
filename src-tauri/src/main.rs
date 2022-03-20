@@ -19,6 +19,7 @@ mod utils;
 mod walk_exec;
 mod walk_metrics;
 mod watch_exec;
+mod file_doc;
 
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
@@ -46,6 +47,9 @@ async fn my_custom_command(
   _window: Window<Wry>,
   number: usize,
   mut kw: String,
+  is_dir_opt: Option<bool>,
+  ext_opt: Option<String>,
+  parent_dirs_opt: Option<String>,
 ) -> Result<CustomResponse, String> {
   return match number {
     // open file
@@ -59,6 +63,7 @@ async fn my_custom_command(
 
     // search
     0 => unsafe {
+      println!("{:?}", is_dir_opt);
       if IDX_STORE.is_none() {
         Ok(CustomResponse {
           message: "".to_string(),
@@ -69,7 +74,7 @@ async fn my_custom_command(
         if kw.eq("") {
           kw = "*".to_string();
         }
-        let vec = arc.search(kw, 100);
+        let vec = arc.search_with_filter(kw, 100,is_dir_opt,ext_opt,parent_dirs_opt);
         Ok(CustomResponse {
           message: "".to_string(),
           file_views: vec,

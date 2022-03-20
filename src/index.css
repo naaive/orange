@@ -40,7 +40,7 @@ input.chakra-input:enabled{
 .items {
     z-index: 1;
     overflow: hidden; /* Hide scrollbars */
-    height: calc(100% - 42px);;
+    height: calc(100% - 74px);;
 
 }
 .search-box input{
@@ -135,7 +135,7 @@ ul.right-menu-list.theme-mac :hover{
 div.filter{
     margin: 0 !important  ;
     cursor: default;
-    padding: 10px 20px ;
+    padding: 2px 20px 5px 20px  ;
     background: #ffffff !important;
     width: 100%;
 }
@@ -147,10 +147,42 @@ div.filter{
     cursor: default;
 }
 
-div.filter > fieldset > div > div > label> span.chakra-radio__control{
+
+ div.filter > fieldset > div > div > span > label > span.chakra-radio__control{
+     box-shadow: none;
+
+ }
+
+div.filter > fieldset > div > div > label> span.chakra-checkbox__control{
     box-shadow: none;
 }
 
-div.filter > fieldset > div > div > label span{
-    font-size: 14px !important;
+div.filter > fieldset > div > div > label span, div.filter > fieldset > div > div > span > label > span{
+    line-height: 30px;
+    font-size: 12px !important;
+    font-weight:600;
+    /*color: #aaa;*/
+}
+
+ div.filter > fieldset > div > div > div > div{
+     background: #eee !important;
+     height: 25px;
+     font-size: 13px !important;
+ }
+div.filter > fieldset > div > div > div > input{
+    width: 55px;
+    height: 25px;
+    font-size: 13px !important;
+}
+div.header > div.filter > fieldset > div > div > div:nth-child(7){
+    width: 110px;
+}
+div.filter > fieldset > div > div > div > input:focus{
+    box-shadow:none!important;
+}
+div.header > div.filter > fieldset > div > div > div:nth-child(8){
+    width: 250px !important;
+}
+div.header > div.filter > fieldset > div > div > div:nth-child(8) >input{
+    width: 250px;
 }

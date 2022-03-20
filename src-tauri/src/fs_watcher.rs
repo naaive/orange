@@ -75,7 +75,7 @@ impl FsWatcher {
                 }
               }
 
-              self.index_store.add(&name, &abs_path)
+              // self.index_store.add(&name, &abs_path)
             }
             Err(_) => {}
           }
@@ -97,7 +97,7 @@ impl FsWatcher {
         .to_string();
 
       if let Ok(_m) = sub_path.metadata() {
-        self.index_store.add(&name, sub.clone().as_str());
+        // self.index_store.add(&name, sub.clone().as_str());
       }
     }
   }
