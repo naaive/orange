@@ -81,9 +81,24 @@ function App() {
             <div className="App" >
 
 
-                <div className="search-box">
-                    <Search setItems={setItems} doTxtChange={doTxtChange}/>
-                </div>
+               <div className="header">
+                   <div className="search-box">
+                       <Search setItems={setItems} doTxtChange={doTxtChange}/>
+                   </div>
+                   <div className={"filter"}>
+                       <FormControl as='fieldset'>
+                           <RadioGroup defaultValue='Itachi'>
+                               <HStack spacing='24px'>
+                                   <Radio  colorScheme='orange' value='All'>All</Radio>
+                                   <Radio colorScheme='orange' value='Image'>Image</Radio>
+                                   <Radio colorScheme='orange' value='Video'>Video</Radio>
+                                   <Radio colorScheme='orange' value='Code'>Code</Radio>
+                               </HStack>
+                           </RadioGroup>
+                       </FormControl>
+                   </div>
+               </div>
+
 
             <div className="items">
 

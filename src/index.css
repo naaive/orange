@@ -91,7 +91,7 @@ ul.right-menu-list.theme-mac :hover{
     margin: 0;
     font-size: 13px !important;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px 0px;
-    padding: 0 0 10px 0 ;
+    padding: 10px 0 10px 0 ;
 }
 
 .rdt_TableRow div {
@@ -135,7 +135,7 @@ ul.right-menu-list.theme-mac :hover{
 div.filter{
     margin: 0 !important  ;
     cursor: default;
-    padding: 10px 10px ;
+    padding: 10px 20px ;
     background: #ffffff !important;
     width: 100%;
 }
@@ -151,3 +151,6 @@ div.filter > fieldset > div > div > label> span.chakra-radio__control{
     box-shadow: none;
 }
 
+div.filter > fieldset > div > div > label span{
+    font-size: 14px !important;
+}
