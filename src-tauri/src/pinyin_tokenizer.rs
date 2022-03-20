@@ -35,6 +35,22 @@ pub fn tokenize(hans: String) -> String {
   token_text.into_iter().collect::<Vec<String>>().join(" ")
 }
 
+pub fn search_tokenize(hans: String) -> String {
+  if is_ascii_alphanumeric(hans.as_str()) {
+    return hans.as_str().to_lowercase();
+  }
+  let mut token_stream = TOKENIZER.token_stream(&hans);
+
+  let mut token_text: HashSet<String> = vec![].into_iter().collect();
+
+  while let Some(token) = token_stream.next() {
+    let raw = token.text.clone();
+    token_text.insert(raw.clone());
+  }
+  token_text.insert(hans.clone());
+  token_text.into_iter().collect::<Vec<String>>().join(" ")
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
