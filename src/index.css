@@ -160,7 +160,7 @@ div.filter > fieldset > div > div > label> span.chakra-checkbox__control{
 div.filter > fieldset > div > div > label span, div.filter > fieldset > div > div > span > label > span{
     line-height: 30px;
     font-size: 12px !important;
-    font-weight:600;
+    /*font-weight:600;*/
     /*color: #aaa;*/
 }
 

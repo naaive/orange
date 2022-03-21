@@ -19,6 +19,7 @@ use crate::utils;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::file_doc::FileDoc;
+use crate::utils::encode_path;
 
 pub struct IdxStore {
   pub writer: Arc<Mutex<IndexWriter>>,
@@ -29,6 +30,8 @@ pub struct IdxStore {
   pub is_dir_field: Field,
   pub ext_field: Field,
   pub parent_dirs_field: Field,
+  pub ext_query_parser: QueryParser,
+  pub parent_dirs_query_parser: QueryParser,
 }
 
 static mut IS_FULL_INDEXING: bool = true;
@@ -80,17 +83,26 @@ impl IdxStore {
     }
 
     if let Some(ext) = ext_opt {
-      subqueries.push((Occur::Must, Box::new(TermQuery::new(
-        Term::from_field_bytes(self.ext_field, ext.as_bytes()),
-        IndexRecordOption::Basic,
-      ))));
+      let ext_query = self
+          .ext_query_parser
+          .parse_query(ext.as_str().to_lowercase().as_str())
+          .ok()
+          .unwrap();
+
+      subqueries.push((Occur::Must, ext_query));
     }
 
     if let Some(parent_dirs) = parent_dirs_opt {
-      subqueries.push((Occur::Must, Box::new(TermQuery::new(
-        Term::from_field_text(self.parent_dirs_field, parent_dirs.as_str()),
-        IndexRecordOption::Basic,
-      ))));
+
+      let ext_query = self
+          .parent_dirs_query_parser
+          .parse_query(&encode_path(parent_dirs.trim()))
+          .ok()
+          .unwrap();
+
+      subqueries.push((Occur::Must, ext_query));
+
+
     }
 
 
@@ -117,9 +129,9 @@ impl IdxStore {
       paths.push(path.to_string());
     }
 
-    if paths.is_empty() {
-      paths = self.suggest_path(kw, limit);
-    }
+    // if paths.is_empty() {
+    //   paths = self.suggest_path(kw, limit);
+    // }
     let file_views = self.parse_file_views(paths);
 
     file_views
@@ -257,7 +269,7 @@ impl IdxStore {
     let name_field = schema_builder.add_text_field("name", TEXT | STORED);
     let path_field = schema_builder.add_bytes_field("path", INDEXED | STORED);
     let is_dir_field = schema_builder.add_bytes_field("is_dir", INDEXED | STORED);
-    let ext_field = schema_builder.add_bytes_field("ext", INDEXED | STORED);
+    let ext_field = schema_builder.add_text_field("ext", TEXT | STORED);
     let parent_dirs_field = schema_builder.add_text_field("parent_dirs", TEXT | STORED);
     let schema = schema_builder.build();
 
@@ -291,6 +303,8 @@ impl IdxStore {
       .unwrap();
 
     let mut query_parser = QueryParser::for_index(&index, vec![name_field]);
+    let mut ext_query_parser = QueryParser::for_index(&index, vec![ext_field]);
+    let mut parent_dirs_query_parser = QueryParser::for_index(&index, vec![parent_dirs_field]);
     query_parser.set_field_boost(name_field, 4.0f32);
 
     IdxStore {
@@ -302,6 +316,8 @@ impl IdxStore {
       ext_field,
       is_dir_field,
       query_parser,
+      ext_query_parser,
+      parent_dirs_query_parser
     }
   }
 
@@ -317,7 +333,7 @@ impl IdxStore {
         self.name_field => tokenize(file_doc.name.to_string()),
         self.path_field=>file_doc.path.as_bytes(),
         self.is_dir_field=>is_dir_bytes,
-        self.ext_field=>file_doc.ext.as_bytes(),
+        self.ext_field=>file_doc.ext,
         self.parent_dirs_field=>file_doc.parent_dirs.to_string(),
     ));
   }
@@ -349,4 +365,17 @@ mod tests {
     let vec = store.search("jack".to_string(), 12);
     println!("{}", store.num_docs());
   }
+
+  #[test]
+  fn t2() {
+    let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+    let idx_store = Arc::new(IdxStore::new(&idx_path));
+    let vec = idx_store.search_with_filter("SearchBox".to_string(), 100,
+                                           None, None, Some("/Users/jeff/IdeaProjects/orange2".to_string()));
+    for x in vec {
+      println!("{}", x.name);
+    }
+  }
+
+
 }

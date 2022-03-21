@@ -107,12 +107,14 @@ pub fn path2name(x: String) -> Option<String> {
     .map(|x| x.to_string())
 }
 pub fn file_ext(file_name: &str) -> &str {
+  if !file_name.contains(".") {
+    return "";
+  }
   file_name.split(".").last().unwrap_or("")
 }
 
 pub fn encode_path(path: &str) -> String {
   path.replace(" ", "#nbsp#")
-
 }
 pub fn decode_path(path: &str) -> String {
   path.replace("#nbsp#"," ")
@@ -125,7 +127,8 @@ pub fn parent_dirs(path_buf: PathBuf) -> Vec<String> {
     let option = path_iter.parent();
     if option.is_none() { break; };
     let path = option.unwrap();
-    res.push(path.to_str().unwrap_or("").to_string());
+
+    res.push(encode_path(path.to_str().unwrap_or("")));
     path_iter = path;
   }
   return res;
@@ -244,7 +247,7 @@ fn t4() {
 
 #[test]
 fn t5() {
-  let ext = file_ext("dsalda.hi.cmd");
+  let ext = file_ext("java");
   println!("{}", ext);
 }
 

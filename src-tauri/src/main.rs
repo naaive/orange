@@ -63,7 +63,6 @@ async fn my_custom_command(
 
     // search
     0 => unsafe {
-      println!("{:?}", is_dir_opt);
       if IDX_STORE.is_none() {
         Ok(CustomResponse {
           message: "".to_string(),
