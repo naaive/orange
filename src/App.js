@@ -8,10 +8,11 @@ import Items from "./Items";
 import {ToastContainer, toast} from 'react-toastify';
 import {Zoom} from 'react-toastify';
 import {
+    ButtonGroup,
     Checkbox,
     Divider,
     FormControl,
-    HStack, Input,
+    HStack, IconButton, Input,
     InputGroup,
     InputLeftAddon, InputRightAddon,
     Radio,
@@ -135,56 +136,59 @@ function App() {
                <div className="header">
                    <div className="search-box">
                        <Search setItems={setItems} doTxtChange={doTxtChange}/>
+                       <ButtonGroup size='sm' isAttached variant='outline'>
+                           <IconButton aria-label='Add to friends'  />
+                       </ButtonGroup>
                    </div>
-                   <div className={"filter"}>
+                   {/*<div className={"filter"}>*/}
 
-                       <FormControl as='fieldset'>
+                   {/*    <FormControl as='fieldset'>*/}
 
-                           <RadioGroup value={ext}>
-                               <HStack spacing='24px'>
-                                   <Checkbox  colorScheme='gray' isChecked={isDir} onChange={()=> {
-                                       if (isDir && !isFile) {
-                                           return
-                                       }
-                                       setIsDir(!isDir);
-                                   }}>
-                                       Folder
-                                   </Checkbox>
-                                   <Checkbox  colorScheme='gray' isChecked={isFile} onChange={()=> {
-                                       if (isFile && !isDir) {
-                                           return
-                                       }
-                                       setIsFile(!isFile)
-                                   }}>
-                                       File
-                                   </Checkbox>
+                   {/*        <RadioGroup value={ext}>*/}
+                   {/*            <HStack spacing='25px'>*/}
+                   {/*                <Radio  colorScheme='gray' isChecked={isDir} onChange={()=> {*/}
+                   {/*                    if (isDir && !isFile) {*/}
+                   {/*                        return*/}
+                   {/*                    }*/}
+                   {/*                    setIsDir(!isDir);*/}
+                   {/*                }}>*/}
+                   {/*                    Folder*/}
+                   {/*                </Radio>*/}
+                   {/*                <Radio  colorScheme='gray' isChecked={isFile} onChange={()=> {*/}
+                   {/*                    if (isFile && !isDir) {*/}
+                   {/*                        return*/}
+                   {/*                    }*/}
+                   {/*                    setIsFile(!isFile)*/}
+                   {/*                }}>*/}
+                   {/*                    File*/}
+                   {/*                </Radio>*/}
 
 
-                                   <span onClick={()=>setExt(0)}>
-                                     <Radio  colorScheme='gray' value={0}  >All</Radio>
-                                   </span>
-                                   <span onClick={()=>setExt(1)}>
-                                    <Radio  colorScheme='gray' value={1}>Image</Radio>
-                                   </span>
-                                   <span onClick={()=>setExt(2)}>
-                                      <Radio  colorScheme='gray' value={2}>Video</Radio>
-                                   </span>
-                                   <span onClick={()=>setExt(3)}>
-                                    <Radio  colorScheme='gray' value={3}>Doc</Radio>
-                                   </span>
-                                   <InputGroup size='sm'>
-                                       <InputLeftAddon children='Type' />
-                                       <Input placeholder='pdf' value={extText} onInput={(e)=>setExtText(e.target.value)}/>
-                                   </InputGroup>
-                                   <InputGroup size='sm'>
-                                       <InputLeftAddon children='Path' />
-                                       <Input placeholder='/' value={pathText}/>
-                                   </InputGroup>
+                   {/*                <span onClick={()=>setExt(0)}>*/}
+                   {/*                  <Radio  colorScheme='gray' value={0}  >All</Radio>*/}
+                   {/*                </span>*/}
+                   {/*                <span onClick={()=>setExt(1)}>*/}
+                   {/*                 <Radio  colorScheme='gray' value={1}>Image</Radio>*/}
+                   {/*                </span>*/}
+                   {/*                <span onClick={()=>setExt(2)}>*/}
+                   {/*                   <Radio  colorScheme='gray' value={2}>Video</Radio>*/}
+                   {/*                </span>*/}
+                   {/*                <span onClick={()=>setExt(3)}>*/}
+                   {/*                 <Radio  colorScheme='gray' value={3}>Doc</Radio>*/}
+                   {/*                </span>*/}
+                   {/*                <InputGroup size='sm'>*/}
+                   {/*                    <InputLeftAddon children='Type' />*/}
+                   {/*                    <Input placeholder='pdf' value={extText} onInput={(e)=>setExtText(e.target.value)}/>*/}
+                   {/*                </InputGroup>*/}
+                   {/*                <InputGroup size='sm'>*/}
+                   {/*                    <InputLeftAddon children='Path' />*/}
+                   {/*                    <Input placeholder='/' value={pathText} onInput={(e)=>setPathText(e.target.value)}/>*/}
+                   {/*                </InputGroup>*/}
 
-                               </HStack>
-                           </RadioGroup>
-                       </FormControl>
-                   </div>
+                   {/*            </HStack>*/}
+                   {/*        </RadioGroup>*/}
+                   {/*    </FormControl>*/}
+                   {/*</div>*/}
                </div>
 
 

@@ -10,10 +10,12 @@ body {
     z-index: 100;
     padding: 0 12px;
     margin: 10px auto;
+    display: flex;
 }
 
 .App {
     height: 100vh;
+
 }
 
 #root > div > div:nth-child(2) > div:nth-child(1), .items > div {
@@ -40,7 +42,7 @@ input.chakra-input:enabled{
 .items {
     z-index: 1;
     overflow: hidden; /* Hide scrollbars */
-    height: calc(100% - 74px);;
+    height: calc(100% - 42px);;
 
 }
 .search-box input{
