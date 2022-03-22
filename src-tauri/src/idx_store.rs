@@ -47,7 +47,7 @@ impl IdxStore {
   }
 
   pub fn search(&self, kw: String, limit: usize) -> Vec<FileView> {
-    let mut paths = self.search_paths(kw.clone(), limit);
+    let mut paths = self.search_paths(search_tokenize(kw.clone().to_lowercase()), limit);
     if paths.is_empty() {
       paths = self.suggest_path(kw, limit);
     }
@@ -61,10 +61,9 @@ impl IdxStore {
                             parent_dirs_opt: Option<String>) -> Vec<FileView> {
     let searcher = self.reader.searcher();
 
-    //todo
     let kw_query = self
         .query_parser
-        .parse_query(kw.as_str().to_lowercase().as_str())
+        .parse_query(&search_tokenize(kw.to_lowercase()))
         .ok()
         .unwrap();
     let mut subqueries = vec![
@@ -123,7 +122,7 @@ impl IdxStore {
   }
 
   pub fn suggest(&self, kw: String, limit: usize) -> Vec<FileView> {
-    let mut paths = self.search_paths(kw.clone(), limit);
+    let mut paths = self.search_paths(search_tokenize(kw.clone().to_lowercase()), limit);
     if paths.is_empty() {
       paths = self.suggest_path(kw, limit);
     }
