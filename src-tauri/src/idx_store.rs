@@ -19,7 +19,6 @@ use crate::utils;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::file_doc::FileDoc;
-use crate::utils::encode_path;
 
 pub struct IdxStore {
   pub writer: Arc<Mutex<IndexWriter>>,
@@ -29,9 +28,7 @@ pub struct IdxStore {
   pub query_parser: QueryParser,
   pub is_dir_field: Field,
   pub ext_field: Field,
-  pub parent_dirs_field: Field,
   pub ext_query_parser: QueryParser,
-  pub parent_dirs_query_parser: QueryParser,
 }
 
 static mut IS_FULL_INDEXING: bool = true;
@@ -92,18 +89,6 @@ impl IdxStore {
       subqueries.push((Occur::Must, ext_query));
     }
 
-    if let Some(parent_dirs) = parent_dirs_opt {
-
-      let ext_query = self
-          .parent_dirs_query_parser
-          .parse_query(&encode_path(parent_dirs.trim()))
-          .ok()
-          .unwrap();
-
-      subqueries.push((Occur::Must, ext_query));
-
-
-    }
 
 
     let q = BooleanQuery::new(subqueries);
@@ -267,10 +252,10 @@ impl IdxStore {
     let index_path = std::path::Path::new(path);
     let mut schema_builder = Schema::builder();
     let name_field = schema_builder.add_text_field("name", TEXT | STORED);
-    let path_field = schema_builder.add_bytes_field("path", INDEXED | STORED);
-    let is_dir_field = schema_builder.add_bytes_field("is_dir", INDEXED | STORED);
-    let ext_field = schema_builder.add_text_field("ext", TEXT | STORED);
-    let parent_dirs_field = schema_builder.add_text_field("parent_dirs", TEXT | STORED);
+    let path_field = schema_builder.add_bytes_field("path", INDEXED );
+    let is_dir_field = schema_builder.add_bytes_field("is_dir_field", INDEXED );
+    let ext_field = schema_builder.add_text_field("ext", TEXT );
+    // let parent_dirs_field = schema_builder.add_text_field("parent_dirs", TEXT );
     let schema = schema_builder.build();
 
     let index;
@@ -304,7 +289,7 @@ impl IdxStore {
 
     let mut query_parser = QueryParser::for_index(&index, vec![name_field]);
     let mut ext_query_parser = QueryParser::for_index(&index, vec![ext_field]);
-    let mut parent_dirs_query_parser = QueryParser::for_index(&index, vec![parent_dirs_field]);
+    // let mut parent_dirs_query_parser = QueryParser::for_index(&index, vec![parent_dirs_field]);
     query_parser.set_field_boost(name_field, 4.0f32);
 
     IdxStore {
@@ -312,12 +297,12 @@ impl IdxStore {
       reader,
       name_field,
       path_field,
-      parent_dirs_field,
+      // parent_dirs_field,
       ext_field,
       is_dir_field,
       query_parser,
       ext_query_parser,
-      parent_dirs_query_parser
+      // parent_dirs_query_parser,
     }
   }
 
@@ -334,7 +319,7 @@ impl IdxStore {
         self.path_field=>file_doc.path.as_bytes(),
         self.is_dir_field=>is_dir_bytes,
         self.ext_field=>file_doc.ext,
-        self.parent_dirs_field=>file_doc.parent_dirs.to_string(),
+        // self.parent_dirs_field=>file_doc.parent_dirs.to_string(),
     ));
   }
 

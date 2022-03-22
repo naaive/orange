@@ -113,26 +113,6 @@ pub fn file_ext(file_name: &str) -> &str {
   file_name.split(".").last().unwrap_or("")
 }
 
-pub fn encode_path(path: &str) -> String {
-  path.replace(" ", "#nbsp#")
-}
-pub fn decode_path(path: &str) -> String {
-  path.replace("#nbsp#"," ")
-}
-
-pub fn parent_dirs(path_buf: PathBuf) -> Vec<String> {
-  let mut res = vec![];
-  let mut path_iter = path_buf.as_path();
-  loop {
-    let option = path_iter.parent();
-    if option.is_none() { break; };
-    let path = option.unwrap();
-
-    res.push(encode_path(path.to_str().unwrap_or("")));
-    path_iter = path;
-  }
-  return res;
-}
 
 
 pub fn norm(path: &str) -> String {

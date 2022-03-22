@@ -8,14 +8,12 @@ pub struct FileDoc {
     pub path: String,
     pub is_dir: bool,
     pub ext: String,
-    pub parent_dirs: String,
 }
 
 
 impl From<DirEntry<((), ())>> for FileDoc {
     fn from(en: DirEntry<((), ())>) -> Self {
         let buf = en.path();
-        let parent_dirs = utils::parent_dirs(buf.clone());
         let file_type = en.file_type();
         let is_dir = file_type.is_dir();
         let path = buf.to_str().unwrap();
@@ -26,7 +24,6 @@ impl From<DirEntry<((), ())>> for FileDoc {
             path: path.to_string(),
             is_dir,
             ext: ext.to_string(),
-            parent_dirs: parent_dirs.join(" "),
         }
     }
 }
