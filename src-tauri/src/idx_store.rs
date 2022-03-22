@@ -14,7 +14,7 @@ use tantivy::schema::*;
 use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
 
 use crate::file_view::FileView;
-use crate::pinyin_tokenizer::tokenize;
+use crate::pinyin_tokenizer::{search_tokenize, tokenize};
 use crate::utils;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -173,7 +173,7 @@ impl IdxStore {
 
     let query = self
       .query_parser
-      .parse_query(kw.as_str().to_lowercase().as_str())
+      .parse_query(&search_tokenize(kw))
       .ok()
       .unwrap();
 
