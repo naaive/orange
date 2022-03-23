@@ -135,11 +135,20 @@ ul.right-menu-list.theme-mac :hover{
     width: 35px !important;
 }
 div.filter{
-    margin: 0 !important  ;
+    padding: 15px !important  ;
     cursor: default;
-    padding: 2px 20px 5px 20px  ;
     background: #ffffff !important;
     width: 100%;
+}
+div.filter .head{
+    font-size: 16px;
+    font-weight: 600;
+    /*color: #5e5a5a;*/
+    margin: 20px 0 ;
+}
+div.filter .title{
+    font-size: 13px;
+    margin: 10px 0 0 0;
 }
 .filter:hover {
     background: white !important;
@@ -172,7 +181,7 @@ div.filter > fieldset > div > div > label span, div.filter > fieldset > div > di
      font-size: 13px !important;
  }
 div.filter > fieldset > div > div > div > input{
-    width: 55px;
+    width: 66px;
     height: 25px;
     font-size: 13px !important;
 }
