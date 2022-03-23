@@ -155,7 +155,7 @@ fn walk_home(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: &String) 
   }
 
   let home_name = utils::path2name(home.as_str().to_string()).unwrap_or("".to_string());
-  // idx_store.add(&home_name, &home);
+  idx_store.add(home_name, home.clone().to_string(),true,"".to_string());
   walk(idx_store, &home, None);
   conf_store.put_str(key, "1".to_string());
 }
@@ -190,8 +190,13 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
       continue;
     }
     let en: DirEntry<((), ())> = entry.unwrap();
-    let doc = FileDoc::from(en);
-    store.add(doc);
+    let buf = en.path();
+    let file_type = en.file_type();
+    let is_dir = file_type.is_dir();
+    let path = buf.to_str().unwrap();
+    let name = en.file_name().to_str().unwrap();
+    let ext = utils::file_ext(name);
+    store.add(name.to_lowercase(), path.to_string(), is_dir, ext.to_string());
   }
   let end = SystemTime::now();
   store.commit();

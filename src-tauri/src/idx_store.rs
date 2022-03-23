@@ -18,6 +18,7 @@ use crate::pinyin_tokenizer::{search_tokenize, tokenize};
 use crate::utils;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tantivy::merge_policy::NoMergePolicy;
 use crate::file_doc::FileDoc;
 
 pub struct IdxStore {
@@ -251,7 +252,7 @@ impl IdxStore {
     let index_path = std::path::Path::new(path);
     let mut schema_builder = Schema::builder();
     let name_field = schema_builder.add_text_field("name", TEXT | STORED);
-    let path_field = schema_builder.add_bytes_field("path", INDEXED );
+    let path_field = schema_builder.add_bytes_field("path", INDEXED|STORED );
     let is_dir_field = schema_builder.add_bytes_field("is_dir_field", INDEXED );
     let ext_field = schema_builder.add_text_field("ext", TEXT );
     // let parent_dirs_field = schema_builder.add_text_field("parent_dirs", TEXT );
@@ -267,7 +268,9 @@ impl IdxStore {
         .unwrap();
     }
 
-    let writer = Arc::new(Mutex::new(index.writer(50_000_000).unwrap()));
+    // why single thread is faster than multi thread?
+    let writer = Arc::new(Mutex::new(index.writer_with_num_threads(1,50_000_000).unwrap()));
+
     let writer_bro = writer.clone();
     std::thread::spawn(move || loop {
       let _ = writer_bro.lock().unwrap().commit();
@@ -305,19 +308,19 @@ impl IdxStore {
     }
   }
 
-  pub fn add(&self, file_doc:FileDoc) {
+
+  pub fn add(&self, name: String,path: String,is_dir: bool,ext: String) {
     unsafe {
       if !IS_FULL_INDEXING {
-        self._del(file_doc.path.to_string());
+        self._del(path);
       }
     }
-    let is_dir = file_doc.is_dir;
     let is_dir_bytes = IdxStore::is_dir_bytes(is_dir);
     self.writer.lock().unwrap().add_document(doc!(
-        self.name_field => tokenize(file_doc.name.to_string()),
-        self.path_field=>file_doc.path.as_bytes(),
+        self.name_field => tokenize(name),
+        self.path_field=>path.as_bytes(),
         self.is_dir_field=>is_dir_bytes,
-        self.ext_field=>file_doc.ext,
+        self.ext_field=>ext,
         // self.parent_dirs_field=>file_doc.parent_dirs.to_string(),
     ));
   }
