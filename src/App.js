@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import Search from "./SearchBox";
+import {PhoneIcon, AddIcon, WarningIcon, ArrowRightIcon} from '@chakra-ui/icons'
 
 import * as R from "ramda";
 import {invoke} from "@tauri-apps/api";
@@ -91,7 +92,7 @@ function App() {
         return R.pipe(R.map(R.prop('name')), R.take(6))(json);
     }
 
-    async function doTxtChange(kw, is_dir_opt, ext_opt, parent_dirs_opt) {
+    async function doTxtChange(kw) {
         setKw(kw);
         let isDirOpt;
         if (isDir && isFile) {
@@ -137,7 +138,10 @@ function App() {
         <div className="App">
             <Drawer
                 open={isOpen}
-                onClose={toggleDrawer}
+                onClose={()=>{
+                    doTxtChange(kw)
+                    toggleDrawer()
+                }}
                 duration={200}
                 size={260}
                 direction='left'
@@ -209,9 +213,8 @@ function App() {
             <div className="header">
                 <div className="search-box">
                     <Search setItems={setItems} doTxtChange={doTxtChange}/>
-                    <ButtonGroup size='sm' isAttached variant='outline'>
-                        <IconButton aria-label='Add to friends' onClick={toggleDrawer}/>
-                    </ButtonGroup>
+                    <IconButton className={'btn'} size={'sm'} aria-label='Search database' onClick={toggleDrawer} icon={<AddIcon />} />
+
                 </div>
 
             </div>

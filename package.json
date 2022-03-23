@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chakra-ui/icons": "^1.1.7",
     "@chakra-ui/react": "latest",
     "@choc-ui/chakra-autocomplete": "latest",
     "@emotion/react": "latest",

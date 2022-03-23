@@ -12,7 +12,26 @@ body {
     margin: 10px auto;
     display: flex;
 }
+#root > div > div.header > div > button:active{
+    border: none !important;
+    outline: none !important;
 
+}
+
+div.header > div > div {
+    background:  white !important;
+    outline: none !important;
+    box-shadow:none!important;
+    border: none !important;
+}
+
+.search-box .btn{
+    background:  #e0e0e0 !important;
+    margin: 0 0 0 10px ;
+    box-shadow:none!important;
+    color: #323232;
+
+}
 .App {
     height: 100vh;
 
