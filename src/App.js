@@ -67,7 +67,7 @@ function App() {
         }, 200);
 
         let done = false;
-        let toastId = toast.loading("0 files are indexed...");
+        let toastId = toast.loading("0 files indexed");
 
 
         setInterval(() => {
