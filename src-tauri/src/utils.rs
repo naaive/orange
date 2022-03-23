@@ -230,34 +230,3 @@ fn t5() {
   let ext = file_ext("java");
   println!("{}", ext);
 }
-
-#[test]
-fn t6() {
-  let path = encode_path("hello/jack/skja tensor.cmd");
-  println!("{}", path);
-
-  let path1 = decode_path(&path);
-  println!("{}", path1);
-}
-
-#[test]
-fn t7() {
-  let vec = parent_dirs(PathBuf::from("/hi/jack/jrose"));
-  println!("{:?}", vec);
-
-  let vec = parent_dirs(PathBuf::from("c:/hi/jack/jrose"));
-  println!("{:?}", vec);
-
-  let vec = parent_dirs(PathBuf::from("c:/"));
-  println!("{:?}", vec);
-
-  let vec = parent_dirs(PathBuf::from("/"));
-  println!("{:?}", vec);
-
-  let vec = parent_dirs(PathBuf::from("c:/a/"));
-  println!("{:?}", vec);
-
-  let vec = parent_dirs(PathBuf::from("/a/"));
-  println!("{:?}", vec);
-
-}

@@ -312,7 +312,7 @@ impl IdxStore {
   pub fn add(&self, name: String,path: String,is_dir: bool,ext: String) {
     unsafe {
       if !IS_FULL_INDEXING {
-        self._del(path);
+        self._del(path.clone());
       }
     }
     let is_dir_bytes = IdxStore::is_dir_bytes(is_dir);
