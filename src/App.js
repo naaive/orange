@@ -28,8 +28,8 @@ import Drawer from 'react-modern-drawer'
 import 'react-modern-drawer/dist/index.css'
 
 const fileType2ext = {
-    "image": "tif tiff bmp jpg gif png eps raw cr2 nef orf sr2 jpeg",
-    "video": "mp4 mov wmv avi avchd flv f4v swf mkv",
+    "image": "bmp jpg gif png jpeg",
+    "video": "mp4 mov avi flv f4v mkv",
     "document": "doc txt pdf ppt pptx docx xlsx xls"
 }
 
