@@ -76,7 +76,9 @@ impl FsWatcher {
               }
               let name0 = name.clone();
               let ext = utils::file_ext(&name0);
-              self.index_store.add(name, abs_path,meta.is_dir(),ext.to_string())
+              self
+                .index_store
+                .add(name, abs_path, meta.is_dir(), ext.to_string())
             }
             Err(_) => {}
           }
@@ -100,7 +102,9 @@ impl FsWatcher {
       if let Ok(meta) = sub_path.metadata() {
         let name0 = name.clone();
         let ext = utils::file_ext(&name0);
-        self.index_store.add(name, sub.clone(), meta.is_dir(), ext.to_string());
+        self
+          .index_store
+          .add(name, sub.clone(), meta.is_dir(), ext.to_string());
       }
     }
   }

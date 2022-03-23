@@ -183,15 +183,16 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
             continue;
           }
 
-
-          let is_dir = std::fs::metadata(abs_path.clone()).map(|x| x.is_dir()).unwrap_or(false);
+          let is_dir = std::fs::metadata(abs_path.clone())
+            .map(|x| x.is_dir())
+            .unwrap_or(false);
           let name0 = file_name.clone();
           let ext = utils::file_ext(&name0);
 
           IDX_STORE
-              .clone()
-              .unwrap()
-              .add(file_name, abs_path.clone(), is_dir, ext.to_string());
+            .clone()
+            .unwrap()
+            .add(file_name, abs_path.clone(), is_dir, ext.to_string());
         }
 
         kv_store.put_str(key.clone(), usn_no);

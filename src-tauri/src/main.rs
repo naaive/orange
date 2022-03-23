@@ -7,6 +7,7 @@ use crate::file_view::FileView;
 use tauri::{SystemTray, SystemTrayEvent};
 use tauri::{Window, Wry};
 
+mod file_doc;
 mod file_view;
 mod fs_watcher;
 mod idx_store;
@@ -19,7 +20,6 @@ mod utils;
 mod walk_exec;
 mod walk_metrics;
 mod watch_exec;
-mod file_doc;
 
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
@@ -73,7 +73,7 @@ async fn my_custom_command(
         if kw.eq("") {
           kw = "*".to_string();
         }
-        let vec = arc.search_with_filter(kw, 100,is_dir_opt,ext_opt,parent_dirs_opt);
+        let vec = arc.search_with_filter(kw, 100, is_dir_opt, ext_opt, parent_dirs_opt);
         Ok(CustomResponse {
           message: "".to_string(),
           file_views: vec,

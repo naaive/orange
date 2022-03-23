@@ -113,8 +113,6 @@ pub fn file_ext(file_name: &str) -> &str {
   file_name.split(".").last().unwrap_or("")
 }
 
-
-
 pub fn norm(path: &str) -> String {
   str::replace(path, "\\", "/")
 }
