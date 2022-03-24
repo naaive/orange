@@ -53,10 +53,10 @@ input.chakra-input:enabled{
 
 }
 .chakra-popover__content div:hover{
-    /*background: #e8e8e8 !important;*/
+    background: #e8e8e8 !important;
 }
 .chakra-popover__content div:active{
-    /*background: #e8e8e8 !important;*/
+    background: #e8e8e8 !important;
 }
 
 .items {
@@ -85,7 +85,7 @@ input.chakra-input:enabled{
     overflow: hidden;
     line-height: 32px;
 }
-#popover-content-5>div,#popover-content-2{
+.chakra-popover__content>div,.chakra-popover__content{
     font-size: 14px !important;
 }
 ul.right-menu-list.theme-mac{
@@ -109,11 +109,11 @@ ul.right-menu-list.theme-mac :hover{
 .Toastify__toast{
     min-height: 20px !important;
 }
-#popover-content-2 {
-    margin: 0;
+.chakra-popover__content {
+    margin: 0 !important;
     font-size: 13px !important;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px 0px;
-    padding: 10px 0 10px 0 ;
+    padding: 10px 0 10px 0 !important;
 }
 
 .rdt_TableRow div {
