@@ -39,6 +39,8 @@ pub fn search_tokenize(hans: String) -> String {
   if is_ascii_alphanumeric(hans.as_str()) {
     return hans.as_str().to_lowercase();
   }
+  let space = " ";
+  let hans = hans.replace("-", space).replace("_", space);
   let mut token_stream = TOKENIZER.token_stream(&hans);
 
   let mut token_text: HashSet<String> = vec![].into_iter().collect();
@@ -48,7 +50,7 @@ pub fn search_tokenize(hans: String) -> String {
     token_text.insert(raw.clone());
   }
   token_text.insert(hans.clone());
-  token_text.into_iter().collect::<Vec<String>>().join(" ")
+  token_text.into_iter().collect::<Vec<String>>().join(space)
 }
 
 #[cfg(test)]
