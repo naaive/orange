@@ -11,6 +11,7 @@ body {
     padding: 0 12px;
     margin: 10px auto;
     display: flex;
+    overflow: hidden;
 }
 #root > div > div.header > div > button:active{
     border: none !important;

@@ -173,7 +173,7 @@ function App() {
                                     }
                                     setIsDir(!isDir);
                                 }}>
-                                    Folder
+                                    Dir
                                 </Checkbox>
 
 
