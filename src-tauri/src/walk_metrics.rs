@@ -71,8 +71,8 @@ impl WalkMetrics {
     self.home_over.store(true, Ordering::Relaxed);
   }
 
-  pub fn root_inc_percent(&mut self, walked_dir: u32, total_dir: u32, total_files: u64) {
-    *self.percent.write().unwrap() = ((walked_dir * 70 / total_dir) + 30);
+  pub fn root_inc_percent(&mut self, walked_dir: u32, total_dir: u32) {
+    *self.percent.write().unwrap() = (walked_dir * 70 / total_dir) + 30;
   }
 }
 

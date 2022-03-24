@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chakra-ui/icons": "^1.1.7",
     "@chakra-ui/react": "latest",
     "@choc-ui/chakra-autocomplete": "latest",
     "@emotion/react": "latest",
@@ -26,6 +27,7 @@
     "react-data-table-component": "^7.4.7",
     "react-dom": "^17.0.2",
     "react-file-icon": "1.1.0",
+    "react-modern-drawer": "^1.0.2",
     "react-scripts": "5.0.0",
     "react-toastify": "^8.2.0",
     "styled-components": "^5.3.3",

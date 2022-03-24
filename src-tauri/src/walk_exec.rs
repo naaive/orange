@@ -1,3 +1,4 @@
+use crate::file_doc::FileDoc;
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
 use std::ops::Deref;
@@ -7,7 +8,7 @@ use crate::utils::get_win32_ready_drives;
 use crate::{utils, IDX_STORE};
 
 use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
-use jwalk::WalkDir;
+use jwalk::{DirEntry, WalkDir};
 use log::info;
 use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
@@ -80,7 +81,7 @@ fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Stri
   let subs = utils::subs("/");
   let sz = subs.len();
   for (i, sub) in subs.iter().enumerate() {
-    inc_root_walk_metrics(&idx_store, sz, i);
+    inc_root_walk_metrics(sz, i);
 
     let key = format!("walk:stat:{}", &sub);
     let opt = conf_store.get_str(key.clone());
@@ -93,14 +94,14 @@ fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Stri
   }
 }
 
-fn inc_root_walk_metrics(idx_store: &Arc<IdxStore>, sz: usize, i: usize) {
+fn inc_root_walk_metrics(sz: usize, i: usize) {
   unsafe {
     WALK_METRICS
       .clone()
       .unwrap()
       .lock()
       .unwrap()
-      .root_inc_percent((i + 1) as u32, sz as u32, idx_store.num_docs());
+      .root_inc_percent((i + 1) as u32, sz as u32);
   }
 }
 
@@ -116,7 +117,7 @@ fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Strin
 
     let subs = utils::subs(&driv);
     for sub in subs {
-      inc_root_walk_metrics(&idx_store, len, idx);
+      inc_root_walk_metrics(len, idx);
       idx += 1;
 
       let key = format!("walk:stat:{}", &sub);
@@ -153,7 +154,7 @@ fn walk_home(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: &String) 
   }
 
   let home_name = utils::path2name(home.as_str().to_string()).unwrap_or("".to_string());
-  idx_store.add(&home_name, &home);
+  idx_store.add(home_name, home.clone().to_string(), true, "".to_string());
   walk(idx_store, &home, None);
   conf_store.put_str(key, "1".to_string());
 }
@@ -187,12 +188,19 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     if entry.is_err() {
       continue;
     }
-    let en = entry.unwrap();
+    let en: DirEntry<((), ())> = entry.unwrap();
     let buf = en.path();
+    let file_type = en.file_type();
+    let is_dir = file_type.is_dir();
     let path = buf.to_str().unwrap();
     let name = en.file_name().to_str().unwrap();
-
-    store.add(name, path);
+    let ext = utils::file_ext(name);
+    store.add(
+      name.to_lowercase(),
+      path.to_string(),
+      is_dir,
+      ext.to_string(),
+    );
   }
   let end = SystemTime::now();
   store.commit();
@@ -202,6 +210,7 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     cnt
   );
 }
+
 #[test]
 fn t1() {
   use crate::utils::init_log;

@@ -21,7 +21,7 @@ const STORE_PATH: &'static str = "orangecachedata";
 
 #[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
-const VERSION: &'static str = "0.1.0";
+const VERSION: &'static str = "0.2.0";
 const LAST_INDEX_TS: &'static str = "last_index_ts";
 
 pub fn run() {
@@ -183,10 +183,16 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
             continue;
           }
 
+          let is_dir = std::fs::metadata(abs_path.clone())
+            .map(|x| x.is_dir())
+            .unwrap_or(false);
+          let name0 = file_name.clone();
+          let ext = utils::file_ext(&name0);
+
           IDX_STORE
             .clone()
             .unwrap()
-            .add(&file_name, &abs_path.clone())
+            .add(file_name, abs_path.clone(), is_dir, ext.to_string());
         }
 
         kv_store.put_str(key.clone(), usn_no);

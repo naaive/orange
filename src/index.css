@@ -10,10 +10,32 @@ body {
     z-index: 100;
     padding: 0 12px;
     margin: 10px auto;
+    display: flex;
+    overflow: hidden;
+}
+#root > div > div.header > div > button:active{
+    border: none !important;
+    outline: none !important;
+
 }
 
+div.header > div > div {
+    background:  white !important;
+    outline: none !important;
+    box-shadow:none!important;
+    border: none !important;
+}
+
+.search-box .btn{
+    background:  #e0e0e0 !important;
+    margin: 0 0 0 10px ;
+    box-shadow:none!important;
+    color: #323232;
+
+}
 .App {
     height: 100vh;
+
 }
 
 #root > div > div:nth-child(2) > div:nth-child(1), .items > div {
@@ -133,11 +155,20 @@ ul.right-menu-list.theme-mac :hover{
     width: 35px !important;
 }
 div.filter{
-    margin: 0 !important  ;
+    padding: 15px !important  ;
     cursor: default;
-    padding: 10px 10px ;
     background: #ffffff !important;
     width: 100%;
+}
+div.filter .head{
+    font-size: 16px;
+    font-weight: 600;
+    /*color: #5e5a5a;*/
+    margin: 20px 0 ;
+}
+div.filter .title{
+    font-size: 13px;
+    margin: 10px 0 0 0;
 }
 .filter:hover {
     background: white !important;
@@ -147,7 +178,42 @@ div.filter{
     cursor: default;
 }
 
-div.filter > fieldset > div > div > label> span.chakra-radio__control{
+
+ div.filter > fieldset > div > div > span > label > span.chakra-radio__control{
+     box-shadow: none;
+
+ }
+
+div.filter > fieldset > div > div > label> span.chakra-checkbox__control{
     box-shadow: none;
 }
 
+div.filter > fieldset > div > div > label span, div.filter > fieldset > div > div > span > label > span{
+    line-height: 30px;
+    font-size: 12px !important;
+    /*font-weight:600;*/
+    /*color: #aaa;*/
+}
+
+ div.filter > fieldset > div > div > div > div{
+     background: #eee !important;
+     height: 25px;
+     font-size: 13px !important;
+ }
+div.filter > fieldset > div > div > div > input{
+    width: 66px;
+    height: 25px;
+    font-size: 13px !important;
+}
+div.header > div.filter > fieldset > div > div > div:nth-child(7){
+    width: 110px;
+}
+div.filter > fieldset > div > div > div > input:focus{
+    box-shadow:none!important;
+}
+div.header > div.filter > fieldset > div > div > div:nth-child(8){
+    width: 250px !important;
+}
+div.header > div.filter > fieldset > div > div > div:nth-child(8) >input{
+    width: 250px;
+}

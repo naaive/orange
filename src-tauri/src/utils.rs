@@ -1,6 +1,8 @@
 use directories::ProjectDirs;
 #[cfg(windows)]
 use std::ffi::CString;
+use std::path::{Path, PathBuf};
+
 extern crate chrono;
 use chrono::Local;
 use log::LevelFilter;
@@ -103,6 +105,12 @@ pub fn path2name(x: String) -> Option<String> {
     .into_iter()
     .last()
     .map(|x| x.to_string())
+}
+pub fn file_ext(file_name: &str) -> &str {
+  if !file_name.contains(".") {
+    return "";
+  }
+  file_name.split(".").last().unwrap_or("")
 }
 
 pub fn norm(path: &str) -> String {
@@ -213,4 +221,10 @@ fn t4() {
   //     .args(&["/c", "start", "cmd"])
   //     .spawn()
   //     .unwrap();
+}
+
+#[test]
+fn t5() {
+  let ext = file_ext("java");
+  println!("{}", ext);
 }

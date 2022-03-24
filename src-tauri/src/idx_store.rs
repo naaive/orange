@@ -8,16 +8,18 @@ use std::os::unix::fs::MetadataExt;
 use std::os::windows::fs::MetadataExt;
 
 use tantivy::collector::TopDocs;
-use tantivy::query::{FuzzyTermQuery, QueryParser};
+use tantivy::query::{BooleanQuery, FuzzyTermQuery, Occur, Query, QueryParser, TermQuery};
 use tantivy::schema::*;
 
 use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
 
+use crate::file_doc::FileDoc;
 use crate::file_view::FileView;
 use crate::pinyin_tokenizer::{search_tokenize, tokenize};
 use crate::utils;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tantivy::merge_policy::NoMergePolicy;
 
 pub struct IdxStore {
   pub writer: Arc<Mutex<IndexWriter>>,
@@ -25,6 +27,9 @@ pub struct IdxStore {
   pub name_field: Field,
   pub path_field: Field,
   pub query_parser: QueryParser,
+  pub is_dir_field: Field,
+  pub ext_field: Field,
+  pub ext_query_parser: QueryParser,
 }
 
 static mut IS_FULL_INDEXING: bool = true;
@@ -43,7 +48,7 @@ impl IdxStore {
   }
 
   pub fn search(&self, kw: String, limit: usize) -> Vec<FileView> {
-    let mut paths = self.search_paths(kw.clone(), limit);
+    let mut paths = self.search_paths(search_tokenize(kw.clone().to_lowercase()), limit);
     if paths.is_empty() {
       paths = self.suggest_path(kw, limit);
     }
@@ -52,8 +57,76 @@ impl IdxStore {
     file_views
   }
 
+  pub fn search_with_filter(
+    &self,
+    kw: String,
+    limit: usize,
+    is_dir_opt: Option<bool>,
+    ext_opt: Option<String>,
+    parent_dirs_opt: Option<String>,
+  ) -> Vec<FileView> {
+    let searcher = self.reader.searcher();
+
+    let kw_query = self
+      .query_parser
+      .parse_query(&search_tokenize(kw.to_lowercase()))
+      .ok()
+      .unwrap();
+    let mut subqueries = vec![(Occur::Must, kw_query)];
+
+    if let Some(is_dir) = is_dir_opt {
+      let is_dir_bytes = IdxStore::is_dir_bytes(is_dir);
+      subqueries.push((
+        Occur::Must,
+        Box::new(TermQuery::new(
+          Term::from_field_bytes(self.is_dir_field, is_dir_bytes),
+          IndexRecordOption::Basic,
+        )),
+      ));
+    }
+
+    if let Some(ext) = ext_opt {
+      let ext_query = self
+        .ext_query_parser
+        .parse_query(ext.as_str().to_lowercase().as_str())
+        .ok()
+        .unwrap();
+
+      subqueries.push((Occur::Must, ext_query));
+    }
+
+    let q = BooleanQuery::new(subqueries);
+
+    let top_docs = searcher
+      .search(&q, &TopDocs::with_limit(limit))
+      .ok()
+      .unwrap();
+
+    let mut paths = Vec::new();
+    for (_score, doc_address) in top_docs {
+      let retrieved_doc = searcher.doc(doc_address).ok().unwrap();
+
+      let path = retrieved_doc
+        .get_first(self.path_field)
+        .unwrap()
+        .bytes_value()
+        .map(|x| std::str::from_utf8(x))
+        .unwrap()
+        .unwrap();
+
+      paths.push(path.to_string());
+    }
+
+    // if paths.is_empty() {
+    //   paths = self.suggest_path(kw, limit);
+    // }
+    let file_views = self.parse_file_views(paths);
+
+    file_views
+  }
+
   pub fn suggest(&self, kw: String, limit: usize) -> Vec<FileView> {
-    let mut paths = self.search_paths(kw.clone(), limit);
+    let mut paths = self.search_paths(search_tokenize(kw.clone().to_lowercase()), limit);
     if paths.is_empty() {
       paths = self.suggest_path(kw, limit);
     }
@@ -183,6 +256,9 @@ impl IdxStore {
     let mut schema_builder = Schema::builder();
     let name_field = schema_builder.add_text_field("name", TEXT | STORED);
     let path_field = schema_builder.add_bytes_field("path", INDEXED | STORED);
+    let is_dir_field = schema_builder.add_bytes_field("is_dir_field", INDEXED);
+    let ext_field = schema_builder.add_text_field("ext", TEXT);
+    // let parent_dirs_field = schema_builder.add_text_field("parent_dirs", TEXT );
     let schema = schema_builder.build();
 
     let index;
@@ -195,7 +271,11 @@ impl IdxStore {
         .unwrap();
     }
 
-    let writer = Arc::new(Mutex::new(index.writer(50_000_000).unwrap()));
+    // why single thread is faster than multi thread?
+    let writer = Arc::new(Mutex::new(
+      index.writer_with_num_threads(1, 50_000_000).unwrap(),
+    ));
+
     let writer_bro = writer.clone();
     std::thread::spawn(move || loop {
       let _ = writer_bro.lock().unwrap().commit();
@@ -215,6 +295,8 @@ impl IdxStore {
       .unwrap();
 
     let mut query_parser = QueryParser::for_index(&index, vec![name_field]);
+    let mut ext_query_parser = QueryParser::for_index(&index, vec![ext_field]);
+    // let mut parent_dirs_query_parser = QueryParser::for_index(&index, vec![parent_dirs_field]);
     query_parser.set_field_boost(name_field, 4.0f32);
 
     IdxStore {
@@ -222,20 +304,42 @@ impl IdxStore {
       reader,
       name_field,
       path_field,
+      // parent_dirs_field,
+      ext_field,
+      is_dir_field,
       query_parser,
+      ext_query_parser,
+      // parent_dirs_query_parser,
     }
   }
 
-  pub fn add(&self, name: &str, path: &str) {
+  pub fn add(&self, name: String, path: String, is_dir: bool, ext: String) {
     unsafe {
       if !IS_FULL_INDEXING {
-        self._del(path.to_string());
+        self._del(path.clone());
       }
     }
+    let mut ext = ext;
+    if is_dir {
+      ext = "".to_string();
+    }
+    let is_dir_bytes = IdxStore::is_dir_bytes(is_dir);
     self.writer.lock().unwrap().add_document(doc!(
-        self.name_field => tokenize(name.to_string()),
-        self.path_field=>path.as_bytes()
+        self.name_field => tokenize(name),
+        self.path_field=>path.as_bytes(),
+        self.is_dir_field=>is_dir_bytes,
+        self.ext_field=>ext,
+        // self.parent_dirs_field=>file_doc.parent_dirs.to_string(),
     ));
+  }
+
+  fn is_dir_bytes(is_dir: bool) -> &'static [u8] {
+    let is_dir_bytes = if is_dir {
+      "1".as_bytes()
+    } else {
+      "0".as_bytes()
+    };
+    is_dir_bytes
   }
 
   pub fn commit(&self) {
@@ -254,10 +358,26 @@ mod tests {
   #[test]
   fn t1() {
     let mut store = IdxStore::new("./tmp");
-    store.add("jack", "rose");
-    store.add("jack", "rose大萨达");
+    // store.add("jack", "rose");
+    // store.add("jack", "rose大萨达");
     store.commit();
     let vec = store.search("jack".to_string(), 12);
     println!("{}", store.num_docs());
+  }
+
+  #[test]
+  fn t2() {
+    let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+    let idx_store = Arc::new(IdxStore::new(&idx_path));
+    let vec = idx_store.search_with_filter(
+      "SearchBox".to_string(),
+      100,
+      None,
+      None,
+      Some("/Users/jeff/IdeaProjects/orange2".to_string()),
+    );
+    for x in vec {
+      println!("{}", x.name);
+    }
   }
 }
