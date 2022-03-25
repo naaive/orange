@@ -321,9 +321,8 @@ impl IdxStore {
         .unwrap();
     }
 
-    // why single thread is faster than multi thread?
     let writer = Arc::new(Mutex::new(
-      index.writer( 150_000_000).unwrap(),
+      index.writer_with_num_threads(2, 140_000_000).unwrap(),
     ));
     writer.lock().unwrap().set_merge_policy(Box::new(NoMergePolicy::default()));
     let writer_bro = writer.clone();
