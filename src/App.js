@@ -201,7 +201,7 @@ function App() {
                             </div>
                             <HStack>
                                 <InputGroup size='sm'>
-                                    <Input placeholder='pdf' value={extText}
+                                    <Input placeholder='eg: pdf' value={extText}
                                            onInput={(e) => setExtText(e.target.value)}/>
                                 </InputGroup>
                             </HStack>
