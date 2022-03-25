@@ -15,11 +15,13 @@ use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
 
 use crate::file_doc::FileDoc;
 use crate::file_view::FileView;
-use crate::pinyin_tokenizer::{search_tokenize, tokenize};
 use crate::utils;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use jieba_rs::Jieba;
 use tantivy::merge_policy::NoMergePolicy;
+use crate::utils::is_ascii_alphanumeric;
+use pinyin::ToPinyin;
 
 pub struct IdxStore {
   pub writer: Arc<Mutex<IndexWriter>>,
@@ -30,12 +32,61 @@ pub struct IdxStore {
   pub is_dir_field: Field,
   pub ext_field: Field,
   pub ext_query_parser: QueryParser,
+  pub tokenizer: Jieba,
 }
 
 static mut IS_FULL_INDEXING: bool = true;
 
 impl IdxStore {
+  pub fn search_tokenize(&self,hans: String) -> String {
+    if is_ascii_alphanumeric(hans.as_str()) {
+      return hans.as_str().to_lowercase();
+    }
+    let mut words = self.tokenizer.cut(&hans, false);
+
+    let mut token_text: HashSet<String> = vec![].into_iter().collect();
+
+    for word in words {
+      token_text.insert(word.to_string());
+    }
+    token_text.insert(hans.clone());
+    token_text.into_iter().collect::<Vec<String>>().join(" ")
+  }
+
+  pub fn tokenize(&self,hans: String) -> String {
+    // return hans;
+    if is_ascii_alphanumeric(hans.as_str()) {
+      return hans;
+    }
+    let mut words = self.tokenizer.cut(&hans, false);
+
+    let mut token_text: HashSet<String> = vec![].into_iter().collect();
+
+    for word in words {
+      let raw = word;
+      let mut first = String::new();
+      let mut all = String::new();
+      token_text.insert(raw.to_string());
+      for pinyin in raw.to_pinyin() {
+        if let Some(pinyin) = pinyin {
+          first = format!("{}{}", first, pinyin.first_letter());
+          all = format!("{}{}", all, pinyin.plain());
+        }
+      }
+      if !first.is_empty() {
+        token_text.insert(first);
+      }
+      if !all.is_empty() {
+        token_text.insert(all);
+      }
+
+    }
+    token_text.insert(hans.clone());
+    token_text.into_iter().collect::<Vec<String>>().join(" ")
+  }
+
   pub fn disable_full_indexing(&self) {
+
     unsafe {
       IS_FULL_INDEXING = false;
     }
@@ -48,7 +99,7 @@ impl IdxStore {
   }
 
   pub fn search(&self, kw: String, limit: usize) -> Vec<FileView> {
-    let mut paths = self.search_paths(search_tokenize(kw.clone().to_lowercase()), limit);
+    let mut paths = self.search_paths(self.search_tokenize(kw.clone().to_lowercase()), limit);
     if paths.is_empty() {
       paths = self.suggest_path(kw, limit);
     }
@@ -69,7 +120,7 @@ impl IdxStore {
 
     let kw_query = self
       .query_parser
-      .parse_query(&search_tokenize(kw.to_lowercase()))
+      .parse_query(&self.search_tokenize(kw.to_lowercase()))
       .ok()
       .unwrap();
     let mut subqueries = vec![(Occur::Must, kw_query)];
@@ -109,7 +160,7 @@ impl IdxStore {
       let path = retrieved_doc
         .get_first(self.path_field)
         .unwrap()
-        .bytes_value()
+        .as_bytes()
         .map(|x| std::str::from_utf8(x))
         .unwrap()
         .unwrap();
@@ -126,7 +177,7 @@ impl IdxStore {
   }
 
   pub fn suggest(&self, kw: String, limit: usize) -> Vec<FileView> {
-    let mut paths = self.search_paths(search_tokenize(kw.clone().to_lowercase()), limit);
+    let mut paths = self.search_paths(self.search_tokenize(kw.clone().to_lowercase()), limit);
     if paths.is_empty() {
       paths = self.suggest_path(kw, limit);
     }
@@ -161,7 +212,7 @@ impl IdxStore {
       let path = retrieved_doc
         .get_first(self.path_field)
         .unwrap()
-        .bytes_value()
+        .as_bytes()
         .map(|x| std::str::from_utf8(x))
         .unwrap()
         .unwrap();
@@ -176,10 +227,9 @@ impl IdxStore {
 
     let query = self
       .query_parser
-      .parse_query(&search_tokenize(kw))
+      .parse_query(&self.search_tokenize(kw))
       .ok()
       .unwrap();
-
     let top_docs = searcher
       .search(&query, &TopDocs::with_limit(limit))
       .ok()
@@ -192,7 +242,7 @@ impl IdxStore {
       let path = retrieved_doc
         .get_first(self.path_field)
         .unwrap()
-        .bytes_value()
+        .as_bytes()
         .map(|x| std::str::from_utf8(x))
         .unwrap()
         .unwrap();
@@ -273,9 +323,9 @@ impl IdxStore {
 
     // why single thread is faster than multi thread?
     let writer = Arc::new(Mutex::new(
-      index.writer_with_num_threads(1, 50_000_000).unwrap(),
+      index.writer( 150_000_000).unwrap(),
     ));
-
+    writer.lock().unwrap().set_merge_policy(Box::new(NoMergePolicy::default()));
     let writer_bro = writer.clone();
     std::thread::spawn(move || loop {
       let _ = writer_bro.lock().unwrap().commit();
@@ -298,7 +348,7 @@ impl IdxStore {
     let mut ext_query_parser = QueryParser::for_index(&index, vec![ext_field]);
     // let mut parent_dirs_query_parser = QueryParser::for_index(&index, vec![parent_dirs_field]);
     query_parser.set_field_boost(name_field, 4.0f32);
-
+    let jieba = Jieba::new();
     IdxStore {
       writer,
       reader,
@@ -309,11 +359,13 @@ impl IdxStore {
       is_dir_field,
       query_parser,
       ext_query_parser,
+      tokenizer:jieba
       // parent_dirs_query_parser,
     }
   }
 
   pub fn add(&self, name: String, path: String, is_dir: bool, ext: String) {
+    // return;
     unsafe {
       if !IS_FULL_INDEXING {
         self._del(path.clone());
@@ -325,7 +377,7 @@ impl IdxStore {
     }
     let is_dir_bytes = IdxStore::is_dir_bytes(is_dir);
     self.writer.lock().unwrap().add_document(doc!(
-        self.name_field => tokenize(name),
+        self.name_field => self.tokenize(name),
         self.path_field=>path.as_bytes(),
         self.is_dir_field=>is_dir_bytes,
         self.ext_field=>ext,
