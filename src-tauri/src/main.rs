@@ -13,7 +13,6 @@ mod fs_watcher;
 mod idx_store;
 mod indexing;
 mod kv_store;
-mod pinyin_tokenizer;
 #[cfg(windows)]
 mod usn_journal_watcher;
 mod utils;
