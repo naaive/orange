@@ -22,7 +22,7 @@ const App = () => {
                     setItems(value)
                 })
             }}>
-                <PivotItem headerText="All" itemIcon="Archive" itemKey="0">
+                <PivotItem headerText="All" itemIcon="Globe" itemKey="0">
                 </PivotItem>
                 <PivotItem headerText="Folder" itemIcon="Folder" itemKey="1">
                 </PivotItem>

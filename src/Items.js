@@ -95,18 +95,19 @@ const columns = [
             // item.name
             let src = `https://static2.sharepointonline.com/files/fabric/assets/item-types/16/${ext}.svg`;
             return (
-                <TooltipHost content={`${item.fileType} file`}>
-                    {
-                        isDir ? <Icon {...getFileTypeIconProps({
-                                type: FileIconType.folder,
-                                size: 20,
-                                imageFileType: 'svg'
-                            })} /> :
-                            <Icon {...getFileTypeIconProps({extension: ext, size: 20, imageFileType: 'png'})} />
-                    }
+               <div>
+                   <TooltipHost content={`${item.fileType} file`}>
+                       {
+                           isDir ? <Icon {...getFileTypeIconProps({
+                                   type: FileIconType.folder,
+                                   size: 20,
+                                   imageFileType: 'svg'
+                               })} /> :
+                               <Icon {...getFileTypeIconProps({extension: ext, size: 20, imageFileType: 'png'})} />
+                       }
 
-
-                </TooltipHost>
+                   </TooltipHost>
+               </div>
             );
         }
     },
