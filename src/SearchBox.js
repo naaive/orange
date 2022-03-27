@@ -1,30 +1,78 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {TagPicker} from "@fluentui/react";
+import {invoke} from "@tauri-apps/api";
+import * as R from "ramda";
+import {search} from "./utils";
 
-function filterSuggestedTags(filter, selectedItems){
-
-
-    return [];
+function top6(json) {
+    return R.take(6)(json);
 }
-const SearchBox = () => {
+
+async function filterSuggestedTags(filter, selectedItems) {
+    let res = await invoke('my_custom_command', {
+        number: 2,
+        kw: filter
+    });
+
+    let titles = R.map(x => ({name: x, key: x}))(R.uniq(R.map(
+        x => (x.name)
+    )(res.file_views)));
+
+    if (titles[0]) {
+        if (titles[0].name !== filter) {
+            titles.unshift({name: filter, key: filter})
+        }
+    }
+
+    return top6(titles);
+}
+
+const SearchBox = ({setItems}) => {
+    let [init, setInit] = useState(false);
+    useEffect(async () => {
+        if (!init) {
+            setItems(await search("*"));
+            console.log("*****************")
+            setInit(true)
+        }
+    }, [init])
     return (
         <div>
             <TagPicker
+                onItemSelected={function (e) {
+                    search(e.name).then(items => {
+                        setItems(items);
+                    });
+                    return e;
+                }}
                 removeButtonAriaLabel="Remove"
                 selectionAriaLabel="Selected colors"
                 onResolveSuggestions={filterSuggestedTags}
-                // getTextFromItem={getTextFromItem}
+                getTextFromItem={(item) => item.name}
                 pickerSuggestionsProps={
-                    {noResultsFoundText:"Non Exist File"}
+                    {noResultsFoundText: "Non Exist File"}
                 }
+                enableSelectedSuggestionAlert={false}
                 itemLimit={1}
-                pickerCalloutProps={{ doNotLayer: true }}
+                pickerCalloutProps={{doNotLayer: true}}
                 inputProps={{
                     id: "pickerId",
+                    value: "",
+                    onKeyUp: onKeyUp
                 }}
             />
         </div>
     );
+
+    async function onKeyUp(event) {
+        let keyCode = event.keyCode;
+        if (keyCode === 13 || keyCode === 27) {
+            let kw = event.target.value;
+            document.body.click();
+            let items = await search(kw);
+            setItems(items);
+        }
+    }
 };
 
 export default SearchBox;

@@ -120,8 +120,8 @@ const columns = [
         key: "column4",
         name: "Size",
         fieldName: "size",
-        minWidth: 70,
-        maxWidth: 90,
+        minWidth: 40,
+        maxWidth: 60,
         isSorted: false,
         isResizable: true,
         isCollapsible: true,
@@ -147,23 +147,9 @@ const columns = [
 ];
 
 
-function Items() {
-    let [items, setItems] = useState([]);
+function Items({items, setItems}) {
 
-    useEffect(() => {
-        invoke('my_custom_command', {
-            number: 0,
-            kw: "*",
-            isDirOpt: undefined,
-            extOpt: undefined,
-            parentDirsOpt: undefined,
-        })
-            .then((res) => {
-                    setItems(res.file_views);
-                }
-            )
-            .catch((e) => console.error(e));
-    })
+
 
     return (
         <div>

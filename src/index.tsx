@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import './index.css'
 import App from "./App";
-import {mergeStyles, ThemeProvider,initializeIcons} from '@fluentui/react';
+import {mergeStyles, ThemeProvider, initializeIcons} from '@fluentui/react';
 
 initializeIcons()
 // Inject some global styles
@@ -16,7 +16,7 @@ mergeStyles({
 
 ReactDOM.render(<>
     <ThemeProvider>
-    <App/>
+        <App/>
     </ThemeProvider>
 </>, document.getElementById('root'));
 

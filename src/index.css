@@ -15,13 +15,33 @@ body {
 div.ms-SelectionZone{
 }
 
-div.search-box > div > div > div > div.ms-Callout-container> div {
+div.ms-Callout-container> div {
   width: 100% !important;
 }
+.ms-BasePicker-text{
+  border: 1px solid rgb(96, 94, 92);
+}
+.ms-BasePicker-text:after{
+  border: 1px solid rgb(96, 94, 92);
+}
+.ms-TagItem:focus-within {
+  background-color: rgb(243, 242, 241);
+  color: black;
+}
+.ms-TagItem{
+  max-width: 100% !important;
+}
+.ms-TagItem-TextOverflow{
+max-width: 100vw;
+}
+.ms-TagItem-close:focus {
+color: black !important;
+background-color: rgb(243, 242, 241) !important;
+}
 .items{
-  height: calc(100vh - 110px);;
+height: calc(100vh - 110px);
 }
 
 .ms-DetailsHeader{
-  border: none!important;
+border: none!important;
 }
