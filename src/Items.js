@@ -93,7 +93,6 @@ const columns = [
             let ext = R.last(extSplit(name));
             // let ext = "exe";
             // item.name
-            let src = `https://static2.sharepointonline.com/files/fabric/assets/item-types/16/${ext}.svg`;
             return (
                <div>
                    <TooltipHost content={`${item.fileType} file`}>

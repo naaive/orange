@@ -22,15 +22,16 @@ const App = () => {
                     setItems(value)
                 })
             }}>
-                <PivotItem headerText="All" itemIcon="Globe" itemKey="0">
+                {/*https://uifabricicons.azurewebsites.net/?help*/}
+                <PivotItem headerText="All" itemIcon="ViewAll2" itemKey="0">
                 </PivotItem>
-                <PivotItem headerText="Folder" itemIcon="Folder" itemKey="1">
+                <PivotItem headerText="Folder" itemIcon="FabricFolder" itemKey="1">
                 </PivotItem>
                 <PivotItem headerText="Doc" itemIcon="Document" itemKey="2">
                 </PivotItem>
                 <PivotItem headerText="Video" itemIcon="Video" itemKey="3">
                 </PivotItem>
-                <PivotItem headerText="Photo" itemIcon="Photo" itemKey="4">
+                <PivotItem headerText="Photo" itemIcon="Photo2" itemKey="4">
                 </PivotItem>
             </Pivot>
             <div className="search-box">
