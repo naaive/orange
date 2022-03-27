@@ -16,7 +16,6 @@ import moment from "moment";
 import copy from "copy-to-clipboard";
 import {open_file_location, open_file_location_in_terminal} from "./utils";
 import RightMenu from '@right-menu/react'
-import {useConst} from "@chakra-ui/react";
 
 initializeFileTypeIcons(undefined);
 
