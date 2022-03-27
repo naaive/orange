@@ -1,69 +1,12 @@
-import React from 'react';
-import DataTable from 'react-data-table-component';
-
-import moment from "moment";
-import * as R from "ramda";
-import Folder from "./folder.svg";
-import {defaultStyles, FileIcon} from "react-file-icon";
+import React, {useEffect, useState} from 'react';
+import {DetailsList, DetailsListLayoutMode, IColumn, mergeStyleSets, SelectionMode, TooltipHost} from "@fluentui/react";
 import {invoke} from "@tauri-apps/api";
-import RightMenu from '@right-menu/react'
-import copy from 'copy-to-clipboard';
+import * as R from "ramda";
+import {getFileTypeIconProps, FileIconType, initializeFileTypeIcons} from '@fluentui/react-file-type-icons';
+import {Icon} from "office-ui-fabric-react";
+import moment from "moment";
 
-
-const customStyles = {
-    headRow: {
-        style: {
-            border: 'none',
-        },
-    },
-    headCells: {
-        style: {
-            color: '#202124',
-            fontSize: '13px',
-        },
-    },
-    rows: {
-        highlightOnHoverStyle: {
-            backgroundColor: '#e8e8e8',
-            borderBottomColor: '#FFFFFF ',
-            borderRadius: '5px',
-            outline: '1px solid #FFFFFF',
-        },
-    },
-    pagination: {
-        style: {
-            border: 'none',
-        },
-    },
-};
-
-function options(row) {
-
-    return [
-        {
-            type: 'li',
-            text: 'Open',
-            callback: () => {
-                open_file_location(row)
-            }
-        },
-        //
-        {
-            type: 'li',
-            text: 'Copy Path',
-            callback: () => copy(row.abs_path)
-        },
-
-        {
-            type: 'li',
-            text: 'Open in Terminal',
-            callback: () => {
-                open_file_location_in_terminal(row)
-            }
-        },
-    ]
-}
-
+initializeFileTypeIcons(undefined);
 
 function bytesToSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -71,115 +14,172 @@ function bytesToSize(bytes) {
     const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
+function tsFmt(mod_at) {
+    return moment.unix(mod_at).format("YYYY/MM/DD");
+}
+function _getKey(item, index) {
+    return item.key;
+}
 
+const classNames = mergeStyleSets({
+    fileIconHeaderIcon: {
+        padding: 0,
+        fontSize: "12px"
+    },
+    fileIconCell: {
+        textAlign: "center",
+        selectors: {
+            "&:before": {
+                content: ".",
+                display: "inline-block",
+                verticalAlign: "middle",
+                height: "100%",
+                width: "0px",
+                visibility: "hidden"
+            }
+        }
+    },
+    fileIconImg: {
+        verticalAlign: "middle",
+        maxHeight: "16px",
+        maxWidth: "16px"
+    },
+    controlWrapper: {
+        display: "flex",
+        flexWrap: "wrap"
+    },
+    exampleToggle: {
+        display: "inline-block",
+        marginBottom: "10px",
+        marginRight: "30px"
+    },
+    selectionDetails: {
+        marginBottom: "20px"
+    }
+});
 
 const columns = [
     {
-        selector: row => {
-            let isDir = R.prop('is_dir')(row);
-            let name = R.prop("name")(row);
+        key: "column1",
+        name: "File Type",
+        className: classNames.fileIconCell,
+        iconClassName: classNames.fileIconHeaderIcon,
+        ariaLabel:
+            "Column operations for File type, Press to sort on File type",
+        iconName: "Page",
+        isIconOnly: true,
+        fieldName: "name",
+        minWidth: 16,
+        maxWidth: 16,
+
+        onRender: (item) => {
+            let isDir = R.prop('is_dir')(item);
+            let name = R.prop("name")(item);
             const extSplit = R.split('.');
-            let ext = R.last(extSplit(name));
+            // let ext = R.last(extSplit(name));
+            let ext = "exe";
+            // item.name
+            let src = `https://static2.sharepointonline.com/files/fabric/assets/item-types/16/${ext}.svg`;
+            return (
+                <TooltipHost content={`${item.fileType} file`}>
+                    {
+                        isDir? <Icon {...getFileTypeIconProps({ type: FileIconType.folder, size: 20, imageFileType: 'svg' })} />:
+                            <Icon {...getFileTypeIconProps({ extension: ext, size: 20, imageFileType: 'png' })} />
+                    }
 
-            let icon = isDir ? <img src={Folder}/> :
-                <FileIcon extension={ext} {...defaultStyles[ext]} />;
-            return <>
-                <div className="icon">
-                    <span className={"img"}>
-                    {icon}
-                </span>
-                </div>
 
-            </>;
-        },
-
-        width: '50px', // custom width for icon button
-        style: {
-            padding: '0 16px !important',
-
-        },
+                </TooltipHost>
+            );
+        }
     },
     {
-        name: 'Name',
-        cell: row =>
-            <RightMenu theme="mac" options={options(row)} maxWidth={200} style={{cursor: "pointer"}}>
-                <div onDoubleClick={() => open_file_location(row)}>
-                    <div className={"items-row"}>{row.name}</div>
-                </div>
-            </RightMenu>,
-        grow: 1,
-        style: {
-            color: '#202124',
-            fontSize: '13px',
-            fontWeight: 500,
-        },
-    },
-
-    {
-
-        name: 'Last Modified',
-        width: '160px',
-        cell: row => <RightMenu theme="mac" options={options(row)} maxWidth={200}>
-            <div onDoubleClick={() => open_file_location(row)}>
-                <div className={"items-row"}>{moment.unix(R.prop('mod_at')(row)).format("YYYY-MM-DD h:mm:ss")}</div>
-            </div>
-        </RightMenu>,
-        style: {
-            color: 'rgba(0,0,0,.54)',
-        },
+        key: "column2",
+        name: "Name",
+        fieldName: "name",
+        minWidth: 50,
+        maxWidth: 300,
+        isRowHeader: true,
+        isResizable: true,
+        data: "string",
+        isPadded: true
     },
     {
-        name: 'Size',
-        maxWidth: '80px',
-        cell: row => <RightMenu theme="mac" options={options(row)} maxWidth={200}>
-            <div onDoubleClick={() => open_file_location(row)}>
-                <div className={"items-row"}>{row.is_dir ? '-' : bytesToSize(row.size)}</div>
-            </div>
-        </RightMenu>,
-        style: {
-            color: 'rgba(0,0,0,.54)',
+        key: "column3",
+        name: "Last Modified",
+        fieldName: "mod_at",
+        minWidth: 70,
+        maxWidth: 90,
+        isResizable: true,
+        data: "number",
+        onRender: (item) => {
+            return <span>{tsFmt(item.mod_at)}</span>;
         },
+        isPadded: true
     },
     {
-        name: 'Path',
-        grow: 4,
-        selector: row => <RightMenu theme="mac" options={options(row)} maxWidth={200}>
-            <div onDoubleClick={() => open_file_location(row)}>
-                <div className={"items-row"}>{row.abs_path}</div>
-            </div>
-        </RightMenu>,
-        style: {
-            color: 'rgba(0,0,0,.54)',
+        key: "column4",
+        name: "Size",
+        fieldName: "size",
+        minWidth: 70,
+        maxWidth: 90,
+        isSorted: false,
+        isResizable: true,
+        isCollapsible: true,
+        data: "string",
+        onRender: (item) => {
+            return <span>{bytesToSize(item.size)}</span>;
         },
-        hide: 'sm',
+        isPadded: true
     },
+    {
+        key: "column5",
+        name: "Path",
+        fieldName: "abs_path",
+        minWidth: 70,
+        isSorted: false,
+        isResizable: true,
+        isCollapsible: true,
+        data: "number",
+        onRender: (item) => {
+            return <span>{item.abs_path}</span>;
+        }
+    }
 ];
 
-function open_file_location_in_terminal(row) {
-    invoke('my_custom_command', {
-        number: 3,
-        kw: row.abs_path
+
+function Items() {
+    let [items, setItems] = useState([]);
+
+    useEffect(() => {
+        invoke('my_custom_command', {
+            number: 0,
+            kw: "*",
+            isDirOpt: undefined,
+            extOpt: undefined,
+            parentDirsOpt: undefined,
+        })
+            .then((res) => {
+                    setItems(res.file_views);
+                }
+            )
+            .catch((e) => console.error(e));
     })
+
+    return (
+        <div>
+            <DetailsList
+                items={items}
+                compact={true}
+                columns={columns}
+                selectionMode={SelectionMode.none}
+                getKey={_getKey}
+                setKey="none"
+                layoutMode={DetailsListLayoutMode.justified}
+                isHeaderVisible={true}
+                // onItemInvoked={this._onItemInvoked}
+            />
+        </div>
+    );
 }
 
-function open_file_location(row) {
-    invoke('my_custom_command', {
-        number: 1,
-        kw: row.abs_path
-    })
-}
-
-function Items({items, kw}) {
-
-    return <DataTable
-        dense
-        columns={columns}
-        data={items}
-        customStyles={customStyles}
-        highlightOnHover
-        pointerOnHover
-    />
-}
-
-
-export default Items
+export default Items;
