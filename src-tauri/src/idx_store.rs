@@ -85,6 +85,14 @@ impl IdxStore {
       }
 
     }
+    for pinyin in hans.as_str().to_pinyin()  {
+
+      if let Some(full) = pinyin {
+
+        token_text.insert(full.first_letter().to_string());
+        token_text.insert(full.plain().to_string());
+      }
+    }
     token_text.insert(hans.clone());
     token_text.into_iter().collect::<Vec<String>>().join(" ")
   }
@@ -354,7 +362,9 @@ impl IdxStore {
     let mut ext_query_parser = QueryParser::for_index(&index, vec![ext_field]);
     // let mut parent_dirs_query_parser = QueryParser::for_index(&index, vec![parent_dirs_field]);
     query_parser.set_field_boost(name_field, 4.0f32);
-    let jieba = Jieba::new();
+    let mut jieba = Jieba::new();
+    // it's a feature
+    jieba.add_word("陈奕迅", None, None);
     IdxStore {
       writer,
       reader,
@@ -437,5 +447,13 @@ mod tests {
     for x in vec {
       println!("{}", x.name);
     }
+  }
+
+  #[test]
+  fn t5() {
+    let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+    let idx_store = Arc::new(IdxStore::new(&idx_path));
+    let string = idx_store.tokenize("陈奕迅歌曲".to_string());
+    println!("{}", string);
   }
 }
