@@ -68,3 +68,6 @@ ul.right-menu-list.theme-mac li{
   line-height: 36px !important;
 }
 
+body{
+  overflow: hidden;
+}

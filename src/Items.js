@@ -115,7 +115,7 @@ const columns = [
         name: "Name",
         fieldName: "name",
         minWidth: 50,
-        maxWidth: 300,
+        maxWidth: 200,
         isRowHeader: true,
         isResizable: true,
         data: "string",

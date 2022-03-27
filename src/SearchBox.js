@@ -27,12 +27,13 @@ async function filterSuggestedTags(filter, selectedItems) {
     return top6(titles);
 }
 
-const SearchBox = ({setItems}) => {
+const SearchBox = ({setItems,kw,setKw,selectedKey}) => {
     let [init, setInit] = useState(false);
     useEffect(async () => {
         if (!init) {
-            setItems(await search("*"));
-            console.log("*****************")
+            let kw0 = "*";
+            setItems(await search(kw0,selectedKey));
+            setKw(kw0);
             setInit(true)
         }
     }, [init])
@@ -40,7 +41,9 @@ const SearchBox = ({setItems}) => {
         <div>
             <TagPicker
                 onItemSelected={function (e) {
-                    search(e.name).then(items => {
+                    let kw0 = e.name;
+                    setKw(kw0);
+                    search(kw0,selectedKey).then(items => {
                         setItems(items);
                     });
                     return e;
@@ -69,7 +72,8 @@ const SearchBox = ({setItems}) => {
         if (keyCode === 13 || keyCode === 27) {
             let kw = event.target.value;
             document.body.click();
-            let items = await search(kw);
+            setKw(kw);
+            let items = await search(kw,selectedKey);
             setItems(items);
         }
     }
