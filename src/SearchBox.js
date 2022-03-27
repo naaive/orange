@@ -29,12 +29,27 @@ async function filterSuggestedTags(filter, selectedItems) {
 
 const SearchBox = ({setItems,kw,setKw,selectedKey}) => {
     let [init, setInit] = useState(false);
-    useEffect(async () => {
-        if (!init) {
-            let kw0 = "*";
-            setItems(await search(kw0,selectedKey));
-            setKw(kw0);
-            setInit(true)
+    let [handler, setHandler] = useState();
+    useEffect( () => {
+        let number = setInterval(async () => {
+            if (!init) {
+                let kw0 = "*";
+                let items = await search(kw0,selectedKey);
+                if (R.isEmpty(items) || R.isNil(items)) {
+                    return;
+                }
+                setItems(items);
+                setKw(kw0);
+                setInit(true)
+            }
+
+        }, 1000);
+        setHandler(number);
+
+    }, [init])
+    useEffect( () => {
+        if (init) {
+            clearInterval(handler);
         }
     }, [init])
     return (
