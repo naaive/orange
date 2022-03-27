@@ -362,7 +362,9 @@ impl IdxStore {
     let mut ext_query_parser = QueryParser::for_index(&index, vec![ext_field]);
     // let mut parent_dirs_query_parser = QueryParser::for_index(&index, vec![parent_dirs_field]);
     query_parser.set_field_boost(name_field, 4.0f32);
-    let jieba = Jieba::new();
+    let mut jieba = Jieba::new();
+    // it's a feature
+    jieba.add_word("陈奕迅", None, None);
     IdxStore {
       writer,
       reader,
@@ -449,10 +451,9 @@ mod tests {
 
   #[test]
   fn t5() {
-    //todo
     let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
     let idx_store = Arc::new(IdxStore::new(&idx_path));
-    let string = idx_store.tokenize("陳奕迅".to_string());
+    let string = idx_store.tokenize("陈奕迅歌曲".to_string());
     println!("{}", string);
   }
 }
