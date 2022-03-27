@@ -1,95 +1,97 @@
-import React, {useState} from 'react'
-import * as R from "ramda";
+import React, {useEffect, useState} from 'react';
+import {TagPicker} from "@fluentui/react";
 import {invoke} from "@tauri-apps/api";
-import {AutoComplete, AutoCompleteInput, AutoCompleteItem, AutoCompleteList,} from "@choc-ui/chakra-autocomplete";
-import {FormControl, HStack, Icon, InputGroup, InputLeftElement, Radio, RadioGroup,} from "@chakra-ui/react";
-
-
-import _ from "lodash";
+import * as R from "ramda";
+import {search} from "./utils";
 
 function top6(json) {
     return R.take(6)(json);
 }
 
-function SearchBox({setItems, doTxtChange}) {
-    let [show, setShow] = useState(true);
-    let [options, setOptions] = useState([]);
+async function filterSuggestedTags(filter, selectedItems) {
+    let res = await invoke('my_custom_command', {
+        number: 2,
+        kw: filter
+    });
 
-    return (
-        <>
-            <AutoComplete
-                listAllValuesOnFocus={false}
-                selectOnFocus={false}
-                filter={() => true}
-                closeOnBlur={true} rollNavigation onChange={v => {
-                doTxtChange(v);
-            }}
+    let titles = R.map(x => ({name: x, key: x}))(R.uniq(R.map(
+        x => (x.name)
+    )(res.file_views)));
 
-            >
-                <InputGroup>
-                    <InputLeftElement
-                        pointerEvents="none"
-                        color="inherit"
-                        fontSize="1.2em"
-                    >
-                        <Icon boxSize="16px" viewBox="0 0 24 24" focusable="false">
-                            <path
-                                fill="currentColor"
-                                d="M23.384,21.619,16.855,15.09a9.284,9.284,0,1,0-1.768,1.768l6.529,6.529a1.266,1.266,0,0,0,1.768,0A1.251,1.251,0,0,0,23.384,21.619ZM2.75,9.5a6.75,6.75,0,1,1,6.75,6.75A6.758,6.758,0,0,1,2.75,9.5Z"
-                            ></path>
-                        </Icon>
-                    </InputLeftElement>
-                    <AutoCompleteInput variant="filled" placeholder="Search..."
-                                       onKeyUp={(event) => {
+    if (titles[0]) {
+        if (titles[0].name !== filter) {
+            titles.unshift({name: filter, key: filter})
+        }
+    }
 
-                                           let keyCode = event.keyCode;
-                                           if (keyCode === 13) {
-                                               doTxtChange(event.target.value)
-                                               // close suggest results
-                                               setShow(false)
-                                           }
-                                           if (keyCode === 27) {
-                                               doTxtChange(event.target.value)
-
-                                               setShow(false)
-                                           }
-
-                                       }}
-                                       onChange={_.debounce(e => {
-                                           setShow(true)
-                                           invoke('my_custom_command', {
-                                               number: 2,
-                                               kw: e.target.value
-                                           })
-                                               .then((res) => {
-                                                       let titles = R.uniq(R.map(
-                                                           x => (x.name)
-                                                       )(res.file_views));
-                                                       console.log(titles)
-                                                       setOptions(top6(titles));
-                                                   }
-                                               )
-                                               .catch((e) => console.error(e))
-                                       },150)}/>
-                </InputGroup>
-                {
-                    show ? <AutoCompleteList>
-
-                        {options.map((option, oid) => (
-                            <AutoCompleteItem
-                                key={`option-${oid}`}
-                                value={option}
-                                textTransform="capitalize"
-                            >
-                                {option}
-                            </AutoCompleteItem>
-                        ))}
-                    </AutoCompleteList> : <></>
-                }
-
-            </AutoComplete>
-        </>
-    )
+    return top6(titles);
 }
 
-export default SearchBox
+const SearchBox = ({setItems,kw,setKw,selectedKey}) => {
+    let [init, setInit] = useState(false);
+    let [handler, setHandler] = useState();
+    useEffect( () => {
+        let number = setInterval(async () => {
+            if (!init) {
+                let kw0 = "*";
+                let items = await search(kw0,selectedKey);
+                if (R.isEmpty(items) || R.isNil(items)) {
+                    return;
+                }
+                setItems(items);
+                setKw(kw0);
+                setInit(true)
+            }
+
+        }, 1000);
+        setHandler(number);
+
+    }, [init])
+    useEffect( () => {
+        if (init) {
+            clearInterval(handler);
+        }
+    }, [init])
+    return (
+        <div>
+            <TagPicker
+                onItemSelected={function (e) {
+                    let kw0 = e.name;
+                    setKw(kw0);
+                    search(kw0,selectedKey).then(items => {
+                        setItems(items);
+                    });
+                    return e;
+                }}
+                removeButtonAriaLabel="Remove"
+                selectionAriaLabel="Selected colors"
+                onResolveSuggestions={filterSuggestedTags}
+                getTextFromItem={(item) => item.name}
+                pickerSuggestionsProps={
+                    {noResultsFoundText: "Non Exist File"}
+                }
+                enableSelectedSuggestionAlert={false}
+                itemLimit={1}
+                pickerCalloutProps={{doNotLayer: true}}
+                inputProps={{
+                    id: "pickerId",
+                    value: "",
+                    onKeyUp: onKeyUp
+                }}
+            />
+        </div>
+    );
+
+    async function onKeyUp(event) {
+        let keyCode = event.keyCode;
+        if (keyCode === 13 || keyCode === 27) {
+            let kw = event.target.value;
+            document.body.click();
+            setKw(kw);
+            let items = await search(kw,selectedKey);
+            setItems(items);
+        }
+    }
+};
+
+export default SearchBox;

@@ -211,16 +211,24 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
   );
 }
 
+
 #[test]
 fn t1() {
+  let dir = utils::data_dir();
+
+  let string = format!("{}/orangecachedata",dir);
+  println!("{}", string);
+  let dir_all = std::fs::remove_dir_all(string);
   use crate::utils::init_log;
   init_log();
 
-  let conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
-  let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+  let dir = utils::data_dir();
+  let conf_path = format!("{}{}", dir, "/orangecachedata/conf");
+  let idx_path = format!("{}{}", dir, "/orangecachedata/idx");
 
   let conf_store = Arc::new(KvStore::new(&conf_path));
   let idx_store = Arc::new(IdxStore::new(&idx_path));
 
   run(conf_store, idx_store);
+
 }

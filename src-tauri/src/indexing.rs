@@ -21,7 +21,7 @@ const STORE_PATH: &'static str = "orangecachedata";
 
 #[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
-const VERSION: &'static str = "0.2.0";
+const VERSION: &'static str = "0.3.0";
 const LAST_INDEX_TS: &'static str = "last_index_ts";
 
 pub fn run() {

@@ -1,219 +1,73 @@
+.search-box{
+  padding: 20px 10px 10px  10px ;
+}
+
 body {
-    overflow: hidden;
-    -moz-user-select:none;
-    -webkit-user-select:none;
-    -ms-user-select:none;
-    user-select:none;
+  padding: 0 10px;
+}
+.ms-FocusZone {
+  padding-top: 0 !important;
+}
+.ms-DetailsHeader-cell>span>span>span{
+  font-size: 12px !important;
 }
 
-.search-box {
-    z-index: 100;
-    padding: 0 12px;
-    margin: 10px auto;
-    display: flex;
-    overflow: hidden;
-}
-#root > div > div.header > div > button:active{
-    border: none !important;
-    outline: none !important;
-
+div.ms-SelectionZone{
 }
 
-div.header > div > div {
-    background:  white !important;
-    outline: none !important;
-    box-shadow:none!important;
-    border: none !important;
+div.ms-Callout-container> div {
+  width: 100% !important;
+}
+.ms-BasePicker-text{
+  border: 1px solid rgb(96, 94, 92);
+}
+.ms-BasePicker-text:after{
+  border: 1px solid rgb(96, 94, 92);
+}
+.ms-TagItem:focus-within {
+  background-color: rgb(243, 242, 241);
+  color: black;
+}
+.ms-TagItem{
+  max-width: 100% !important;
+}
+.ms-TagItem-TextOverflow{
+max-width: 100vw;
+}
+.ms-TagItem-close:focus {
+color: black !important;
+background-color: rgb(243, 242, 241) !important;
+}
+.items{
+height: calc(100vh - 110px);
 }
 
-.search-box .btn{
-    background:  #e0e0e0 !important;
-    margin: 0 0 0 10px ;
-    box-shadow:none!important;
-    color: #323232;
-
-}
-.App {
-    height: 100vh;
-
+.ms-DetailsHeader{
+border: none!important;
 }
 
-#root > div > div:nth-child(2) > div:nth-child(1), .items > div {
-    overflow-x: hidden !important;
-}
-input.chakra-input{
-    background: #e8e8e8;
-}
-input.chakra-input::selection{
-    background: #bfbfbf;
-}
-input.chakra-input:enabled{
-    border: 1px solid #e8e8e8 ;
-    background: #e8e8e8;
-
-}
-.chakra-popover__content div:hover{
-    background: #e8e8e8 !important;
-}
-.chakra-popover__content div:active{
-    background: #e8e8e8 !important;
-}
-
-.items {
-    z-index: 1;
-    overflow: hidden; /* Hide scrollbars */
-    height: calc(100% - 42px);;
-
-}
-.search-box input{
-    height: 32px;
-    font-size: 14px !important;
-    line-height: 32px !important;
-
-}
-.search-box input::-webkit-input-placeholder {
-    height: 32px;
-    font-size: 14px !important;
-    line-height: 34px !important;
-}
-
-.items .items-row {
-    width: 100%;
-    height: 32px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    line-height: 32px;
-}
-.chakra-popover__content>div,.chakra-popover__content{
-    font-size: 14px !important;
-}
 ul.right-menu-list.theme-mac{
-    background: #e8e8e8;
+  background: white;
+  font-family:  "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  color: black;
+  font-size: 13px;
+  border-radius: 0;
+  box-shadow: rgba(0, 0, 0, 0.133) 0px 3.2px 7.2px 0px, rgba(0, 0, 0, 0.11) 0px 0.6px 1.8px 0px !important;
+  border: none;
+  padding: 0;
 }
 ul.right-menu-list.theme-mac :hover{
-    background: #bfbfbf;
+  background: #f3f2f1;
+  color: black;
+  cursor: pointer;
+}
+ul.right-menu-list.theme-mac li{
+  padding: 0 8px !important;
+  font-family:  "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  height: 36px !important;
+  line-height: 36px !important;
 }
 
-
-.Toastify__toast-theme--light{
-    margin: 0 !important;
-    /*background: #bfbfbf !important;*/
-}
-.Toastify__toast-body{
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 14px;
-
-}
-.Toastify__toast{
-    min-height: 20px !important;
-}
-.chakra-popover__content {
-    margin: 0 !important;
-    font-size: 13px !important;
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px 0px;
-    padding: 10px 0 10px 0 !important;
-}
-
-.rdt_TableRow div {
-    padding: 0;
-    width: 100%;
-}
-.rdt_TableRow div:hover {
-    cursor: default;
-    /*cursor: auto !important;*/
-}
-
-.rdt_TableHeadRow div{
-    padding: 0;
-}
-
-.items .rdt_Table>div>div{
-    border: 0 !important;
-}
-.search-box .chakra-input__left-element {
-    height: 30px!important;
-    width: 30px !important;
-}
-.items>div>div,.items>div>div>div {
-    overflow-x: hidden !important; /* Hide scrollbars */
-}
-.icon {
-    display: flex;
-    align-items: center;
-    width: 25px !important;
-    /*margin: 16px;*/
-}
-
-.icon > .img {
-    width: 25px !important;
-    margin-right: 5px;
-}
-
-.icon > img {
-    width: 35px !important;
-}
-div.filter{
-    padding: 15px !important  ;
-    cursor: default;
-    background: #ffffff !important;
-    width: 100%;
-}
-div.filter .head{
-    font-size: 16px;
-    font-weight: 600;
-    /*color: #5e5a5a;*/
-    margin: 20px 0 ;
-}
-div.filter .title{
-    font-size: 13px;
-    margin: 10px 0 0 0;
-}
-.filter:hover {
-    background: white !important;
-}
-.filter:hover{
-    background: white !important;
-    cursor: default;
-}
-
-
- div.filter > fieldset > div > div > span > label > span.chakra-radio__control{
-     box-shadow: none;
-
- }
-
-div.filter > fieldset > div > div > label> span.chakra-checkbox__control{
-    box-shadow: none;
-}
-
-div.filter > fieldset > div > div > label span, div.filter > fieldset > div > div > span > label > span{
-    line-height: 30px;
-    font-size: 12px !important;
-    /*font-weight:600;*/
-    /*color: #aaa;*/
-}
-
- div.filter > fieldset > div > div > div > div{
-     background: #eee !important;
-     height: 25px;
-     font-size: 13px !important;
- }
-div.filter > fieldset > div > div > div > input{
-    width: 66px;
-    height: 25px;
-    font-size: 13px !important;
-}
-div.header > div.filter > fieldset > div > div > div:nth-child(7){
-    width: 110px;
-}
-div.filter > fieldset > div > div > div > input:focus{
-    box-shadow:none!important;
-}
-div.header > div.filter > fieldset > div > div > div:nth-child(8){
-    width: 250px !important;
-}
-div.header > div.filter > fieldset > div > div > div:nth-child(8) >input{
-    width: 250px;
+body{
+  overflow: hidden;
 }
