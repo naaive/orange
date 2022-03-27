@@ -42,6 +42,8 @@ impl IdxStore {
     if is_ascii_alphanumeric(hans.as_str()) {
       return hans.as_str().to_lowercase();
     }
+    let space = " ";
+    let hans = hans.replace("-", space).replace("_", space);
     let mut words = self.tokenizer.cut(&hans, false);
 
     let mut token_text: HashSet<String> = vec![].into_iter().collect();
@@ -58,6 +60,8 @@ impl IdxStore {
     if is_ascii_alphanumeric(hans.as_str()) {
       return hans;
     }
+    let space = " ";
+    let hans = hans.replace("-", space).replace("_", space);
     let mut words = self.tokenizer.cut(&hans, false);
 
     let mut token_text: HashSet<String> = vec![].into_iter().collect();
@@ -117,6 +121,9 @@ impl IdxStore {
     parent_dirs_opt: Option<String>,
   ) -> Vec<FileView> {
     let searcher = self.reader.searcher();
+
+    //
+    println!("{}", kw.to_lowercase());
 
     let kw_query = self
       .query_parser
