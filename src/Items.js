@@ -1,16 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {
-    ContextualMenu, DefaultButton,
-    DetailsList,
-    DetailsListLayoutMode,
-    IColumn,
-    mergeStyleSets,
-    SelectionMode,
-    TooltipHost
-} from "@fluentui/react";
-import {invoke} from "@tauri-apps/api";
+import React from 'react';
+import {DetailsList, DetailsListLayoutMode, mergeStyleSets, SelectionMode, TooltipHost} from "@fluentui/react";
 import * as R from "ramda";
-import {getFileTypeIconProps, FileIconType, initializeFileTypeIcons} from '@fluentui/react-file-type-icons';
+import {FileIconType, getFileTypeIconProps, initializeFileTypeIcons} from '@fluentui/react-file-type-icons';
 import {Icon} from "office-ui-fabric-react";
 import moment from "moment";
 import copy from "copy-to-clipboard";
@@ -93,19 +84,19 @@ const columns = [
             // let ext = "exe";
             // item.name
             return (
-               <div>
-                   <TooltipHost content={`${item.fileType} file`}>
-                       {
-                           isDir ? <Icon {...getFileTypeIconProps({
-                                   type: FileIconType.folder,
-                                   size: 20,
-                                   imageFileType: 'svg'
-                               })} /> :
-                               <Icon {...getFileTypeIconProps({extension: ext, size: 20, imageFileType: 'png'})} />
-                       }
+                <div>
+                    <TooltipHost content={`${item.fileType} file`}>
+                        {
+                            isDir ? <Icon {...getFileTypeIconProps({
+                                    type: FileIconType.folder,
+                                    size: 20,
+                                    imageFileType: 'svg'
+                                })} /> :
+                                <Icon {...getFileTypeIconProps({extension: ext, size: 20, imageFileType: 'png'})} />
+                        }
 
-                   </TooltipHost>
-               </div>
+                    </TooltipHost>
+                </div>
             );
         }
     },
@@ -192,18 +183,6 @@ function options(row) {
 
 function Items({items, setItems}) {
 
-    const menuProps = useConst(() => ({
-        shouldFocusOnMount: true,
-        shouldFocusOnContainer: true,
-        items: [
-            {key: 'rename', text: 'Rename', onClick: () => console.log('Rename clicked')},
-            {key: 'edit', text: 'Edit', onClick: () => console.log('Edit clicked')},
-            {key: 'properties', text: 'Properties', onClick: () => console.log('Properties clicked')},
-            {key: 'linkNoTarget', text: 'Link same window', href: 'http://bing.com'},
-            {key: 'linkWithTarget', text: 'Link new window', href: 'http://bing.com', target: '_blank'},
-            {key: 'disabled', text: 'Disabled item', disabled: true},
-        ],
-    }));
 
     return (
         <div>
@@ -212,7 +191,7 @@ function Items({items, setItems}) {
                     let row = props.item;
                     return <RightMenu theme="mac" options={options(row)} maxWidth={200} style={{cursor: "pointer"}}>
                         <div onDoubleClick={() => open_file_location(row)}>
-                            <Row persistMenu menuProps={menuProps} data-foo="bar" {...props} />
+                            <Row persistMenu data-foo="bar" {...props} />
                         </div>
                     </RightMenu>;
                 }}

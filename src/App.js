@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import './App.css';
 import Items from "./Items";
 import {Scrollbars} from 'react-custom-scrollbars';
@@ -18,7 +18,7 @@ const App = () => {
             <Pivot aria-label="Count and Icon Pivot Example" selectedKey={String(selectedKey)} onLinkClick={(event) => {
                 let key = event.key.substr(1);
                 setSelectedKey(key)
-                search(kw,key).then(value => {
+                search(kw, key).then(value => {
                     setItems(value)
                 })
             }}>

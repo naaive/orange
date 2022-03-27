@@ -27,14 +27,14 @@ async function filterSuggestedTags(filter, selectedItems) {
     return top6(titles);
 }
 
-const SearchBox = ({setItems,kw,setKw,selectedKey}) => {
+const SearchBox = ({setItems, kw, setKw, selectedKey}) => {
     let [init, setInit] = useState(false);
     let [handler, setHandler] = useState();
-    useEffect( () => {
+    useEffect(() => {
         let number = setInterval(async () => {
             if (!init) {
                 let kw0 = "*";
-                let items = await search(kw0,selectedKey);
+                let items = await search(kw0, selectedKey);
                 if (R.isEmpty(items) || R.isNil(items)) {
                     return;
                 }
@@ -47,7 +47,7 @@ const SearchBox = ({setItems,kw,setKw,selectedKey}) => {
         setHandler(number);
 
     }, [init])
-    useEffect( () => {
+    useEffect(() => {
         if (init) {
             clearInterval(handler);
         }
@@ -58,7 +58,7 @@ const SearchBox = ({setItems,kw,setKw,selectedKey}) => {
                 onItemSelected={function (e) {
                     let kw0 = e.name;
                     setKw(kw0);
-                    search(kw0,selectedKey).then(items => {
+                    search(kw0, selectedKey).then(items => {
                         setItems(items);
                     });
                     return e;
@@ -88,7 +88,7 @@ const SearchBox = ({setItems,kw,setKw,selectedKey}) => {
             let kw = event.target.value;
             document.body.click();
             setKw(kw);
-            let items = await search(kw,selectedKey);
+            let items = await search(kw, selectedKey);
             setItems(items);
         }
     }
