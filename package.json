@@ -17,10 +17,6 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
-    "@types/jest": "^27.0.1",
-    "@types/node": "^16.7.13",
-    "@types/react": "^17.0.20",
-    "@types/react-dom": "^17.0.9",
     "af-virtual-scroll": "2.7.9",
     "copy-to-clipboard": "^3.3.1",
     "faker": "^5.5.3",
@@ -38,7 +34,6 @@
     "react-scripts": "5.0.0",
     "react-toastify": "^8.2.0",
     "styled-components": "^5.3.3",
-    "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
