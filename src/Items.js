@@ -90,8 +90,8 @@ const columns = [
             let isDir = R.prop('is_dir')(item);
             let name = R.prop("name")(item);
             const extSplit = R.split('.');
-            // let ext = R.last(extSplit(name));
-            let ext = "exe";
+            let ext = R.last(extSplit(name));
+            // let ext = "exe";
             // item.name
             let src = `https://static2.sharepointonline.com/files/fabric/assets/item-types/16/${ext}.svg`;
             return (

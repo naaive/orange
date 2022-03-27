@@ -7,15 +7,13 @@ const fileType2ext = {
 }
 
 export async function search(kw, no) {
-
     let ext = fileType2ext[no];
     let dirOpt = undefined;
     if (no !== undefined) {
-        if (no === 1) {
+        if (no === '1') {
             dirOpt = true;
         }
     }
-    console.log(dirOpt);
     let res = await invoke('my_custom_command', {
         number: 0,
         kw: kw,
