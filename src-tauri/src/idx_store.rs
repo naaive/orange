@@ -16,12 +16,12 @@ use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
 use crate::file_doc::FileDoc;
 use crate::file_view::FileView;
 use crate::utils;
+use crate::utils::is_ascii_alphanumeric;
+use jieba_rs::Jieba;
+use pinyin::ToPinyin;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use jieba_rs::Jieba;
 use tantivy::merge_policy::NoMergePolicy;
-use crate::utils::is_ascii_alphanumeric;
-use pinyin::ToPinyin;
 
 pub struct IdxStore {
   pub writer: Arc<Mutex<IndexWriter>>,
@@ -38,7 +38,7 @@ pub struct IdxStore {
 static mut IS_FULL_INDEXING: bool = true;
 
 impl IdxStore {
-  pub fn search_tokenize(&self,hans: String) -> String {
+  pub fn search_tokenize(&self, hans: String) -> String {
     if is_ascii_alphanumeric(hans.as_str()) {
       return hans.as_str().to_lowercase();
     }
@@ -55,7 +55,7 @@ impl IdxStore {
     token_text.into_iter().collect::<Vec<String>>().join(" ")
   }
 
-  pub fn tokenize(&self,hans: String) -> String {
+  pub fn tokenize(&self, hans: String) -> String {
     // return hans;
     if is_ascii_alphanumeric(hans.as_str()) {
       return hans;
@@ -83,12 +83,9 @@ impl IdxStore {
       if !all.is_empty() {
         token_text.insert(all);
       }
-
     }
-    for pinyin in hans.as_str().to_pinyin()  {
-
+    for pinyin in hans.as_str().to_pinyin() {
       if let Some(full) = pinyin {
-
         token_text.insert(full.first_letter().to_string());
         token_text.insert(full.plain().to_string());
       }
@@ -98,7 +95,6 @@ impl IdxStore {
   }
 
   pub fn disable_full_indexing(&self) {
-
     unsafe {
       IS_FULL_INDEXING = false;
     }
@@ -339,7 +335,10 @@ impl IdxStore {
     let writer = Arc::new(Mutex::new(
       index.writer_with_num_threads(2, 140_000_000).unwrap(),
     ));
-    writer.lock().unwrap().set_merge_policy(Box::new(NoMergePolicy::default()));
+    writer
+      .lock()
+      .unwrap()
+      .set_merge_policy(Box::new(NoMergePolicy::default()));
     let writer_bro = writer.clone();
     std::thread::spawn(move || loop {
       let _ = writer_bro.lock().unwrap().commit();
@@ -375,8 +374,7 @@ impl IdxStore {
       is_dir_field,
       query_parser,
       ext_query_parser,
-      tokenizer:jieba
-      // parent_dirs_query_parser,
+      tokenizer: jieba, // parent_dirs_query_parser,
     }
   }
 
