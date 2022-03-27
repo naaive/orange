@@ -52,5 +52,5 @@ default = [ "custom-protocol" ]
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
 
-[profile.test]
-opt-level=3
+#[profile.test]
+##opt-level=3

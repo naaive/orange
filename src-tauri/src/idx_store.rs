@@ -85,6 +85,14 @@ impl IdxStore {
       }
 
     }
+    for pinyin in hans.as_str().to_pinyin()  {
+
+      if let Some(full) = pinyin {
+
+        token_text.insert(full.first_letter().to_string());
+        token_text.insert(full.plain().to_string());
+      }
+    }
     token_text.insert(hans.clone());
     token_text.into_iter().collect::<Vec<String>>().join(" ")
   }
@@ -437,5 +445,14 @@ mod tests {
     for x in vec {
       println!("{}", x.name);
     }
+  }
+
+  #[test]
+  fn t5() {
+    //todo
+    let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+    let idx_store = Arc::new(IdxStore::new(&idx_path));
+    let string = idx_store.tokenize("陳奕迅".to_string());
+    println!("{}", string);
   }
 }
