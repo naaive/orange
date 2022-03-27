@@ -1,10 +1,22 @@
 import React, {useEffect, useState} from 'react';
-import {DetailsList, DetailsListLayoutMode, IColumn, mergeStyleSets, SelectionMode, TooltipHost} from "@fluentui/react";
+import {
+    ContextualMenu, DefaultButton,
+    DetailsList,
+    DetailsListLayoutMode,
+    IColumn,
+    mergeStyleSets,
+    SelectionMode,
+    TooltipHost
+} from "@fluentui/react";
 import {invoke} from "@tauri-apps/api";
 import * as R from "ramda";
 import {getFileTypeIconProps, FileIconType, initializeFileTypeIcons} from '@fluentui/react-file-type-icons';
 import {Icon} from "office-ui-fabric-react";
 import moment from "moment";
+import copy from "copy-to-clipboard";
+import {open_file_location, open_file_location_in_terminal} from "./utils";
+import RightMenu from '@right-menu/react'
+import {useConst} from "@chakra-ui/react";
 
 initializeFileTypeIcons(undefined);
 
@@ -14,9 +26,11 @@ function bytesToSize(bytes) {
     const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
+
 function tsFmt(mod_at) {
     return moment.unix(mod_at).format("YYYY/MM/DD");
 }
+
 function _getKey(item, index) {
     return item.key;
 }
@@ -83,8 +97,12 @@ const columns = [
             return (
                 <TooltipHost content={`${item.fileType} file`}>
                     {
-                        isDir? <Icon {...getFileTypeIconProps({ type: FileIconType.folder, size: 20, imageFileType: 'svg' })} />:
-                            <Icon {...getFileTypeIconProps({ extension: ext, size: 20, imageFileType: 'png' })} />
+                        isDir ? <Icon {...getFileTypeIconProps({
+                                type: FileIconType.folder,
+                                size: 20,
+                                imageFileType: 'svg'
+                            })} /> :
+                            <Icon {...getFileTypeIconProps({extension: ext, size: 20, imageFileType: 'png'})} />
                     }
 
 
@@ -146,14 +164,60 @@ const columns = [
     }
 ];
 
+function options(row) {
+
+    return [
+        {
+            type: 'li',
+            text: 'Open',
+            callback: () => {
+                open_file_location(row)
+            }
+        },
+        //
+        {
+            type: 'li',
+            text: 'Copy Path',
+            callback: () => copy(row.abs_path)
+        },
+
+        {
+            type: 'li',
+            text: 'Open in Terminal',
+            callback: () => {
+                open_file_location_in_terminal(row)
+            }
+        },
+    ]
+}
 
 function Items({items, setItems}) {
 
-
+    const menuProps = useConst(() => ({
+        shouldFocusOnMount: true,
+        shouldFocusOnContainer: true,
+        items: [
+            {key: 'rename', text: 'Rename', onClick: () => console.log('Rename clicked')},
+            {key: 'edit', text: 'Edit', onClick: () => console.log('Edit clicked')},
+            {key: 'properties', text: 'Properties', onClick: () => console.log('Properties clicked')},
+            {key: 'linkNoTarget', text: 'Link same window', href: 'http://bing.com'},
+            {key: 'linkWithTarget', text: 'Link new window', href: 'http://bing.com', target: '_blank'},
+            {key: 'disabled', text: 'Disabled item', disabled: true},
+        ],
+    }));
 
     return (
         <div>
             <DetailsList
+                onRenderRow={(props, Row) => {
+                    let row = props.item;
+                    return <RightMenu theme="mac" options={options(row)} maxWidth={200} style={{cursor: "pointer"}}>
+                        <div onDoubleClick={() => open_file_location(row)}>
+                            <Row persistMenu menuProps={menuProps} data-foo="bar" {...props} />
+                        </div>
+                    </RightMenu>;
+                }}
+
                 items={items}
                 compact={true}
                 columns={columns}
@@ -164,6 +228,8 @@ function Items({items, setItems}) {
                 isHeaderVisible={true}
                 // onItemInvoked={this._onItemInvoked}
             />
+
+
         </div>
     );
 }

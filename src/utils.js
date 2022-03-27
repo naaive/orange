@@ -11,3 +11,19 @@ export async function search(kw) {
     });
     return res.file_views;
 }
+
+
+
+export function open_file_location_in_terminal(row) {
+    invoke('my_custom_command', {
+        number: 3,
+        kw: row.abs_path
+    })
+}
+
+export function open_file_location(row) {
+    invoke('my_custom_command', {
+        number: 1,
+        kw: row.abs_path
+    })
+}
