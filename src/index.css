@@ -48,7 +48,7 @@ div.ms-Callout-container > div {
 }
 
 .items {
-    height: calc(100vh - 130px);
+    height: calc(100vh - 125px);
 }
 
 .ms-DetailsHeader {
