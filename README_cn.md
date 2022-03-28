@@ -23,9 +23,9 @@
 
 ## 介绍
 
-![Demo](screenshot/orange_0.0.5.gif)
+![Demo](screenshot/orange_v0.3.0.gif)
 
-Orange是一款跨平台的**文件搜索**工具。
+Orange是一款跨平台的**文件搜索**引擎。
 
 ## ✨特点
 - 使用简单，自带中文分词、拼音、补全

@@ -23,7 +23,7 @@
 
 ## What is Orange?
 
-![Demo](screenshot/orange_0.0.5.gif)
+![Demo](screenshot/orange_v0.3.0.gif)
 
 Orange is a **file search** desktop application. 
 
