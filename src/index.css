@@ -58,7 +58,7 @@ div.ms-Callout-container > div {
 ul.right-menu-list.theme-mac {
     background: white;
     font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
-    color: black;
+    color: #21201f;
     font-size: 13px;
     border-radius: 0;
     box-shadow: rgba(0, 0, 0, 0.133) 0px 3.2px 7.2px 0px, rgba(0, 0, 0, 0.11) 0px 0.6px 1.8px 0px !important;
@@ -68,7 +68,7 @@ ul.right-menu-list.theme-mac {
 
 ul.right-menu-list.theme-mac :hover {
     background: #f3f2f1;
-    color: black;
+    color: #21201f;
     cursor: pointer;
 }
 
