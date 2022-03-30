@@ -101,7 +101,7 @@ fn curr_ts() -> u64 {
   curr_ts
 }
 
-fn housekeeping(kv_store: Arc<KvStore>) {
+pub fn housekeeping(kv_store: Arc<KvStore>) {
   info!("housekeeping...");
 
   let reidx_opt = kv_store.get_str("reindex".to_string());

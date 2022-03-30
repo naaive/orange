@@ -73,6 +73,7 @@ async fn my_custom_command(
           kw = "*".to_string();
         }
         let vec = arc.search_with_filter(kw, 100, is_dir_opt, ext_opt, parent_dirs_opt);
+        // let vec = arc.search(kw, 100);
         Ok(CustomResponse {
           message: "".to_string(),
           file_views: vec,
