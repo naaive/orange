@@ -21,7 +21,7 @@ const STORE_PATH: &'static str = "orangecachedata";
 
 #[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
-const VERSION: &'static str = "0.3.0";
+const VERSION: &'static str = "0.4.0";
 const LAST_INDEX_TS: &'static str = "last_index_ts";
 
 pub fn run() {
@@ -72,6 +72,15 @@ fn win_watch(idx_store_bro: Arc<IdxStore>) {
   }
 }
 
+pub fn reindex() {
+  unsafe {
+    CONF_STORE
+      .clone()
+      .unwrap()
+      .put_str("reindex".to_string(), "1".to_string());
+  }
+}
+
 fn need_reindex(kv_store: Arc<KvStore>) -> bool {
   let key = LAST_INDEX_TS.to_string();
 
@@ -95,29 +104,42 @@ fn curr_ts() -> u64 {
   curr_ts
 }
 
-fn housekeeping(kv_store: Arc<KvStore>) {
+pub fn housekeeping(kv_store: Arc<KvStore>) {
   info!("housekeeping...");
+
+  let reidx_opt = kv_store.get_str("reindex".to_string());
+  match reidx_opt {
+    None => {
+      info!("no need to reindex");
+    }
+    Some(_) => {
+      clear(&kv_store);
+      info!("detect reindex sign");
+      return;
+    }
+  }
+
   let version_opt = kv_store.get_str("version".to_string());
   match version_opt {
     None => {
-      let _ = std::fs::remove_dir_all(&format!("{}{}", utils::data_dir(), "/orangecachedata/idx"));
-      kv_store.clear();
-      kv_store.put_str("version".to_string(), VERSION.to_string());
+      clear(&kv_store);
       info!("init version {}", VERSION);
     }
     Some(version) => {
       if !version.eq(VERSION) {
-        let _ =
-          std::fs::remove_dir_all(&format!("{}{}", utils::data_dir(), "/orangecachedata/idx"))
-            .unwrap();
-        kv_store.clear();
-        kv_store.put_str("version".to_string(), VERSION.to_string());
+        clear(&kv_store);
         info!("clean old version cachedata");
       } else {
         info!("no need to clean, current version:{}", VERSION);
       }
     }
   }
+}
+
+fn clear(kv_store: &Arc<KvStore>) {
+  let _ = std::fs::remove_dir_all(&format!("{}{}", utils::data_dir(), "/orangecachedata/idx"));
+  kv_store.clear();
+  kv_store.put_str("version".to_string(), VERSION.to_string());
 }
 
 #[cfg(windows)]

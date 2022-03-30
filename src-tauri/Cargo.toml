@@ -42,6 +42,7 @@ windows = { version = "0.29.0", features = [
 pinyin = "0.9"
 directories = "4.0"
 jwalk = "0.6.0"
+convert_case = "0.1.0"
 
 
 [features]
@@ -52,5 +53,5 @@ default = [ "custom-protocol" ]
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
 
-#[profile.test]
-##opt-level=3
+[profile.test]
+opt-level=3

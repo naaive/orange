@@ -4,6 +4,7 @@
 )]
 
 use crate::file_view::FileView;
+use tauri::{App, Manager};
 use tauri::{SystemTray, SystemTrayEvent};
 use tauri::{Window, Wry};
 
@@ -23,17 +24,24 @@ mod watch_exec;
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
 use crate::walk_metrics::WalkMatrixView;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use std::time::Duration;
 use tauri::{CustomMenuItem, SystemTrayMenu};
 
 static mut IDX_STORE: Option<Arc<IdxStore>> = None;
 static mut CONF_STORE: Option<Arc<KvStore>> = None;
+static mut APP: Option<App<Wry>> = None;
+static mut WINDOW: Option<Window<Wry>> = None;
 
 #[derive(serde::Serialize)]
 struct CustomResponse {
   message: String,
   file_views: Vec<FileView>,
+}
+
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+  message: String,
 }
 
 #[tauri::command]
@@ -73,6 +81,7 @@ async fn my_custom_command(
           kw = "*".to_string();
         }
         let vec = arc.search_with_filter(kw, 100, is_dir_opt, ext_opt, parent_dirs_opt);
+        // let vec = arc.search(kw, 100);
         Ok(CustomResponse {
           message: "".to_string(),
           file_views: vec,
@@ -118,16 +127,35 @@ fn main() {
 
 fn show() {
   let quit = CustomMenuItem::new("quit".to_string(), "Quit");
-  let tray_menu = SystemTrayMenu::new().add_item(quit);
+  let reindex = CustomMenuItem::new("reindex".to_string(), "Reindex");
+  let tray_menu = SystemTrayMenu::new().add_item(reindex).add_item(quit);
   let tray = SystemTray::new().with_menu(tray_menu);
 
   tauri::Builder::default()
+    .setup(|x| {
+      let option = x.get_window("main");
+      unsafe {
+        WINDOW = option;
+      }
+      Ok(())
+    })
     .invoke_handler(tauri::generate_handler![my_custom_command, walk_metrics])
     .system_tray(tray)
     .on_system_tray_event(|_app, event| match event {
       SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
         "quit" => {
           std::process::exit(0);
+        }
+        "reindex" => {
+          unsafe {
+            WINDOW.clone().unwrap().emit(
+              "reindex",
+              Payload {
+                message: "".to_string(),
+              },
+            );
+          }
+          indexing::reindex();
         }
         _ => {}
       },

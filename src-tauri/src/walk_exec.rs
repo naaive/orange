@@ -5,14 +5,14 @@ use std::ops::Deref;
 
 #[cfg(windows)]
 use crate::utils::get_win32_ready_drives;
-use crate::{utils, IDX_STORE};
+use crate::{indexing, utils, IDX_STORE};
 
 use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
 use jwalk::{DirEntry, WalkDir};
 use log::info;
 use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
-use std::time::{Duration, SystemTime};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 static mut WALK_METRICS: Option<Arc<Mutex<WalkMetrics>>> = None;
 
@@ -195,12 +195,7 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     let path = buf.to_str().unwrap();
     let name = en.file_name().to_str().unwrap();
     let ext = utils::file_ext(name);
-    store.add(
-      name.to_lowercase(),
-      path.to_string(),
-      is_dir,
-      ext.to_string(),
-    );
+    store.add(name.to_string(), path.to_string(), is_dir, ext.to_string());
   }
   let end = SystemTime::now();
   store.commit();
@@ -210,6 +205,7 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     cnt
   );
 }
+use crate::utils::init_log;
 
 #[test]
 fn t1() {
@@ -218,7 +214,6 @@ fn t1() {
   let string = format!("{}/orangecachedata", dir);
   println!("{}", string);
   let dir_all = std::fs::remove_dir_all(string);
-  use crate::utils::init_log;
   init_log();
 
   let dir = utils::data_dir();
@@ -228,5 +223,21 @@ fn t1() {
   let conf_store = Arc::new(KvStore::new(&conf_path));
   let idx_store = Arc::new(IdxStore::new(&idx_path));
 
-  run(conf_store, idx_store);
+  run(conf_store, idx_store.clone());
+  idx_store.commit();
+}
+
+#[test]
+fn disable_walk() {
+  init_log();
+
+  let dir = utils::data_dir();
+  let conf_path = format!("{}{}", dir, "/orangecachedata/conf");
+  let conf_store = Arc::new(KvStore::new(&conf_path));
+  let curr_ts = SystemTime::now()
+    .duration_since(UNIX_EPOCH)
+    .unwrap()
+    .as_secs();
+  conf_store.put_str("version".to_string(), "0.3.0".to_string());
+  conf_store.put_str("last_index_ts".to_string(), curr_ts.to_string());
 }

@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 
 extern crate chrono;
 use chrono::Local;
+use convert_case::{Case, Casing};
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
@@ -227,4 +228,10 @@ fn t4() {
 fn t5() {
   let ext = file_ext("java");
   println!("{}", ext);
+}
+
+#[test]
+fn t6() {
+  let string = "FilterFieldNamesProvidingStoredFieldsVisitor.java".to_case(Case::Title);
+  println!("{}", string);
 }
