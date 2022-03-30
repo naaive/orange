@@ -5,7 +5,7 @@ use std::ops::Deref;
 
 #[cfg(windows)]
 use crate::utils::get_win32_ready_drives;
-use crate::{utils, IDX_STORE, indexing};
+use crate::{indexing, utils, IDX_STORE};
 
 use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
 use jwalk::{DirEntry, WalkDir};
@@ -195,12 +195,7 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     let path = buf.to_str().unwrap();
     let name = en.file_name().to_str().unwrap();
     let ext = utils::file_ext(name);
-    store.add(
-      name.to_string(),
-      path.to_string(),
-      is_dir,
-      ext.to_string(),
-    );
+    store.add(name.to_string(), path.to_string(), is_dir, ext.to_string());
   }
   let end = SystemTime::now();
   store.commit();
@@ -240,9 +235,9 @@ fn disable_walk() {
   let conf_path = format!("{}{}", dir, "/orangecachedata/conf");
   let conf_store = Arc::new(KvStore::new(&conf_path));
   let curr_ts = SystemTime::now()
-      .duration_since(UNIX_EPOCH)
-      .unwrap()
-      .as_secs();
+    .duration_since(UNIX_EPOCH)
+    .unwrap()
+    .as_secs();
   conf_store.put_str("version".to_string(), "0.3.0".to_string());
   conf_store.put_str("last_index_ts".to_string(), curr_ts.to_string());
 }

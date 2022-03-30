@@ -17,11 +17,11 @@ use crate::file_doc::FileDoc;
 use crate::file_view::FileView;
 use crate::utils;
 use crate::utils::is_ascii_alphanumeric;
+use convert_case::{Case, Casing};
 use jieba_rs::Jieba;
 use pinyin::ToPinyin;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use convert_case::{Case, Casing};
 use tantivy::merge_policy::NoMergePolicy;
 
 pub struct IdxStore {
@@ -41,7 +41,7 @@ static mut IS_FULL_INDEXING: bool = true;
 impl IdxStore {
   pub fn search_tokenize(&self, hans: String) -> String {
     if is_ascii_alphanumeric(hans.as_str()) {
-      return self.ascii_tokenize(hans);;
+      return self.ascii_tokenize(hans);
     }
     let space = " ";
     let hans = hans.replace("-", space).replace("_", space);
@@ -56,9 +56,9 @@ impl IdxStore {
     token_text.into_iter().collect::<Vec<String>>().join(" ")
   }
 
-  fn ascii_tokenize(&self,asc:String) -> String {
+  fn ascii_tokenize(&self, asc: String) -> String {
     let string = asc.to_case(Case::Title).to_lowercase();
-    return format!("{} {}",string,asc.to_lowercase());
+    return format!("{} {}", string, asc.to_lowercase());
   }
   pub fn tokenize(&self, hans: String) -> String {
     // return hans;
@@ -319,7 +319,7 @@ impl IdxStore {
   pub fn new(path: &str) -> IdxStore {
     let index_path = std::path::Path::new(path);
     let mut schema_builder = Schema::builder();
-    let name_field = schema_builder.add_text_field("name", TEXT );
+    let name_field = schema_builder.add_text_field("name", TEXT);
     let path_field = schema_builder.add_bytes_field("path", INDEXED | STORED);
     let is_dir_field = schema_builder.add_bytes_field("is_dir_field", INDEXED);
     let ext_field = schema_builder.add_text_field("ext", TEXT);
@@ -423,8 +423,8 @@ impl IdxStore {
 
 #[cfg(test)]
 mod tests {
-  use std::thread::sleep;
   use super::*;
+  use std::thread::sleep;
 
   #[test]
   fn t1() {
@@ -432,32 +432,32 @@ mod tests {
     fs::remove_dir_all(path);
     let mut store = IdxStore::new(path);
 
-    let vec1 = vec!["jack rose","JavaHow",
-                    "patch",
-                    "patch",
-                    "patch",
-
-
-                    "data",
+    let vec1 = vec![
+      "jack rose",
+      "JavaHow",
+      "patch",
+      "patch",
+      "patch",
+      "data",
       "patch.java",
       "patch.java",
       "DataPatchController.java",
       "patch.java",
       "DataPatchController.java",
       "DataPatchController.java",
-                    "java", "data","data"];
+      "java",
+      "data",
+      "data",
+    ];
 
     for x in vec1 {
-      store.add(x.to_string(), x.to_string(),false,"".to_string());
+      store.add(x.to_string(), x.to_string(), false, "".to_string());
     }
 
     store.commit();
     sleep(Duration::from_secs(1));
 
-    let vec = store.search(
-      "datapatchcontroller".to_string(),
-      10
-    );
+    let vec = store.search("datapatchcontroller".to_string(), 10);
     for x in vec {
       println!("{}", x.name);
     }
@@ -472,10 +472,7 @@ mod tests {
   fn t2() {
     let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
     let idx_store = Arc::new(IdxStore::new(&idx_path));
-    let vec = idx_store.search(
-      "data patch controller".to_string(),
-      10
-    );
+    let vec = idx_store.search("data patch controller".to_string(), 10);
     for x in vec {
       println!("{}", x.name);
     }

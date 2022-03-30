@@ -72,9 +72,12 @@ fn win_watch(idx_store_bro: Arc<IdxStore>) {
   }
 }
 
-pub fn reindex(){
+pub fn reindex() {
   unsafe {
-    CONF_STORE.clone().unwrap().put_str("reindx".to_string(), "1".to_string());
+    CONF_STORE
+      .clone()
+      .unwrap()
+      .put_str("reindex".to_string(), "1".to_string());
   }
 }
 
@@ -111,7 +114,7 @@ pub fn housekeeping(kv_store: Arc<KvStore>) {
     }
     Some(_) => {
       clear(&kv_store);
-      info!("reindex done");
+      info!("detect reindex sign");
       return;
     }
   }

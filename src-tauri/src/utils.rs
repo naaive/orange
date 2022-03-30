@@ -232,7 +232,6 @@ fn t5() {
 
 #[test]
 fn t6() {
-  let string = "FilterFieldNamesProvidingStoredFieldsVisitor.java".to_case(Case::Title)
-      ;
+  let string = "FilterFieldNamesProvidingStoredFieldsVisitor.java".to_case(Case::Title);
   println!("{}", string);
 }

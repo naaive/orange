@@ -5,6 +5,7 @@
   "dependencies": {
     "@fluentui/react": "^8.0.0",
     "@fluentui/react-file-type-icons": "^8.6.6",
+    "@fluentui/react-hooks": "^8.5.3",
     "@right-menu/react": "0.0.5",
     "@tauri-apps/api": "^1.0.0-rc.2",
     "@testing-library/jest-dom": "^5.14.1",
