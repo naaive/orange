@@ -85,17 +85,14 @@ const columns = [
             // item.name
             return (
                 <div>
-                    <TooltipHost content={`${item.fileType} file`}>
-                        {
-                            isDir ? <Icon {...getFileTypeIconProps({
-                                    type: FileIconType.folder,
-                                    size: 20,
-                                    imageFileType: 'svg'
-                                })} /> :
-                                <Icon {...getFileTypeIconProps({extension: ext, size: 20, imageFileType: 'png'})} />
-                        }
-
-                    </TooltipHost>
+                    {
+                        isDir ? <Icon {...getFileTypeIconProps({
+                                type: FileIconType.folder,
+                                size: 20,
+                                imageFileType: 'svg'
+                            })} /> :
+                            <Icon {...getFileTypeIconProps({extension: ext, size: 20, imageFileType: 'png'})} />
+                    }
                 </div>
             );
         }
