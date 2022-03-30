@@ -68,9 +68,10 @@
     },
     "windows": [
       {
+        "skipTaskbar": false,
         "center": true,
         "title": "Orange",
-        "width": 870,
+        "width": 900,
         "height": 600,
         "resizable": true,
         "fullscreen": false
