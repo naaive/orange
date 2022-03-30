@@ -72,6 +72,12 @@ fn win_watch(idx_store_bro: Arc<IdxStore>) {
   }
 }
 
+pub fn reindex(){
+  unsafe {
+    CONF_STORE.clone().unwrap().put_str("reindx".to_string(), "1".to_string());
+  }
+}
+
 fn need_reindex(kv_store: Arc<KvStore>) -> bool {
   let key = LAST_INDEX_TS.to_string();
 
@@ -97,27 +103,40 @@ fn curr_ts() -> u64 {
 
 fn housekeeping(kv_store: Arc<KvStore>) {
   info!("housekeeping...");
+
+  let reidx_opt = kv_store.get_str("reindex".to_string());
+  match reidx_opt {
+    None => {
+      info!("no need to reindex");
+    }
+    Some(_) => {
+      clear(&kv_store);
+      info!("reindex done");
+      return;
+    }
+  }
+
   let version_opt = kv_store.get_str("version".to_string());
   match version_opt {
     None => {
-      let _ = std::fs::remove_dir_all(&format!("{}{}", utils::data_dir(), "/orangecachedata/idx"));
-      kv_store.clear();
-      kv_store.put_str("version".to_string(), VERSION.to_string());
+      clear(&kv_store);
       info!("init version {}", VERSION);
     }
     Some(version) => {
       if !version.eq(VERSION) {
-        let _ =
-          std::fs::remove_dir_all(&format!("{}{}", utils::data_dir(), "/orangecachedata/idx"))
-            .unwrap();
-        kv_store.clear();
-        kv_store.put_str("version".to_string(), VERSION.to_string());
+        clear(&kv_store);
         info!("clean old version cachedata");
       } else {
         info!("no need to clean, current version:{}", VERSION);
       }
     }
   }
+}
+
+fn clear(kv_store: &Arc<KvStore>) {
+  let _ = std::fs::remove_dir_all(&format!("{}{}", utils::data_dir(), "/orangecachedata/idx"));
+  kv_store.clear();
+  kv_store.put_str("version".to_string(), VERSION.to_string());
 }
 
 #[cfg(windows)]

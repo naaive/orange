@@ -129,6 +129,10 @@ fn show() {
         "quit" => {
           std::process::exit(0);
         }
+        "reindex" => {
+          indexing::reindex();
+          //todo dialog
+        }
         _ => {}
       },
       _ => {}
