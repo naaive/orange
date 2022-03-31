@@ -88,7 +88,6 @@ pub fn open_file_path_in_terminal(path: &str) {
 }
 
 pub fn data_dir() -> String {
-  // return  "/Users/jeff/IdeaProjects/orange2/src-tauri/target".to_string();
   let project_dir = ProjectDirs::from("com", "github", "Orange").unwrap();
   project_dir.data_dir().to_str().unwrap().to_string()
 }
