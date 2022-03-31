@@ -104,7 +104,7 @@ fn inc_root_walk_metrics(sz: usize, i: usize) {
 }
 
 #[cfg(windows)]
-fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: String) {
+fn win_walk_root(home: String) {
   let len = win_subs_len();
 
   let drives = unsafe { get_win32_ready_drives() };
@@ -125,7 +125,7 @@ fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Strin
         continue;
       }
 
-      walk(idx_store.clone(), &sub, Some(home.to_string()));
+      walk(&sub, Some(home.to_string()));
       CONF_STORE.put_str(key, "1".to_string());
     }
   }

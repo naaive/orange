@@ -86,3 +86,27 @@ ul.right-menu-list.theme-mac li {
 body {
     overflow: hidden;
 }
+.tabs{
+    display: flex;
+    justify-content:space-between;
+}
+.tabs>.menu{
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: center;
+    width: 40px;
+}
+.ms-layer{
+    display: none;
+}
+.setting-item{
+    padding: 10px 0 ;
+}
+.setting-item .add{
+    margin: 2px 0 0 0 !important;
+}
+
+.setting-item  .added {
+    display: flex;
+    margin: 2px 0 0 0 !important;
+}
