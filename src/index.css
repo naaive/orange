@@ -51,8 +51,8 @@ div.ms-Callout-container > div {
 .items {
     height: calc(100vh - 125px);
 }
-/*todo*/
-.items>div{
+
+.items>div>div div{
     overflow: hidden;
 }
 
