@@ -27,6 +27,12 @@ const VERSION: &'static str = "0.4.0";
 const LAST_INDEX_TS: &'static str = "last_index_ts";
 
 pub fn run() {
+  std::thread::spawn(|| {
+    do_run();
+  });
+}
+
+fn do_run() {
   housekeeping();
 
   let reindex = need_reindex();
@@ -41,10 +47,10 @@ pub fn run() {
 
   info!("start fs watch");
   #[cfg(windows)]
-  win_watch();
+      win_watch();
 
   #[cfg(unix)]
-  watch_exec::run();
+      watch_exec::run();
 }
 
 #[cfg(windows)]
