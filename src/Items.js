@@ -201,7 +201,6 @@ function Items({items, setItems}) {
                 setKey="none"
                 layoutMode={DetailsListLayoutMode.justified}
                 isHeaderVisible={true}
-                // onItemInvoked={this._onItemInvoked}
             />
 
 

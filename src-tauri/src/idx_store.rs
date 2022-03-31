@@ -1,28 +1,32 @@
 use std::collections::HashSet;
-
 use std::fs;
-
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use convert_case::{Case, Casing};
+use jieba_rs::Jieba;
+use pinyin::ToPinyin;
 use tantivy::collector::TopDocs;
+use tantivy::merge_policy::NoMergePolicy;
 use tantivy::query::{BooleanQuery, FuzzyTermQuery, Occur, Query, QueryParser, TermQuery};
 use tantivy::schema::*;
-
 use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
 
 use crate::file_doc::FileDoc;
 use crate::file_view::FileView;
 use crate::utils;
 use crate::utils::is_ascii_alphanumeric;
-use convert_case::{Case, Casing};
-use jieba_rs::Jieba;
-use pinyin::ToPinyin;
-use std::sync::{Arc, Mutex};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use tantivy::merge_policy::NoMergePolicy;
+
+lazy_static! {
+  pub static ref IDX_STORE: IdxStore = {
+    let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+    IdxStore::new(&idx_path)
+  };
+}
 
 pub struct IdxStore {
   pub writer: Arc<Mutex<IndexWriter>>,
@@ -201,7 +205,7 @@ impl IdxStore {
       .map(|x| {
         return FileView {
           abs_path: "".to_string(),
-          name: utils::path2name(utils::norm(&x)).unwrap_or("".to_string()),
+          name: utils::path2name(x),
           created_at: 0,
           mod_at: 0,
           size: 0,
@@ -287,7 +291,7 @@ impl IdxStore {
 
           file_views.push(FileView {
             abs_path: utils::norm(&path),
-            name: utils::path2name(utils::norm(&path)).unwrap_or("".to_string()),
+            name: utils::path2name(path),
             created_at: meta
               .created()
               .unwrap_or(SystemTime::now())
@@ -423,8 +427,9 @@ impl IdxStore {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
   use std::thread::sleep;
+
+  use super::*;
 
   #[test]
   fn t1() {

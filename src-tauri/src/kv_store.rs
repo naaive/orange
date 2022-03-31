@@ -1,10 +1,15 @@
+use crate::utils;
 use kv::*;
-
 #[derive(Clone)]
 pub struct KvStore<'a> {
   bucket: Bucket<'a, String, String>,
 }
-
+lazy_static! {
+  pub static ref CONF_STORE: KvStore<'static> = {
+    let conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
+    KvStore::new(&conf_path)
+  };
+}
 impl KvStore<'_> {
   pub fn new<'a>(path: &str) -> KvStore<'a> {
     let cfg = Config::new(path);

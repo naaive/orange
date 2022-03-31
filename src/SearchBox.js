@@ -1,22 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import {TagPicker} from "@fluentui/react";
-import {invoke} from "@tauri-apps/api";
 import * as R from "ramda";
-import {search} from "./utils";
+import {search, suggest} from "./utils";
 
 function top6(json) {
     return R.take(6)(json);
 }
 
 async function filterSuggestedTags(filter, selectedItems) {
-    let res = await invoke('my_custom_command', {
-        number: 2,
-        kw: filter
-    });
+    let res = await suggest(filter);
 
     let titles = R.map(x => ({name: x, key: x}))(R.uniq(R.map(
         x => (x.name)
-    )(res.file_views)));
+    )(res)));
 
     if (titles[0]) {
         if (titles[0].name !== filter) {
@@ -43,7 +39,7 @@ const SearchBox = ({setItems, kw, setKw, selectedKey}) => {
                 setInit(true)
             }
 
-        }, 1000);
+        }, 200);
         setHandler(number);
 
     }, [init])

@@ -1,6 +1,7 @@
 use core::fmt;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::sync::RwLock;
 
 use log::set_logger_racy;
 use serde::{Deserialize, Serialize};
@@ -8,6 +9,10 @@ use serde_json::{Result, Value};
 
 use crate::kv_store::KvStore;
 use crate::utils;
+
+lazy_static! {
+  pub static ref USER_SETTING: RwLock<UserSetting> = RwLock::new(UserSetting::default());
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Theme {
@@ -42,6 +47,15 @@ impl Error for UserSettingError {
 pub struct UserSetting {
   theme: Theme,
   exclude_index_path: Vec<String>,
+}
+
+impl UserSetting {
+  pub fn theme(&self) -> &Theme {
+    &self.theme
+  }
+  pub fn exclude_index_path(&self) -> &Vec<String> {
+    &self.exclude_index_path
+  }
 }
 
 impl UserSetting {

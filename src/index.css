@@ -4,6 +4,7 @@
 
 body {
     padding: 10px 10px;
+    user-select: none;
 }
 
 .ms-FocusZone {

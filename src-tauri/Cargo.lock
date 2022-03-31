@@ -67,6 +67,7 @@ dependencies = [
  "jwalk",
  "kernel32-sys",
  "kv",
+ "lazy_static",
  "libc",
  "log",
  "log4rs",

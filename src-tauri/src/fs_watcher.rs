@@ -1,6 +1,7 @@
 extern crate notify;
 
 use crate::idx_store::IdxStore;
+use crate::idx_store::IDX_STORE;
 use crate::utils;
 use crate::utils::subs;
 use log::{error, info};
@@ -17,13 +18,12 @@ use std::sync::mpsc::channel;
 use std::sync::Arc;
 
 pub struct FsWatcher {
-  index_store: Arc<IdxStore>,
   path: String,
 }
 
 impl FsWatcher {
-  pub fn new(index_store: Arc<IdxStore>, path: String) -> FsWatcher {
-    FsWatcher { index_store, path }
+  pub fn new(path: String) -> FsWatcher {
+    FsWatcher { path }
   }
 
   pub fn start(&mut self) {
@@ -49,14 +49,13 @@ impl FsWatcher {
             continue;
           }
           if Op::REMOVE & op == Op::REMOVE {
-            self.index_store._del(path_str.to_string())
+            IDX_STORE._del(path_str.to_string())
           };
           let result = path.metadata();
           match result {
             Ok(meta) => {
-              let abs_path = path.to_str().unwrap().to_string();
-
-              let name = Self::get_filename(&path);
+              let abs_path = path.to_str().unwrap_or("").to_string();
+              let name = utils::path2name(abs_path.clone());
 
               #[cfg(windows)]
               let _size = meta.file_size();
@@ -76,9 +75,7 @@ impl FsWatcher {
               }
               let name0 = name.clone();
               let ext = utils::file_ext(&name0);
-              self
-                .index_store
-                .add(name, abs_path, meta.is_dir(), ext.to_string())
+              IDX_STORE.add(name, abs_path, meta.is_dir(), ext.to_string())
             }
             Err(_) => {}
           }
@@ -102,20 +99,9 @@ impl FsWatcher {
       if let Ok(meta) = sub_path.metadata() {
         let name0 = name.clone();
         let ext = utils::file_ext(&name0);
-        self
-          .index_store
-          .add(name, sub.clone(), meta.is_dir(), ext.to_string());
+        IDX_STORE.add(name, sub.clone(), meta.is_dir(), ext.to_string());
       }
     }
-  }
-
-  fn get_filename(path: &PathBuf) -> String {
-    let name = path
-      .file_name()
-      .map(|x| x.to_str().unwrap())
-      .unwrap_or_default()
-      .to_string();
-    name
   }
 }
 
@@ -199,6 +185,6 @@ fn t4() {
   let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
 
   let idx_store = Arc::new(IdxStore::new(&idx_path));
-  let mut watcher = FsWatcher::new(idx_store, "/".to_string());
+  let mut watcher = FsWatcher::new("/".to_string());
   watcher.start();
 }

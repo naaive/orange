@@ -92,19 +92,14 @@ pub fn data_dir() -> String {
   project_dir.data_dir().to_str().unwrap().to_string()
 }
 
-// pub fn parse_ts(time: SystemTime) -> u64 {
-//   let created_at = time
-//     .duration_since(SystemTime::UNIX_EPOCH)
-//     .unwrap()
-//     .as_secs() as u64;
-//   created_at
-// }
-pub fn path2name(x: String) -> Option<String> {
-  x.as_str()
+pub fn path2name(x: String) -> String {
+  norm(&x)
+    .as_str()
     .split("/")
     .into_iter()
     .last()
     .map(|x| x.to_string())
+    .unwrap_or("".to_string())
 }
 pub fn file_ext(file_name: &str) -> &str {
   if !file_name.contains(".") {
