@@ -20,6 +20,7 @@ mod utils;
 mod walk_exec;
 mod walk_metrics;
 mod watch_exec;
+mod user_setting;
 
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
