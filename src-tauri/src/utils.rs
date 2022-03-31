@@ -229,3 +229,9 @@ fn t6() {
   let string = "FilterFieldNamesProvidingStoredFieldsVisitor.java".to_case(Case::Title);
   println!("{}", string);
 }
+use webbrowser;
+
+#[test]
+fn t7() {
+  let result = webbrowser::open("https://github.com/naaive/orange/releases");
+}

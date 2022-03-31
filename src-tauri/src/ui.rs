@@ -76,6 +76,9 @@ fn handle_tray_event(event: SystemTrayEvent) {
         }
         indexing::reindex();
       }
+      "upgrade"=>{
+        webbrowser::open("https://github.com/naaive/orange/releases");
+      }
       _ => {}
     },
     _ => {}
@@ -85,7 +88,8 @@ fn handle_tray_event(event: SystemTrayEvent) {
 fn build_tray() -> SystemTray {
   let quit = CustomMenuItem::new("quit".to_string(), "Quit");
   let reindex = CustomMenuItem::new("reindex".to_string(), "Reindex");
-  let tray_menu = SystemTrayMenu::new().add_item(reindex).add_item(quit);
+  let upgrade = CustomMenuItem::new("upgrade".to_string(), "Upgrade");
+  let tray_menu = SystemTrayMenu::new().add_item(upgrade).add_item(reindex).add_item(quit);
   let tray = SystemTray::new().with_menu(tray_menu);
   tray
 }

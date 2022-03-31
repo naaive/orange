@@ -51,7 +51,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                 </PivotItem>
                 <PivotItem headerText="Folder" itemIcon="FabricFolder" itemKey="1">
                 </PivotItem>
-                <PivotItem headerText="Doc" itemIcon="Document" itemKey="2">
+                <PivotItem headerText="Document" itemIcon="Document" itemKey="2">
                 </PivotItem>
                 <PivotItem headerText="Video" itemIcon="Video" itemKey="3">
                 </PivotItem>

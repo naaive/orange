@@ -44,6 +44,7 @@ directories = "4.0"
 jwalk = "0.6.0"
 convert_case = "0.1.0"
 lazy_static = "1.4.0"
+webbrowser = "0.6.0"
 
 [features]
 # by default Tauri runs in production mode
