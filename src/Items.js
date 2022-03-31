@@ -7,7 +7,7 @@ import moment from "moment";
 import copy from "copy-to-clipboard";
 import {open_file_location, open_file_location_in_terminal} from "./utils";
 import RightMenu from '@right-menu/react'
-
+import { Marker } from "react-mark.js";
 initializeFileTypeIcons(undefined);
 
 function bytesToSize(bytes) {
@@ -100,13 +100,19 @@ const columns = [
     {
         key: "column2",
         name: "Name",
-        fieldName: "name",
         minWidth: 50,
         maxWidth: 200,
         isRowHeader: true,
         isResizable: true,
         data: "string",
-        isPadded: true
+        isPadded: true,
+        onRender: (item) => {
+            return <span>
+                <Marker mark={item.kw} options={{ className: "marker" }}>
+       {item.name}
+      </Marker>
+                </span>;
+        },
     },
     {
         key: "column3",
@@ -178,7 +184,7 @@ function options(row) {
     ]
 }
 
-function Items({items, setItems}) {
+function Items({kw,items, setItems}) {
 
 
     return (
@@ -186,8 +192,9 @@ function Items({items, setItems}) {
             <DetailsList
                 onRenderRow={(props, Row) => {
                     let row = props.item;
+                    row.kw = kw;
                     return <RightMenu theme="mac" options={options(row)} maxWidth={200} style={{cursor: "pointer"}}>
-                        <div onDoubleClick={() => open_file_location(row)}>
+                        <div>
                             <Row persistMenu data-foo="bar" {...props} />
                         </div>
                     </RightMenu>;

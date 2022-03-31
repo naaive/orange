@@ -51,7 +51,8 @@ div.ms-Callout-container > div {
 .items {
     height: calc(100vh - 125px);
 }
-.items div{
+/*todo*/
+.items>div{
     overflow: hidden;
 }
 
@@ -73,14 +74,14 @@ ul.right-menu-list.theme-mac {
 ul.right-menu-list.theme-mac :hover {
     background: #f3f2f1;
     color: #21201f;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 
 ul.right-menu-list.theme-mac li {
     padding: 0 8px !important;
     font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
-    height: 36px !important;
-    line-height: 36px !important;
+    height: 30px !important;
+    line-height: 30px !important;
 }
 
 body {
@@ -109,4 +110,12 @@ body {
 .setting-item  .added {
     display: flex;
     margin: 2px 0 0 0 !important;
+}
+
+ div.menu > button > span{
+     color: black;
+ }
+.marker{
+    background: lightyellow;
+    /*background: lightgoldenrodyellow;*/
 }

@@ -58,7 +58,7 @@ const App = () => {
 
                 <Scrollbars autoHide autoHideTimeout={500}
                             autoHideDuration={200}>
-                    <Items items={items} setItems={setItems}/>
+                    <Items kw={kw} items={items} setItems={setItems}/>
                 </Scrollbars>
 
 

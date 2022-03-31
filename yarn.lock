@@ -7917,6 +7917,11 @@ map-obj@^1.0.0, map-obj@^1.0.1:
   resolved "https://registry.yarnpkg.com/map-obj/-/map-obj-1.0.1.tgz#d933ceb9205d82bdcf4886f6742bdc2b4dea146d"
   integrity sha1-2TPOuSBdgr3PSIb2dCvcK03qFG0=
 
+mark.js@^8.11.1:
+  version "8.11.1"
+  resolved "https://registry.yarnpkg.com/mark.js/-/mark.js-8.11.1.tgz#180f1f9ebef8b0e638e4166ad52db879beb2ffc5"
+  integrity sha1-GA8fnr74sOY45BZq1S24eb6y/8U=
+
 matcher@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/matcher/-/matcher-3.0.0.tgz#bd9060f4c5b70aa8041ccc6f80368760994f30ca"
@@ -9740,6 +9745,11 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+
+react-mark.js@^3.1.16:
+  version "3.1.16"
+  resolved "https://registry.yarnpkg.com/react-mark.js/-/react-mark.js-3.1.16.tgz#64ddc171df2844696287e56948a5bf142814b02e"
+  integrity sha512-vxZ4Ac9YeH5fAwlOWxxvEQlzqzZVYdwKalfN3OJMJXdft9ejEOOSOSiqWA2DVSgTOvUmFa+Fb8aNvzh+VKXBwA==
 
 react-modern-drawer@^1.0.2:
   version "1.0.2"
