@@ -46,10 +46,14 @@ impl Error for UserSettingError {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserSetting {
   theme: Theme,
+  lang: String,
   exclude_index_path: Vec<String>,
 }
 
 impl UserSetting {
+  pub fn lang(&self) -> &str {
+    &self.lang
+  }
   pub fn theme(&self) -> &Theme {
     &self.theme
   }
@@ -59,6 +63,10 @@ impl UserSetting {
 }
 
 impl UserSetting {
+  pub fn set_lang(&mut self, lang: String) {
+    self.lang = lang;
+    self.store();
+  }
   pub fn set_theme(&mut self, theme: Theme) {
     self.theme = theme;
     self.store();
@@ -87,10 +95,11 @@ impl UserSetting {
     let _ = std::fs::write(path, contents);
   }
 
-  fn load() -> std::result::Result<UserSetting, Box<dyn std::error::Error>> {
+  fn load() -> std::result::Result<UserSetting, Box<dyn Error>> {
     let path = UserSetting::build_conf_path();
     let string = std::fs::read_to_string(path)?;
-    Ok(serde_json::from_str(&string).expect("deserialize error"))
+    let result1: Result<UserSetting> = serde_json::from_str(&string);
+    result1.map_err(|x| x.to_string().into())
   }
 
   fn build_conf_path() -> String {
@@ -104,6 +113,7 @@ impl Default for UserSetting {
     UserSetting::load().unwrap_or_else(|_| {
       let setting = UserSetting {
         theme: Theme::Light,
+        lang: "en".to_string(),
         exclude_index_path: vec![],
       };
       setting.store();
@@ -119,6 +129,8 @@ mod tests {
   #[test]
   fn t1() {
     let mut setting = UserSetting::default();
+    // let string = "zh".into();
+    // setting.set_lang(string);
     // setting.set_theme(Theme::Dark);
     println!("{:?}", setting);
   }

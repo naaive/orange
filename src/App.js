@@ -41,7 +41,7 @@ const App = () => {
     }, [init, hideDialog]);
 
     return (
-        <div>
+        <div className={"body"}>
             <Dialog
                 hidden={hideDialog}
                 onDismiss={toggleHideDialog}

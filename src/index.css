@@ -3,8 +3,10 @@
 }
 
 body {
-    padding: 10px 10px;
     user-select: none;
+}
+.body {
+    padding: 10px 10px;
 }
 
 .ms-FocusZone {
