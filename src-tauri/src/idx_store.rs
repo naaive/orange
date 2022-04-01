@@ -398,7 +398,7 @@ impl IdxStore {
       ext = "".to_string();
     }
     let is_dir_bytes = IdxStore::is_dir_bytes(is_dir);
-    self.writer.lock().unwrap().add_document(doc!(
+    let _ = self.writer.lock().unwrap().add_document(doc!(
         self.name_field => self.tokenize(name),
         self.path_field=>path.as_bytes(),
         self.is_dir_field=>is_dir_bytes,
@@ -434,7 +434,7 @@ mod tests {
   #[test]
   fn t1() {
     let path = "./tmp";
-    fs::remove_dir_all(path);
+    let _ = fs::remove_dir_all(path);
     let mut store = IdxStore::new(path);
 
     let vec1 = vec![

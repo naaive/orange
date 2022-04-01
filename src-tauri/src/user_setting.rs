@@ -14,14 +14,8 @@ lazy_static! {
   pub static ref USER_SETTING: RwLock<UserSetting> = RwLock::new(UserSetting::default());
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub enum Theme {
-  Light,
-  Dark,
-}
-
 #[derive(Debug)]
-struct UserSettingError {
+pub struct UserSettingError {
   details: String,
 }
 
@@ -45,7 +39,7 @@ impl Error for UserSettingError {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserSetting {
-  theme: Theme,
+  theme: String,
   lang: String,
   exclude_index_path: Vec<String>,
 }
@@ -54,7 +48,7 @@ impl UserSetting {
   pub fn lang(&self) -> &str {
     &self.lang
   }
-  pub fn theme(&self) -> &Theme {
+  pub fn theme(&self) -> &String {
     &self.theme
   }
   pub fn exclude_index_path(&self) -> &Vec<String> {
@@ -67,22 +61,35 @@ impl UserSetting {
     self.lang = lang;
     self.store();
   }
-  pub fn set_theme(&mut self, theme: Theme) {
+  pub fn set_theme(&mut self, theme: String) {
     self.theme = theme;
     self.store();
   }
-  pub fn set_exclude_index_path(
+  pub fn add_exclude_index_path(
     &mut self,
-    exclude_index_path: Vec<String>,
+    path: String,
   ) -> std::result::Result<(), UserSettingError> {
-    for path in &exclude_index_path {
-      if std::fs::metadata(path).is_err() {
-        return Err(UserSettingError::new(path.to_string()));
-      }
+    if std::fs::metadata(&path).is_err() {
+      return Err(UserSettingError::new(path.to_string()));
     }
-    self.exclude_index_path = exclude_index_path;
+    self.exclude_index_path.push(path);
     self.store();
     Ok(())
+  }
+
+  pub fn remove_exclude_index_path(&mut self, path: String) {
+    self.set_exclude_index_path(
+      self
+        .exclude_index_path
+        .iter()
+        .filter(|x| !x.eq(&path))
+        .collect(),
+    );
+    self.store();
+  }
+
+  pub fn set_exclude_index_path(&mut self, exclude_index_path: Vec<String>) {
+    self.exclude_index_path = exclude_index_path;
   }
 }
 
@@ -112,7 +119,7 @@ impl Default for UserSetting {
   fn default() -> Self {
     UserSetting::load().unwrap_or_else(|_| {
       let setting = UserSetting {
-        theme: Theme::Light,
+        theme: "light".to_string(),
         lang: "en".to_string(),
         exclude_index_path: vec![],
       };
@@ -131,7 +138,7 @@ mod tests {
     let mut setting = UserSetting::default();
     // let string = "zh".into();
     // setting.set_lang(string);
-    // setting.set_theme(Theme::Dark);
+    setting.set_theme("dark".to_string());
     println!("{:?}", setting);
   }
 }

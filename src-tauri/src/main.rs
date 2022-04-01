@@ -5,7 +5,7 @@
 
 use crate::idx_store::IdxStore;
 use crate::kv_store::KvStore;
-use crate::user_setting::{Theme, UserSetting};
+use crate::user_setting::UserSetting;
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::Duration;
 

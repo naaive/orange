@@ -22,7 +22,28 @@ struct Payload {
 fn walk_metrics() -> WalkMatrixView {
   unsafe { walk_exec::get_walk_matrix() }
 }
+use crate::user_setting::{UserSettingError, USER_SETTING};
+#[tauri::command]
+fn change_theme(theme: String) {
+  USER_SETTING.write().unwrap().set_theme(theme);
+}
+#[tauri::command]
+fn change_lang(theme: String) {
+  USER_SETTING.write().unwrap().set_lang(theme);
+}
+#[tauri::command]
+fn add_exclude_path(path: String) -> Result<(), UserSettingError> {
+  USER_SETTING.write().unwrap().add_exclude_index_path(path)
+}
 
+#[tauri::command]
+fn remove_exclude_path(path: String) -> Result<(), UserSettingError> {
+  USER_SETTING.write().unwrap().add_exclude_index_path(path)
+}
+#[tauri::command]
+fn upgrade() {
+  let _ = webbrowser::open("https://github.com/naaive/orange/releases");
+}
 #[tauri::command]
 async fn suggest(kw: String) -> Vec<FileView> {
   unsafe { IDX_STORE.suggest(kw, 20) }
@@ -67,7 +88,7 @@ fn handle_tray_event(event: SystemTrayEvent) {
       }
       "reindex" => {
         unsafe {
-          WINDOW.clone().unwrap().emit(
+          let _ = WINDOW.clone().unwrap().emit(
             "reindex",
             Payload {
               message: "".to_string(),
@@ -76,8 +97,8 @@ fn handle_tray_event(event: SystemTrayEvent) {
         }
         indexing::reindex();
       }
-      "upgrade"=>{
-        webbrowser::open("https://github.com/naaive/orange/releases");
+      "upgrade" => {
+        let _ = webbrowser::open("https://github.com/naaive/orange/releases");
       }
       _ => {}
     },
@@ -89,7 +110,10 @@ fn build_tray() -> SystemTray {
   let quit = CustomMenuItem::new("quit".to_string(), "Quit");
   let reindex = CustomMenuItem::new("reindex".to_string(), "Reindex");
   let upgrade = CustomMenuItem::new("upgrade".to_string(), "Upgrade");
-  let tray_menu = SystemTrayMenu::new().add_item(upgrade).add_item(reindex).add_item(quit);
+  let tray_menu = SystemTrayMenu::new()
+    .add_item(upgrade)
+    .add_item(reindex)
+    .add_item(quit);
   let tray = SystemTray::new().with_menu(tray_menu);
   tray
 }
@@ -105,7 +129,8 @@ pub fn show() {
       open_file_in_terminal,
       search,
       suggest,
-      walk_metrics
+      walk_metrics,
+      change_theme
     ])
     .system_tray(build_tray())
     .on_system_tray_event(|_, event| handle_tray_event(event))
