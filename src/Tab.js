@@ -11,30 +11,32 @@ import {
 } from "@fluentui/react";
 import {search} from "./utils";
 import {useBoolean, useId} from "@fluentui/react-hooks";
+import {useTranslation} from "react-i18next";
 
 
 const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
     const [isOpen, { setTrue: openPanel, setFalse: dismissPanel }] = useBoolean(false);
+    const { t } = useTranslation();
 
 
     return (
         <div className={"tabs"}>
             <Panel
                 isLightDismiss
-                headerText="Setting"
+                headerText={t("setting-header")}
                 isOpen={isOpen}
                 onDismiss={dismissPanel}
                 // You MUST provide this prop! Otherwise screen readers will just say "button" with no label.
                 closeButtonAriaLabel="Close"
             >
               <div className="setting-item">
-                  <TextField label="Exclude Path" />
+                  <TextField label={t("exclude-path-label")} />
                   <div className="added">
                       <Label>I'm a Label</Label>
                       <IconButton iconProps={{iconName: 'RemoveFilter'}}  title="Setting"/>
                   </div>
                   <div className="add">
-                      <PrimaryButton text="Add" onClick={undefined}  />
+                      <PrimaryButton text={t("add")} onClick={undefined}  />
                   </div>
               </div>
             </Panel>
@@ -47,19 +49,19 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                 })
             }}>
                 {/*https://uifabricicons.azurewebsites.net/?help*/}
-                <PivotItem headerText="All" itemIcon="ViewAll2" itemKey="0">
+                <PivotItem headerText={t("all")} itemIcon="ViewAll2" itemKey="0">
                 </PivotItem>
-                <PivotItem headerText="Folder" itemIcon="FabricFolder" itemKey="1">
+                <PivotItem headerText={t("folder")} itemIcon="FabricFolder" itemKey="1">
                 </PivotItem>
-                <PivotItem headerText="Document" itemIcon="Document" itemKey="2">
+                <PivotItem headerText={t("document")} itemIcon="Document" itemKey="2">
                 </PivotItem>
-                <PivotItem headerText="Video" itemIcon="Video" itemKey="3">
+                <PivotItem headerText={t("video")} itemIcon="Video" itemKey="3">
                 </PivotItem>
-                <PivotItem headerText="Photo" itemIcon="Photo2" itemKey="4">
+                <PivotItem headerText={t("photo")} itemIcon="Photo2" itemKey="4">
                 </PivotItem>
             </Pivot>
             <div className={"menu"} onClick={openPanel}>
-                <IconButton iconProps={{iconName: 'CollapseMenu'}}  title="Setting"/>
+                <IconButton iconProps={{iconName: 'CollapseMenu'}}  title={t("setting-header")}/>
             </div>
         </div>
     );

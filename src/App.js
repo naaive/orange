@@ -10,6 +10,7 @@ import {appWindow} from '@tauri-apps/api/window'
 import {Dialog, DialogType, DialogFooter} from '@fluentui/react/lib/Dialog';
 import {useId, useBoolean} from '@fluentui/react-hooks';
 import Tab from "./Tab";
+import {useTranslation} from "react-i18next";
 
 
 const dialogContentProps = {
@@ -26,6 +27,7 @@ const App = () => {
     const [selectedKey, setSelectedKey] = useState(0);
     const [hideDialog, {toggle: toggleHideDialog}] = useBoolean(true);
     let [init, setInit] = useState(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (!init) {
