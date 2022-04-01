@@ -80,10 +80,11 @@ impl UserSetting {
   pub fn remove_exclude_index_path(&mut self, path: String) {
     self.set_exclude_index_path(
       self
-        .exclude_index_path
-        .iter()
-        .filter(|x| !x.eq(&path))
-        .collect(),
+          .exclude_index_path
+          .iter()
+          .filter(|x| !x.eq(&&path))
+          .map(|x| x.to_string())
+          .collect(),
     );
     self.store();
   }

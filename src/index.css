@@ -54,7 +54,7 @@ div.ms-Callout-container > div {
     height: calc(100vh - 125px);
 }
 
-.items>div>div div{
+.items .ms-DetailsList{
     overflow: hidden;
 }
 
@@ -114,10 +114,12 @@ body {
     margin: 2px 0 0 0 !important;
 }
 
- div.menu > button > span{
-     color: black;
- }
+ /*div.menu > button > span{*/
+ /*    color: black;*/
+ /*}*/
 .marker{
-    background: lightyellow;
+    background: #edebe9;
+    /*color: white;*/
+    /*background: lightslategray;*/
     /*background: lightgoldenrodyellow;*/
 }
