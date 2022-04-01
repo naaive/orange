@@ -40,7 +40,7 @@ fn linux_run(idx_store: Arc<IdxStore>) {
 fn win_run() {
   let drives = unsafe { get_win32_ready_drives() };
   for driv in drives {
-    let mut watcher = FsWatcher::new( driv);
+    let mut watcher = FsWatcher::new(driv);
     watcher.start();
   }
 }

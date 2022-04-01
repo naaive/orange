@@ -20,9 +20,9 @@ body {
 div.ms-SelectionZone {
 }
 
-div.ms-Callout-container > div {
-    width: 100% !important;
-}
+/*div.ms-Callout-container > div {*/
+/*    width: 100% !important;*/
+/*}*/
 
 .ms-BasePicker-text {
     border: 1px solid rgb(96, 94, 92);
@@ -107,6 +107,10 @@ body {
 }
 .setting-item .add{
     margin: 2px 0 0 0 !important;
+    display: flex;
+}
+.setting-item .add button{
+    margin: 0 0 20px 0;
 }
 
 .setting-item  .added {

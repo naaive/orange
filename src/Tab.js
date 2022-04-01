@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    ContextualMenu,
+    ContextualMenu, Dropdown,
     FontWeights,
     getTheme,
     IconButton, Label,
@@ -19,6 +19,15 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
     const { t } = useTranslation();
 
 
+    const options = [
+        { key: 'fruitsHeader', text: 'EN'},
+        { key: 'apple', text: '中文' },
+
+    ];
+
+    const dropdownStyles = {
+        dropdown: { width: 300 },
+    };
     return (
         <div className={"tabs"}>
             <Panel
@@ -29,6 +38,14 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                 // You MUST provide this prop! Otherwise screen readers will just say "button" with no label.
                 closeButtonAriaLabel="Close"
             >
+                <div className="setting-item">
+                    <Dropdown
+                        placeholder="Select an option"
+                        label="Basic uncontrolled example"
+                        options={options}
+                        styles={dropdownStyles}
+                    />
+                </div>
               <div className="setting-item">
                   <TextField label={t("exclude-path-label")} />
                   <div className="added">
@@ -36,6 +53,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                       <IconButton iconProps={{iconName: 'RemoveFilter'}}  title="Setting"/>
                   </div>
                   <div className="add">
+                      <PrimaryButton text={t("add")} onClick={undefined}  />
                       <PrimaryButton text={t("add")} onClick={undefined}  />
                   </div>
               </div>

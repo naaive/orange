@@ -47,10 +47,10 @@ fn do_run() {
 
   info!("start fs watch");
   #[cfg(windows)]
-      win_watch();
+  win_watch();
 
   #[cfg(unix)]
-      watch_exec::run();
+  watch_exec::run();
 }
 
 #[cfg(windows)]

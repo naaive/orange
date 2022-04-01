@@ -144,7 +144,7 @@ function Items({kw,items, setItems}) {
             isCollapsible: true,
             data: "string",
             onRender: (item) => {
-                return <span>{bytesToSize(item.size)}</span>;
+                return <span>{item.is_dir?"-":bytesToSize(item.size)}</span>;
             },
             isPadded: true
         },
