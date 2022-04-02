@@ -183,7 +183,6 @@ pub unsafe fn get_win32_ready_drive_nos() -> Vec<String> {
   res.sort();
   res
 }
-#[cfg(windows)]
 pub fn win_norm4exclude_path(x: String) -> String {
   let (x1, x2) = x.split_at(1);
   let mut up = x1.to_uppercase();
