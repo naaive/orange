@@ -1,4 +1,5 @@
 use core::fmt;
+use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::sync::RwLock;
@@ -42,6 +43,7 @@ pub struct UserSetting {
   theme: String,
   lang: String,
   exclude_index_path: Vec<String>,
+  ext: HashMap<String, String>,
 }
 
 impl UserSetting {
@@ -53,6 +55,14 @@ impl UserSetting {
   }
   pub fn exclude_index_path(&self) -> &Vec<String> {
     &self.exclude_index_path
+  }
+  pub fn ext(&self) -> &HashMap<String, String> {
+    &self.ext
+  }
+
+  pub fn set_ext(&mut self, ext: HashMap<String, String>) {
+    self.ext = ext;
+    self.store();
   }
 }
 
@@ -106,8 +116,7 @@ impl UserSetting {
   fn load() -> std::result::Result<UserSetting, Box<dyn Error>> {
     let path = UserSetting::build_conf_path();
     let string = std::fs::read_to_string(path)?;
-    let result1: Result<UserSetting> = serde_json::from_str(&string);
-    result1.map_err(|x| x.to_string().into())
+    serde_json::from_str(&string).map_err(|x| x.to_string().into())
   }
 
   fn build_conf_path() -> String {
@@ -123,6 +132,7 @@ impl Default for UserSetting {
         theme: "light".to_string(),
         lang: "en".to_string(),
         exclude_index_path: vec![],
+        ext: Default::default(),
       };
       setting.store();
       setting
@@ -139,7 +149,10 @@ mod tests {
     let mut setting = UserSetting::default();
     // let string = "zh".into();
     // setting.set_lang(string);
-    setting.set_theme("dark".to_string());
+    // setting.set_theme("dark".to_string());
+    // let mut x = HashMap::new();
+    // x.insert("hello".to_string(), "world".to_string());
+    // setting.set_ext(x);
     println!("{:?}", setting);
   }
 }

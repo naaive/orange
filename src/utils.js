@@ -1,4 +1,5 @@
 import {invoke} from "@tauri-apps/api";
+import i18next from "i18next";
 
 const fileType2ext = {
     4: "bmp jpg gif png jpeg",
@@ -36,4 +37,52 @@ export function open_file_location(row) {
     let _ = invoke('open_file_path', {
         kw: row.abs_path
     });
+}
+export async function get_lang() {
+    return  await invoke('get_lang', {
+    });
+}
+
+export function change_lang(lang) {
+    let _ = invoke('change_lang', {
+        lang: lang
+    });
+
+}
+
+export async function get_theme() {
+   return  await invoke('get_theme', {
+    });
+}
+
+export function change_theme(theme) {
+    let _ = invoke('change_theme', {
+        theme: theme
+    });
+}
+export async function add_exclude_path(path) {
+
+    return await invoke('add_exclude_path', {
+        path: path
+    });
+}
+
+export async function remove_exclude_path(path) {
+    return await  invoke('remove_exclude_path', {
+        path: path
+    });
+}
+
+export function upgrade() {
+    let _ = invoke('upgrade', {
+    });
+}
+
+export function reindex() {
+    let _ = invoke('reindex', {
+    });
+}
+
+export async function get_exclude_paths() {
+    return await invoke('get_exclude_paths', {});
 }

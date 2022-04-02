@@ -106,18 +106,22 @@ body {
     padding: 10px 0 ;
 }
 .setting-item .add{
-    margin: 2px 0 0 0 !important;
+    margin: 10px 0 0 0 !important;
     display: flex;
 }
 .setting-item .add button{
     margin: 0 0 20px 0;
 }
-
-.setting-item  .added {
+.setting-item  .added{
     display: flex;
-    margin: 2px 0 0 0 !important;
 }
-
+.setting-item  .added .added-item{
+    display: flex;
+    margin: 0 8px 0 0 !important;
+}
+.add button{
+    margin-right: 10px !important;
+}
  /*div.menu > button > span{*/
  /*    color: black;*/
  /*}*/
@@ -126,4 +130,7 @@ body {
     /*color: white;*/
     /*background: lightslategray;*/
     /*background: lightgoldenrodyellow;*/
+}
+.ms-Dropdown{
+    width: 290px !important;
 }

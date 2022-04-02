@@ -4,13 +4,13 @@ import './App.css';
 import Items from "./Items";
 import {Scrollbars} from 'react-custom-scrollbars';
 import SearchBox from "./SearchBox";
-import {IconButton, Pivot, PivotItem, PrimaryButton} from "@fluentui/react";
-import {search} from "./utils";
+import {Dialog, DialogFooter, DialogType, PrimaryButton} from "@fluentui/react";
+import {change_lang, get_lang} from "./utils";
 import {appWindow} from '@tauri-apps/api/window'
-import {Dialog, DialogType, DialogFooter} from '@fluentui/react/lib/Dialog';
-import {useId, useBoolean} from '@fluentui/react-hooks';
+import {useBoolean} from '@fluentui/react-hooks';
 import Tab from "./Tab";
 import {useTranslation} from "react-i18next";
+import i18next from "i18next";
 
 
 const dialogContentProps = {
@@ -22,6 +22,7 @@ const dialogContentProps = {
 
 
 const App = () => {
+
     const [items, setItems] = useState([]);
     const [kw, setKw] = useState('');
     const [selectedKey, setSelectedKey] = useState(0);
@@ -31,6 +32,21 @@ const App = () => {
 
     useEffect(() => {
         if (!init) {
+
+            get_lang().then(lang => {
+                if (lang) {
+                    let _ = i18next.changeLanguage(lang, (err, t) => {
+                        if (err) return console.log('something went wrong loading', err);
+                        t('key');
+                    });
+                    setSelectedKey(lang)
+                } else {
+                    let en = "en";
+                    setSelectedKey(en);
+                    change_lang(en)
+                }
+            })
+
             appWindow.listen('reindex', ({event, payload}) => {
                 if (hideDialog) {
                     toggleHideDialog();
@@ -62,8 +78,6 @@ const App = () => {
                             autoHideDuration={200}>
                     <Items kw={kw} items={items} setItems={setItems}/>
                 </Scrollbars>
-
-
             </div>
         </div>
     );

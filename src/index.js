@@ -2,9 +2,12 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import './index.css'
 import App from "./App";
-import {mergeStyles, ThemeProvider, initializeIcons, createTheme} from '@fluentui/react';
+import {createTheme, initializeIcons, mergeStyles, ThemeProvider} from '@fluentui/react';
 import i18n from "i18next";
-import { useTranslation, initReactI18next } from "react-i18next";
+import {initReactI18next} from "react-i18next";
+import {change_lang, get_lang} from "./utils";
+import i18next from "i18next";
+
 
 initializeIcons()
 // Inject some global styles
@@ -15,7 +18,7 @@ mergeStyles({
         height: '100vh',
     },
 });
-const lang = navigator.language || navigator.userLanguage;
+let lang= navigator.language || navigator.userLanguage;
 let _ = i18n
     .use(initReactI18next)
     .init({
@@ -26,7 +29,7 @@ let _ = i18n
                     "exclude-path-label":"Exclude Path",
                     "add":"Add",
                     "all":"All",
-                    "photo":"Add",
+                    "photo":"Photo",
                     "video":"Video",
                     "document":"Document",
                     "folder":"Folder",
@@ -34,6 +37,11 @@ let _ = i18n
                     "last-modified":"Last Modified",
                     "size":"Size",
                     "path":"Path",
+                    "lang":"Language",
+                    "reindex":"Reindex",
+                    "reindex-dialog":"Do you want to Reindex? It will take effect on next reboot.",
+                    "remove":"Remove",
+                    "add_exclude_path_err":"Invalid path",
 
                 }
             },
@@ -51,6 +59,11 @@ let _ = i18n
                     "last-modified":"上次修改",
                     "size":"大小",
                     "path":"路径",
+                    "lang":"语言",
+                    "reindex":"重索引",
+                    "reindex-dialog":"您确认要重新索引吗？它将在下一次重启时生效。",
+                    "remove":"删除",
+                    "add_exclude_path_err":"非法路径",
                 }
             }
         },
@@ -60,6 +73,9 @@ let _ = i18n
             escapeValue: false
         }
     });
+
+
+
 
 
 const myTheme = createTheme({
@@ -92,5 +108,6 @@ ReactDOM.render(<>
         <App/>
     </ThemeProvider>
 </>, document.getElementById('root'));
+
 
 

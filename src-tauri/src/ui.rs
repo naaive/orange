@@ -27,18 +27,46 @@ use crate::user_setting::{UserSettingError, USER_SETTING};
 fn change_theme(theme: String) {
   USER_SETTING.write().unwrap().set_theme(theme);
 }
+
 #[tauri::command]
-fn change_lang(theme: String) {
-  USER_SETTING.write().unwrap().set_lang(theme);
-}
-#[tauri::command]
-fn add_exclude_path(path: String) -> Result<(), UserSettingError> {
-  USER_SETTING.write().unwrap().add_exclude_index_path(path)
+fn get_theme(theme: String) -> String {
+  USER_SETTING.read().unwrap().theme().to_string()
 }
 
 #[tauri::command]
-fn remove_exclude_path(path: String) -> Result<(), UserSettingError> {
-  USER_SETTING.write().unwrap().add_exclude_index_path(path)
+fn get_lang() -> String {
+  USER_SETTING.write().unwrap().lang().to_string()
+}
+
+#[tauri::command]
+fn change_lang(lang: String) {
+  USER_SETTING.write().unwrap().set_lang(lang);
+}
+#[tauri::command]
+fn add_exclude_path(path: String) -> u8 {
+  println!("{}", path);
+  match USER_SETTING.write().unwrap().add_exclude_index_path(path) {
+    Ok(_) => 0,
+    Err(_) => 1,
+  }
+}
+
+#[tauri::command]
+fn get_exclude_paths() -> Vec<String> {
+  USER_SETTING
+    .read()
+    .unwrap()
+    .exclude_index_path()
+    .iter()
+    .map(|x| x.to_string())
+    .collect()
+}
+#[tauri::command]
+fn remove_exclude_path(path: String) {
+  USER_SETTING
+    .write()
+    .unwrap()
+    .remove_exclude_index_path(path);
 }
 #[tauri::command]
 fn upgrade() {
@@ -71,6 +99,10 @@ fn open_file_in_terminal(kw: String) {
 #[tauri::command]
 fn open_file_path(kw: String) {
   utils::open_file_path(kw.as_str());
+}
+#[tauri::command]
+fn reindex() {
+  indexing::reindex();
 }
 
 fn init_window(x: &mut App<Wry>) {
@@ -108,11 +140,11 @@ fn handle_tray_event(event: SystemTrayEvent) {
 
 fn build_tray() -> SystemTray {
   let quit = CustomMenuItem::new("quit".to_string(), "Quit");
-  let reindex = CustomMenuItem::new("reindex".to_string(), "Reindex");
+  // let reindex = CustomMenuItem::new("reindex".to_string(), "Reindex");
   let upgrade = CustomMenuItem::new("upgrade".to_string(), "Upgrade");
   let tray_menu = SystemTrayMenu::new()
     .add_item(upgrade)
-    .add_item(reindex)
+    // .add_item(reindex)
     .add_item(quit);
   let tray = SystemTray::new().with_menu(tray_menu);
   tray
@@ -130,7 +162,15 @@ pub fn show() {
       search,
       suggest,
       walk_metrics,
-      change_theme
+      change_theme,
+      get_theme,
+      upgrade,
+      remove_exclude_path,
+      add_exclude_path,
+      change_lang,
+      get_lang,
+      reindex,
+      get_exclude_paths
     ])
     .system_tray(build_tray())
     .on_system_tray_event(|_, event| handle_tray_event(event))
