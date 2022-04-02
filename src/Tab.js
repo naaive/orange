@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from 'react';
+import {app} from "@tauri-apps/api";
+
 import {
     ContextualMenu,
     DefaultButton,
@@ -37,6 +39,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
     let [excludePath, setExcludePath] = useState();
     let [show, setShow] = useState(false);
     let [toastText, setToastText] = useState('');
+    let [version, setVersion] = useState('');
     let [excludePaths, setExcludePaths] = useState([]);
 
     const [hideDialog, {toggle: toggleHideDialog}] = useBoolean(true);
@@ -58,7 +61,9 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
     }
 
     useEffect(async () => {
-        setExcludePaths(await get_exclude_paths())
+        setExcludePaths(await get_exclude_paths());
+        let version = await app.getVersion();
+        setVersion(version);
     }, [excludePaths])
     const options = [
         {key: 'en', text: 'EN'},
@@ -147,6 +152,10 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                     />
                 </div>
                 <div className="setting-item">
+                    <Label>{t("version")+version}</Label>
+                    <DefaultButton text={t("upgrade")}/>
+                </div>
+                <div className="setting-item">
 
                     <TextField label={t("exclude-path-label")} value={excludePath} placeholder={t("path")}
                                onChange={(e) => setExcludePath(e.target.value)}/>
@@ -166,6 +175,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                     </div>
 
                 </div>
+
             </Panel>
 
             <Pivot aria-label="Count and Icon Pivot Example" selectedKey={String(selectedKey)} onLinkClick={(event) => {

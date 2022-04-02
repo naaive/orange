@@ -44,6 +44,8 @@ let _ = i18n
                     "confirm":"Confirm",
                     "cancel":"Cancel",
                     "add_exclude_path_err":"Invalid path",
+                    "upgrade":"Upgrade",
+                    "version":"Version V"
 
                 }
             },
@@ -68,6 +70,8 @@ let _ = i18n
                     "confirm":"确认",
                     "cancel":"取消",
                     "add_exclude_path_err":"非法路径",
+                    "upgrade":"升级",
+                    "version":"版本 V"
                 }
             }
         },
