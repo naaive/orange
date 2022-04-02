@@ -1,90 +1,85 @@
-use crate::{utils, walk_exec, watch_exec, CONF_STORE, IDX_STORE};
-use log::{error, info};
+use crate::idx_store::IDX_STORE;
+use crate::kv_store::CONF_STORE;
+use crate::{utils, walk_exec, watch_exec};
+use log::info;
+
+#[cfg(windows)]
+use log::error;
 #[cfg(windows)]
 use std::sync::mpsc;
 #[cfg(windows)]
 use std::sync::mpsc::Sender;
-use std::sync::Arc;
+
 #[cfg(windows)]
 use std::time::Duration;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
-use crate::kv_store::KvStore;
-
-use crate::idx_store::IdxStore;
-
 #[cfg(windows)]
 use crate::usn_journal_watcher::Watcher;
 
+#[cfg(windows)]
 const STORE_PATH: &'static str = "orangecachedata";
-
 #[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
 const VERSION: &'static str = "0.4.0";
 const LAST_INDEX_TS: &'static str = "last_index_ts";
 
 pub fn run() {
-  let conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
-  let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+  std::thread::spawn(|| {
+    do_run();
+  });
+}
 
-  let conf_store = Arc::new(KvStore::new(&conf_path));
-  housekeeping(conf_store.clone());
+fn do_run() {
+  housekeeping();
 
-  let idx_store = Arc::new(IdxStore::new(&idx_path));
-
-  unsafe {
-    IDX_STORE = Some(idx_store.clone());
-  }
-  unsafe {
-    CONF_STORE = Some(conf_store.clone());
-  }
-
-  let reindex = need_reindex(conf_store.clone());
+  let reindex = need_reindex();
   info!("need reindex: {}", reindex);
   if reindex {
-    let conf_store_bro = conf_store.clone();
-    let idx_store_bro = idx_store.clone();
-    walk_exec::run(conf_store_bro, idx_store_bro);
-    conf_store.put_str(LAST_INDEX_TS.to_string(), curr_ts().to_string());
+    walk_exec::run();
+    CONF_STORE.put_str(LAST_INDEX_TS.to_string(), curr_ts().to_string());
     info!("walk exec done");
   };
 
-  let idx_store_bro = idx_store.clone();
-  idx_store_bro.disable_full_indexing();
+  IDX_STORE.disable_full_indexing();
 
   info!("start fs watch");
-  #[cfg(windows)]
-  win_watch(idx_store_bro);
 
+  #[cfg(windows)]
+  if cfg!(target_os = "windows") {
+    if reindex {
+      info!("use watcher due to reindex");
+      watch_exec::run();
+    }else {
+      info!("try use usn");
+      win_watch();
+    }
+
+  }
   #[cfg(unix)]
-  watch_exec::run(idx_store_bro);
+  watch_exec::run();
 }
 
 #[cfg(windows)]
-fn win_watch(idx_store_bro: Arc<IdxStore>) {
+fn win_watch() {
   let success = unsafe { maybe_usn_watch() };
   if success {
     info!("usn success");
   } else {
     info!("usn err, use watch");
-    watch_exec::run(idx_store_bro);
+    watch_exec::run();
   }
 }
 
 pub fn reindex() {
-  unsafe {
-    CONF_STORE
-      .clone()
-      .unwrap()
-      .put_str("reindex".to_string(), "1".to_string());
-  }
+  CONF_STORE.put_str("reindex".to_string(), "1".to_string());
 }
 
-fn need_reindex(kv_store: Arc<KvStore>) -> bool {
+fn need_reindex() -> bool {
   let key = LAST_INDEX_TS.to_string();
 
-  return match kv_store.get_str(key.clone()) {
+  return match CONF_STORE.get_str(key.clone()) {
     None => true,
     Some(val) => {
       let ts = val.parse::<u64>().unwrap();
@@ -104,30 +99,30 @@ fn curr_ts() -> u64 {
   curr_ts
 }
 
-pub fn housekeeping(kv_store: Arc<KvStore>) {
+pub fn housekeeping() {
   info!("housekeeping...");
 
-  let reidx_opt = kv_store.get_str("reindex".to_string());
+  let reidx_opt = CONF_STORE.get_str("reindex".to_string());
   match reidx_opt {
     None => {
       info!("no need to reindex");
     }
     Some(_) => {
-      clear(&kv_store);
+      clear();
       info!("detect reindex sign");
       return;
     }
   }
 
-  let version_opt = kv_store.get_str("version".to_string());
+  let version_opt = CONF_STORE.get_str("version".to_string());
   match version_opt {
     None => {
-      clear(&kv_store);
+      clear();
       info!("init version {}", VERSION);
     }
     Some(version) => {
       if !version.eq(VERSION) {
-        clear(&kv_store);
+        clear();
         info!("clean old version cachedata");
       } else {
         info!("no need to clean, current version:{}", VERSION);
@@ -136,10 +131,10 @@ pub fn housekeeping(kv_store: Arc<KvStore>) {
   }
 }
 
-fn clear(kv_store: &Arc<KvStore>) {
+fn clear() {
   let _ = std::fs::remove_dir_all(&format!("{}{}", utils::data_dir(), "/orangecachedata/idx"));
-  kv_store.clear();
-  kv_store.put_str("version".to_string(), VERSION.to_string());
+  CONF_STORE.clear();
+  CONF_STORE.put_str("version".to_string(), VERSION.to_string());
 }
 
 #[cfg(windows)]
@@ -162,9 +157,8 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
   info!("start_usn_watch {}", volume_path);
 
   std::thread::spawn(move || {
-    let kv_store = CONF_STORE.clone().unwrap();
     let key = format!("usn#next_usn#{}", volume_path.clone());
-    let next_usn = kv_store
+    let next_usn = CONF_STORE
       .get_str(key.clone())
       .unwrap_or("0".to_string())
       .parse()
@@ -211,13 +205,10 @@ unsafe fn start_usn_watch<'a>(no: String, volume_path: String, tx_clone: Sender<
           let name0 = file_name.clone();
           let ext = utils::file_ext(&name0);
 
-          IDX_STORE
-            .clone()
-            .unwrap()
-            .add(file_name, abs_path.clone(), is_dir, ext.to_string());
+          IDX_STORE.add(file_name, abs_path.clone(), is_dir, ext.to_string());
         }
 
-        kv_store.put_str(key.clone(), usn_no);
+        CONF_STORE.put_str(key.clone(), usn_no);
       }
     }
   });

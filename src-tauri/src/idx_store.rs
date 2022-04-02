@@ -1,28 +1,31 @@
 use std::collections::HashSet;
-
 use std::fs;
-
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use tantivy::collector::TopDocs;
-use tantivy::query::{BooleanQuery, FuzzyTermQuery, Occur, Query, QueryParser, TermQuery};
-use tantivy::schema::*;
-
-use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
-
-use crate::file_doc::FileDoc;
-use crate::file_view::FileView;
-use crate::utils;
-use crate::utils::is_ascii_alphanumeric;
 use convert_case::{Case, Casing};
 use jieba_rs::Jieba;
 use pinyin::ToPinyin;
-use std::sync::{Arc, Mutex};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tantivy::collector::TopDocs;
 use tantivy::merge_policy::NoMergePolicy;
+use tantivy::query::{BooleanQuery, FuzzyTermQuery, Occur, QueryParser, TermQuery};
+use tantivy::schema::*;
+use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
+
+use crate::file_view::FileView;
+use crate::utils;
+use crate::utils::is_ascii_alphanumeric;
+
+lazy_static! {
+  pub static ref IDX_STORE: IdxStore = {
+    let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+    IdxStore::new(&idx_path)
+  };
+}
 
 pub struct IdxStore {
   pub writer: Arc<Mutex<IndexWriter>>,
@@ -45,7 +48,7 @@ impl IdxStore {
     }
     let space = " ";
     let hans = hans.replace("-", space).replace("_", space);
-    let mut words = self.tokenizer.cut(&hans, false);
+    let words = self.tokenizer.cut(&hans, false);
 
     let mut token_text: HashSet<String> = vec![].into_iter().collect();
 
@@ -68,7 +71,7 @@ impl IdxStore {
     }
     let space = " ";
     let hans = hans.replace("-", space).replace("_", space);
-    let mut words = self.tokenizer.cut(&hans, false);
+    let words = self.tokenizer.cut(&hans, false);
 
     let mut token_text: HashSet<String> = vec![].into_iter().collect();
 
@@ -113,7 +116,7 @@ impl IdxStore {
   }
 
   pub fn search(&self, kw: String, limit: usize) -> Vec<FileView> {
-    let mut paths = self.search_paths(self.search_tokenize(kw.clone()), limit);
+    let paths = self.search_paths(self.search_tokenize(kw.clone()), limit);
     // if paths.is_empty() {
     //   paths = self.suggest_path(kw, limit);
     // }
@@ -129,7 +132,6 @@ impl IdxStore {
     limit: usize,
     is_dir_opt: Option<bool>,
     ext_opt: Option<String>,
-    parent_dirs_opt: Option<String>,
   ) -> Vec<FileView> {
     let searcher = self.reader.searcher();
 
@@ -201,7 +203,7 @@ impl IdxStore {
       .map(|x| {
         return FileView {
           abs_path: "".to_string(),
-          name: utils::path2name(utils::norm(&x)).unwrap_or("".to_string()),
+          name: utils::path2name(x),
           created_at: 0,
           mod_at: 0,
           size: 0,
@@ -287,7 +289,7 @@ impl IdxStore {
 
           file_views.push(FileView {
             abs_path: utils::norm(&path),
-            name: utils::path2name(utils::norm(&path)).unwrap_or("".to_string()),
+            name: utils::path2name(path),
             created_at: meta
               .created()
               .unwrap_or(SystemTime::now())
@@ -362,7 +364,7 @@ impl IdxStore {
       .unwrap();
 
     let mut query_parser = QueryParser::for_index(&index, vec![name_field]);
-    let mut ext_query_parser = QueryParser::for_index(&index, vec![ext_field]);
+    let ext_query_parser = QueryParser::for_index(&index, vec![ext_field]);
     // let mut parent_dirs_query_parser = QueryParser::for_index(&index, vec![parent_dirs_field]);
     query_parser.set_field_boost(name_field, 4.0f32);
     let mut jieba = Jieba::new();
@@ -394,7 +396,7 @@ impl IdxStore {
       ext = "".to_string();
     }
     let is_dir_bytes = IdxStore::is_dir_bytes(is_dir);
-    self.writer.lock().unwrap().add_document(doc!(
+    let _ = self.writer.lock().unwrap().add_document(doc!(
         self.name_field => self.tokenize(name),
         self.path_field=>path.as_bytes(),
         self.is_dir_field=>is_dir_bytes,
@@ -423,14 +425,15 @@ impl IdxStore {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
   use std::thread::sleep;
+
+  use super::*;
 
   #[test]
   fn t1() {
     let path = "./tmp";
-    fs::remove_dir_all(path);
-    let mut store = IdxStore::new(path);
+    let _ = fs::remove_dir_all(path);
+    let store = IdxStore::new(path);
 
     let vec1 = vec![
       "jack rose",

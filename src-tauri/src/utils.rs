@@ -1,11 +1,10 @@
 use directories::ProjectDirs;
 #[cfg(windows)]
 use std::ffi::CString;
-use std::path::{Path, PathBuf};
 
 extern crate chrono;
 use chrono::Local;
-use convert_case::{Case, Casing};
+
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
@@ -88,24 +87,18 @@ pub fn open_file_path_in_terminal(path: &str) {
 }
 
 pub fn data_dir() -> String {
-  // return  "/Users/jeff/IdeaProjects/orange2/src-tauri/target".to_string();
   let project_dir = ProjectDirs::from("com", "github", "Orange").unwrap();
   project_dir.data_dir().to_str().unwrap().to_string()
 }
 
-// pub fn parse_ts(time: SystemTime) -> u64 {
-//   let created_at = time
-//     .duration_since(SystemTime::UNIX_EPOCH)
-//     .unwrap()
-//     .as_secs() as u64;
-//   created_at
-// }
-pub fn path2name(x: String) -> Option<String> {
-  x.as_str()
+pub fn path2name(x: String) -> String {
+  norm(&x)
+    .as_str()
     .split("/")
     .into_iter()
     .last()
     .map(|x| x.to_string())
+    .unwrap_or("".to_string())
 }
 pub fn file_ext(file_name: &str) -> &str {
   if !file_name.contains(".") {
@@ -190,48 +183,74 @@ pub unsafe fn get_win32_ready_drive_nos() -> Vec<String> {
   res.sort();
   res
 }
+pub fn win_norm4exclude_path(x: String) -> String {
+  let (x1, x2) = x.split_at(1);
+  let mut up = x1.to_uppercase();
+  up.push_str(x2);
+  up.replace("//", "/")
+}
 
 #[cfg(windows)]
 pub unsafe fn build_volume_path(str: &str) -> String {
   str::replace("\\\\?\\$:", "$", str)
 }
+#[cfg(test)]
+mod tests {
+  use super::*;
 
-#[cfg(windows)]
-#[test]
-fn t1() {
-  let str = "c";
-  let string = unsafe { build_volume_path(str) };
-  println!("{}", string);
-}
-#[test]
-fn t2() {
-  println!("{}", data_dir());
-}
+  use convert_case::{Case, Casing};
 
-#[test]
-fn t3() {
-  let chines = is_ascii_alphanumeric("j dsadal");
-  println!("{:?}", chines);
-}
+  #[cfg(windows)]
+  #[test]
+  fn t1() {
+    let str = "c";
+    let string = unsafe { build_volume_path(str) };
+    println!("{}", string);
+  }
+  #[test]
+  fn t2() {
+    println!("{}", data_dir());
+  }
 
-#[test]
-fn t4() {
-  open_file_path_in_terminal("/home/jeff/CLionProjects/orange")
-  // use std::process::Command;
-  // Command::new("cmd")
-  //     .args(&["/c", "start", "cmd"])
-  //     .spawn()
-  //     .unwrap();
-}
+  #[test]
+  fn t3() {
+    let chines = is_ascii_alphanumeric("j dsadal");
+    println!("{:?}", chines);
+  }
 
-#[test]
-fn t5() {
-  let ext = file_ext("java");
-  println!("{}", ext);
-}
+  #[test]
+  fn t4() {
+    open_file_path_in_terminal("/home/jeff/CLionProjects/orange")
+    // use std::process::Command;
+    // Command::new("cmd")
+    //     .args(&["/c", "start", "cmd"])
+    //     .spawn()
+    //     .unwrap();
+  }
 
-#[test]
-fn t6() {
-  let string = "FilterFieldNamesProvidingStoredFieldsVisitor.java".to_case(Case::Title);
-  println!("{}", string);
+  #[test]
+  fn t5() {
+    let ext = file_ext("java");
+    println!("{}", ext);
+  }
+
+  #[test]
+  fn t6() {
+    let string = "FilterFieldNamesProvidingStoredFieldsVisitor.java".to_case(Case::Title);
+    println!("{}", string);
+  }
+
+  #[test]
+  fn t7() {
+    let _result = webbrowser::open("https://github.com/naaive/orange/releases");
+  }
+
+  #[test]
+  fn t8() {
+    let x = "c://".to_string();
+
+    let string = win_norm4exclude_path(x);
+
+    println!("{}", string);
+  }
 }

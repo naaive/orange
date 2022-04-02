@@ -1,7 +1,5 @@
 use crate::utils;
 use jwalk::DirEntry;
-use std::fs::Metadata;
-use std::path::PathBuf;
 
 #[derive(Debug)]
 pub struct FileDoc {

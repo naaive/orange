@@ -4,12 +4,13 @@ import './App.css';
 import Items from "./Items";
 import {Scrollbars} from 'react-custom-scrollbars';
 import SearchBox from "./SearchBox";
-import {Pivot, PivotItem, PrimaryButton} from "@fluentui/react";
-import {search} from "./utils";
-import { appWindow } from '@tauri-apps/api/window'
-import { Dialog, DialogType, DialogFooter } from '@fluentui/react/lib/Dialog';
-import { useId, useBoolean } from '@fluentui/react-hooks';
-
+import {Dialog, DialogFooter, DialogType, PrimaryButton} from "@fluentui/react";
+import {change_lang, get_lang} from "./utils";
+import {appWindow} from '@tauri-apps/api/window'
+import {useBoolean} from '@fluentui/react-hooks';
+import Tab from "./Tab";
+import {useTranslation} from "react-i18next";
+import i18next from "i18next";
 
 
 const dialogContentProps = {
@@ -20,15 +21,37 @@ const dialogContentProps = {
 };
 
 
-const App = () => {
+const App = ({setTheme,theme}) => {
+
     const [items, setItems] = useState([]);
     const [kw, setKw] = useState('');
     const [selectedKey, setSelectedKey] = useState(0);
-    const [hideDialog, { toggle: toggleHideDialog }] = useBoolean(true);
-    let [init,setInit] = useState(false);
+    const [hideDialog, {toggle: toggleHideDialog}] = useBoolean(true);
+    let [init, setInit] = useState(false);
+    let [lang, setLang] = useState(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
+
         if (!init) {
+
+            get_lang().then(lang => {
+                if (lang==="default") {
+                    let localeLang= navigator.language || navigator.userLanguage;
+                    let _ = i18next.changeLanguage(localeLang, (err, t) => {
+                        if (err) return console.log('something went wrong loading', err);
+                        t('key');
+                    });
+                    setLang(localeLang)
+                } else {
+                    let _ = i18next.changeLanguage(lang, (err, t) => {
+                        if (err) return console.log('something went wrong loading', err);
+                        t('key');
+                    });
+                    setLang(lang);
+                }
+            })
+
             appWindow.listen('reindex', ({event, payload}) => {
                 if (hideDialog) {
                     toggleHideDialog();
@@ -36,39 +59,21 @@ const App = () => {
             })
             setInit(true);
         }
-    }, [init,hideDialog]);
+    }, [init, hideDialog]);
 
     return (
-        <div>
+        <div className={"body"}>
             <Dialog
                 hidden={hideDialog}
                 onDismiss={toggleHideDialog}
                 dialogContentProps={dialogContentProps}
             >
                 <DialogFooter>
-                    <PrimaryButton onClick={toggleHideDialog} text="Confirm" />
+                    <PrimaryButton onClick={toggleHideDialog} text="Confirm"/>
                     {/*<DefaultButton onClick={toggleHideDialog} text="Don't send" />*/}
                 </DialogFooter>
             </Dialog>
-            <Pivot aria-label="Count and Icon Pivot Example" selectedKey={String(selectedKey)} onLinkClick={(event) => {
-                let key = event.key.substr(1);
-                setSelectedKey(key)
-                search(kw, key).then(value => {
-                    setItems(value)
-                })
-            }}>
-                {/*https://uifabricicons.azurewebsites.net/?help*/}
-                <PivotItem headerText="All" itemIcon="ViewAll2" itemKey="0">
-                </PivotItem>
-                <PivotItem headerText="Folder" itemIcon="FabricFolder" itemKey="1">
-                </PivotItem>
-                <PivotItem headerText="Doc" itemIcon="Document" itemKey="2">
-                </PivotItem>
-                <PivotItem headerText="Video" itemIcon="Video" itemKey="3">
-                </PivotItem>
-                <PivotItem headerText="Photo" itemIcon="Photo2" itemKey="4">
-                </PivotItem>
-            </Pivot>
+            <Tab lang={lang} setLang={setLang} setTheme={setTheme} theme={theme} selectedKey={selectedKey} kw={kw} setItems={setItems} setSelectedKey={setSelectedKey}/>
             <div className="search-box">
                 <SearchBox kw={kw} setKw={setKw} setItems={setItems} selectedKey={selectedKey}/>
             </div>
@@ -76,10 +81,8 @@ const App = () => {
 
                 <Scrollbars autoHide autoHideTimeout={500}
                             autoHideDuration={200}>
-                    <Items items={items} setItems={setItems}/>
+                    <Items kw={kw} items={items} setItems={setItems}/>
                 </Scrollbars>
-
-
             </div>
         </div>
     );

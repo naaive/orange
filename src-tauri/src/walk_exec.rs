@@ -1,18 +1,16 @@
-use crate::file_doc::FileDoc;
-use crate::idx_store::IdxStore;
-use crate::kv_store::KvStore;
-use std::ops::Deref;
-
+use crate::utils;
 #[cfg(windows)]
 use crate::utils::get_win32_ready_drives;
-use crate::{indexing, utils, IDX_STORE};
+
+use crate::idx_store::IDX_STORE;
+use crate::kv_store::CONF_STORE;
 
 use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
 use jwalk::{DirEntry, WalkDir};
 use log::info;
-use std::sync::{Arc, Mutex, RwLock};
-use std::thread;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::sync::{Arc, Mutex};
+
+use std::time::SystemTime;
 
 static mut WALK_METRICS: Option<Arc<Mutex<WalkMetrics>>> = None;
 
@@ -22,50 +20,64 @@ pub fn home_dir() -> String {
 }
 
 pub unsafe fn get_walk_matrix() -> WalkMatrixView {
-  let idx_store = IDX_STORE.clone();
-  if idx_store.is_none() {
-    return WalkMatrixView::default();
-  }
-  if WALK_METRICS.is_none() && !idx_store.clone().unwrap().is_full_indexing() {
-    return WalkMatrixView::new(100, idx_store.clone().unwrap().num_docs());
+  if WALK_METRICS.is_none() && !IDX_STORE.is_full_indexing() {
+    return WalkMatrixView::new(100, IDX_STORE.num_docs());
   }
   WALK_METRICS
     .clone()
     .unwrap()
     .lock()
     .unwrap()
-    .view(move || idx_store.clone().unwrap().num_docs())
+    .view(move || IDX_STORE.num_docs())
 }
 
-pub fn run(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>) {
+use crate::user_setting::USER_SETTING;
+pub fn run() {
   init_walk_matrix();
   let home = utils::norm(&home_dir());
 
   start_walk_home_matrix();
 
-  info!("start walk home {}", home);
-  walk_home(conf_store.clone(), idx_store.clone(), &home);
+  let need = need_skip_home(&home);
+
+  if need {
+    info!("skip walk home {}", home);
+  } else {
+    info!("start walk home {}", home);
+    walk_home(&home);
+  }
 
   end_walk_home_matrix();
 
   info!("start walk root {}", home);
   #[cfg(windows)]
-  win_walk_root(conf_store, idx_store, home);
+  win_walk_root(home);
 
   #[cfg(unix)]
-  unix_walk_root(conf_store, idx_store, home);
+  unix_walk_root(home);
+}
+
+fn need_skip_home(home: &String) -> bool {
+  let guard = USER_SETTING.read().unwrap();
+  let exclude_path = guard.exclude_index_path();
+  for path in exclude_path {
+    if home.starts_with(path) {
+      return true;
+    }
+  }
+  return false;
 }
 
 fn end_walk_home_matrix() {
   unsafe {
-    let mut walk_matrix0 = WALK_METRICS.clone().unwrap();
+    let walk_matrix0 = WALK_METRICS.clone().unwrap();
     walk_matrix0.lock().unwrap().end_home();
   }
 }
 
 fn start_walk_home_matrix() {
   unsafe {
-    let mut walk_matrix0 = WALK_METRICS.clone().unwrap();
+    let walk_matrix0 = WALK_METRICS.clone().unwrap();
     walk_matrix0.lock().unwrap().start_home();
   }
 }
@@ -77,20 +89,20 @@ fn init_walk_matrix() {
 }
 
 #[cfg(unix)]
-fn unix_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: String) {
+fn unix_walk_root(home: String) {
   let subs = utils::subs("/");
   let sz = subs.len();
   for (i, sub) in subs.iter().enumerate() {
     inc_root_walk_metrics(sz, i);
 
     let key = format!("walk:stat:{}", &sub);
-    let opt = conf_store.get_str(key.clone());
+    let opt = CONF_STORE.get_str(key.clone());
     if opt.is_some() {
       info!("{} walked", sub);
       continue;
     }
-    walk(idx_store.clone(), &sub, Some(home.to_string()));
-    conf_store.put_str(key, "1".to_string());
+    walk(&sub, Some(home.to_string()));
+    CONF_STORE.put_str(key, "1".to_string());
   }
 }
 
@@ -106,7 +118,7 @@ fn inc_root_walk_metrics(sz: usize, i: usize) {
 }
 
 #[cfg(windows)]
-fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: String) {
+fn win_walk_root(home: String) {
   let len = win_subs_len();
 
   let drives = unsafe { get_win32_ready_drives() };
@@ -121,14 +133,14 @@ fn win_walk_root(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: Strin
       idx += 1;
 
       let key = format!("walk:stat:{}", &sub);
-      let opt = conf_store.get_str(key.clone());
+      let opt = CONF_STORE.get_str(key.clone());
       if opt.is_some() {
         info!("{} walked", sub);
         continue;
       }
 
-      walk(idx_store.clone(), &sub, Some(home.to_string()));
-      conf_store.put_str(key, "1".to_string());
+      walk(&sub, Some(home.to_string()));
+      CONF_STORE.put_str(key, "1".to_string());
     }
   }
 }
@@ -145,21 +157,21 @@ fn win_subs_len() -> usize {
   sz
 }
 
-fn walk_home(conf_store: Arc<KvStore>, idx_store: Arc<IdxStore>, home: &String) {
+fn walk_home(home: &String) {
   let key = format!("walk:stat:{}", home);
-  let opt = conf_store.get_str(key.clone());
+  let opt = CONF_STORE.get_str(key.clone());
   if opt.is_some() {
     info!("home walked {}", home);
     return;
   }
 
-  let home_name = utils::path2name(home.as_str().to_string()).unwrap_or("".to_string());
-  idx_store.add(home_name, home.clone().to_string(), true, "".to_string());
-  walk(idx_store, &home, None);
-  conf_store.put_str(key, "1".to_string());
+  let home_name = utils::path2name(home.to_string());
+  IDX_STORE.add(home_name, home.clone().to_string(), true, "".to_string());
+  walk(&home, None);
+  CONF_STORE.put_str(key, "1".to_string());
 }
 
-fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
+fn walk(path: &String, skip_path_opt: Option<String>) {
   let start = SystemTime::now();
   info!("start travel {}", path);
   let mut cnt = 0;
@@ -167,15 +179,21 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
   let mut generic = WalkDir::new(&path);
   if skip_path_opt.is_some() {
     let skip_path = skip_path_opt.unwrap();
-    let home_name = utils::path2name(skip_path.clone()).unwrap_or("".to_string());
+    let home_name = utils::path2name(skip_path.clone());
     generic = generic.process_read_dir(move |_depth, _path, _read_dir_state, children| {
       children.iter_mut().for_each(|dir_entry_result| {
         if let Ok(dir_entry) = dir_entry_result {
           let curr_path = utils::norm(dir_entry.path().to_str().unwrap_or(""));
+
+          let guard = USER_SETTING.read().unwrap();
+          let exclude_path = guard.exclude_index_path();
+
           if curr_path.eq(skip_path.as_str())
             || curr_path.eq("/proc")
+            || exclude_path.iter().any(|x| curr_path.starts_with(x))
             || curr_path.eq(&format!("/System/Volumes/Data/Users/{}", home_name))
           {
+            info!("skip path {}", curr_path);
             dir_entry.read_children_path = None;
           }
         }
@@ -195,49 +213,52 @@ fn walk(store: Arc<IdxStore>, path: &String, skip_path_opt: Option<String>) {
     let path = buf.to_str().unwrap();
     let name = en.file_name().to_str().unwrap();
     let ext = utils::file_ext(name);
-    store.add(name.to_string(), path.to_string(), is_dir, ext.to_string());
+    IDX_STORE.add(name.to_string(), path.to_string(), is_dir, ext.to_string());
   }
   let end = SystemTime::now();
-  store.commit();
+  IDX_STORE.commit();
   info!(
     "cost {} s, total {} files",
     end.duration_since(start).unwrap().as_secs(),
     cnt
   );
 }
-use crate::utils::init_log;
 
-#[test]
-fn t1() {
-  let dir = utils::data_dir();
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::kv_store::KvStore;
+  use std::time::UNIX_EPOCH;
 
-  let string = format!("{}/orangecachedata", dir);
-  println!("{}", string);
-  let dir_all = std::fs::remove_dir_all(string);
-  init_log();
+  #[test]
+  fn t1() {
+    let dir = utils::data_dir();
 
-  let dir = utils::data_dir();
-  let conf_path = format!("{}{}", dir, "/orangecachedata/conf");
-  let idx_path = format!("{}{}", dir, "/orangecachedata/idx");
+    let string = format!("{}/orangecachedata", dir);
+    println!("{}", string);
+    let _dir_all = std::fs::remove_dir_all(string);
+    utils::init_log();
 
-  let conf_store = Arc::new(KvStore::new(&conf_path));
-  let idx_store = Arc::new(IdxStore::new(&idx_path));
+    let dir = utils::data_dir();
+    let _conf_path = format!("{}{}", dir, "/orangecachedata/conf");
+    let _idx_path = format!("{}{}", dir, "/orangecachedata/idx");
 
-  run(conf_store, idx_store.clone());
-  idx_store.commit();
-}
+    run();
+    IDX_STORE.commit();
+  }
 
-#[test]
-fn disable_walk() {
-  init_log();
+  #[test]
+  fn disable_walk() {
+    utils::init_log();
 
-  let dir = utils::data_dir();
-  let conf_path = format!("{}{}", dir, "/orangecachedata/conf");
-  let conf_store = Arc::new(KvStore::new(&conf_path));
-  let curr_ts = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .unwrap()
-    .as_secs();
-  conf_store.put_str("version".to_string(), "0.3.0".to_string());
-  conf_store.put_str("last_index_ts".to_string(), curr_ts.to_string());
+    let dir = utils::data_dir();
+    let conf_path = format!("{}{}", dir, "/orangecachedata/conf");
+    let conf_store = Arc::new(KvStore::new(&conf_path));
+    let curr_ts = SystemTime::now()
+      .duration_since(UNIX_EPOCH)
+      .unwrap()
+      .as_secs();
+    conf_store.put_str("version".to_string(), "0.3.0".to_string());
+    conf_store.put_str("last_index_ts".to_string(), curr_ts.to_string());
+  }
 }
