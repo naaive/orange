@@ -26,7 +26,7 @@ fn macos_run() {
 fn linux_run(idx_store: Arc<IdxStore>) {
   let sub_root = utils::subs("/");
   for sub in sub_root {
-    let mut watcher = FsWatcher::new(idx_store.clone(), sub);
+    let mut watcher = FsWatcher::new(sub);
     std::thread::spawn(move || {
       watcher.start();
     });
