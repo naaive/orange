@@ -24,13 +24,13 @@ fn walk_metrics() -> WalkMatrixView {
 }
 use crate::user_setting::{UserSettingError, USER_SETTING};
 #[tauri::command]
-fn change_theme(theme: String) {
+fn change_theme(theme: u8) {
   USER_SETTING.write().unwrap().set_theme(theme);
 }
 
 #[tauri::command]
-fn get_theme(theme: String) -> String {
-  USER_SETTING.read().unwrap().theme().to_string()
+fn get_theme() -> u8 {
+  USER_SETTING.read().unwrap().theme()
 }
 
 #[tauri::command]

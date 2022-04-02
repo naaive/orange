@@ -7,6 +7,7 @@ import i18n from "i18next";
 import {initReactI18next} from "react-i18next";
 import {change_lang, get_lang} from "./utils";
 import i18next from "i18next";
+import Theme from "./Theme";
 
 
 initializeIcons()
@@ -38,6 +39,10 @@ let _ = i18n
                     "size":"Size",
                     "path":"Path",
                     "lang":"Language",
+                    "theme":"Theme",
+                    "theme-default":"Default",
+                    "theme-light-purple":"Light Purple",
+                    "theme-light-blue":"Light Blue",
                     "reindex":"Reindex",
                     "reindex-dialog":"Do you want to Reindex? It will take effect on next reboot!",
                     "remove":"Remove",
@@ -64,6 +69,10 @@ let _ = i18n
                     "size":"大小",
                     "path":"路径",
                     "lang":"语言",
+                    "theme":"主题",
+                    "theme-default":"默认",
+                    "theme-light-purple":"浅紫色",
+                    "theme-light-blue":"浅蓝色",
                     "reindex":"重索引",
                     "reindex-dialog":"您确认要重新索引吗？它将在下一次重启时生效！",
                     "remove":"删除",
@@ -86,35 +95,9 @@ let _ = i18n
 
 
 
-const myTheme = createTheme({
-    palette: {
-        themePrimary: '#1a2a3a',
-        themeLighterAlt: '#d8e0e7',
-        themeLighter: '#b7c5d2',
-        themeLight: '#99abbc',
-        themeTertiary: '#7d92a7',
-        themeSecondary: '#647b91',
-        themeDarkAlt: '#4e657b',
-        themeDark: '#3a5066',
-        themeDarker: '#293d50',
-        neutralLighterAlt: '#faf9f8',
-        neutralLighter: '#f3f2f1',
-        neutralLight: '#edebe9',
-        neutralQuaternaryAlt: '#e1dfdd',
-        neutralQuaternary: '#d0d0d0',
-        neutralTertiaryAlt: '#c8c6c4',
-        neutralTertiary: '#a19f9d',
-        neutralSecondary: '#605e5c',
-        neutralPrimaryAlt: '#3b3a39',
-        neutralPrimary: '#323130',
-        neutralDark: '#201f1e',
-        black: '#000000',
-        white: '#ffffff',
-    }});
+
 ReactDOM.render(<>
-    <ThemeProvider theme={myTheme}>
-        <App/>
-    </ThemeProvider>
+    <Theme/>
 </>, document.getElementById('root'));
 
 

@@ -40,7 +40,7 @@ impl Error for UserSettingError {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserSetting {
-  theme: String,
+  theme: u8,
   lang: String,
   exclude_index_path: Vec<String>,
   ext: HashMap<String, String>,
@@ -50,8 +50,8 @@ impl UserSetting {
   pub fn lang(&self) -> &str {
     &self.lang
   }
-  pub fn theme(&self) -> &String {
-    &self.theme
+  pub fn theme(&self) -> u8 {
+    self.theme
   }
   pub fn exclude_index_path(&self) -> &Vec<String> {
     &self.exclude_index_path
@@ -71,7 +71,7 @@ impl UserSetting {
     self.lang = lang;
     self.store();
   }
-  pub fn set_theme(&mut self, theme: String) {
+  pub fn set_theme(&mut self, theme: u8) {
     self.theme = theme;
     self.store();
   }
@@ -129,7 +129,7 @@ impl Default for UserSetting {
   fn default() -> Self {
     UserSetting::load().unwrap_or_else(|_| {
       let setting = UserSetting {
-        theme: "light".to_string(),
+        theme: 1,
         lang: "en".to_string(),
         exclude_index_path: vec![],
         ext: Default::default(),

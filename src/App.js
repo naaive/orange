@@ -21,7 +21,7 @@ const dialogContentProps = {
 };
 
 
-const App = () => {
+const App = ({setTheme,theme}) => {
 
     const [items, setItems] = useState([]);
     const [kw, setKw] = useState('');
@@ -68,7 +68,7 @@ const App = () => {
                     {/*<DefaultButton onClick={toggleHideDialog} text="Don't send" />*/}
                 </DialogFooter>
             </Dialog>
-            <Tab selectedKey={selectedKey} kw={kw} setItems={setItems} setSelectedKey={setSelectedKey}/>
+            <Tab setTheme={setTheme} theme={theme} selectedKey={selectedKey} kw={kw} setItems={setItems} setSelectedKey={setSelectedKey}/>
             <div className="search-box">
                 <SearchBox kw={kw} setKw={setKw} setItems={setItems} selectedKey={selectedKey}/>
             </div>

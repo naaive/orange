@@ -18,7 +18,15 @@ import {
     PrimaryButton,
     TextField
 } from "@fluentui/react";
-import {add_exclude_path, change_lang, get_exclude_paths, reindex, remove_exclude_path, search} from "./utils";
+import {
+    add_exclude_path,
+    change_lang,
+    change_theme,
+    get_exclude_paths,
+    reindex,
+    remove_exclude_path,
+    search, upgrade
+} from "./utils";
 import {useBoolean, useId} from "@fluentui/react-hooks";
 import {useTranslation} from "react-i18next";
 import i18next from "i18next";
@@ -32,7 +40,7 @@ const dragOptions = {
 };
 
 
-const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
+const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme}) => {
 
     const [isOpen, {setTrue: openPanel, setFalse: dismissPanel}] = useBoolean(false);
     const {t} = useTranslation();
@@ -70,6 +78,12 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
         {key: 'zh-CN', text: '中文'},
     ];
 
+    const themes = [
+        {key: 0, text: t("theme-default")},
+        {key: 1, text: t("theme-light-purple")},
+        {key: 2, text: t("theme-light-blue")},
+    ];
+
     const dropdownStyles = {
         dropdown: {width: 300},
     };
@@ -94,6 +108,15 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
         reindex();
     }
 
+    function handle_theme_change(_, item) {
+        let key = item.key;
+        setTheme(key);
+        change_theme(key);
+    }
+
+    function handle_upgrade() {
+       upgrade()
+    }
     function handle_lang_change(_, item) {
         let key = item.key;
         setSelectedKey(key);
@@ -152,8 +175,17 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                     />
                 </div>
                 <div className="setting-item">
+                    <Dropdown
+                        onChange={handle_theme_change}
+                        label={t("theme")}
+                        selectedKey={theme}
+                        options={themes}
+                        styles={dropdownStyles}
+                    />
+                </div>
+                <div className="setting-item">
                     <Label>{t("version")+version}</Label>
-                    <DefaultButton text={t("upgrade")}/>
+                    <DefaultButton text={t("upgrade")} onClick={handle_upgrade}/>
                 </div>
                 <div className="setting-item">
 
