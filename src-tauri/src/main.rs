@@ -3,12 +3,6 @@
   windows_subsystem = "windows"
 )]
 
-use crate::idx_store::IdxStore;
-use crate::kv_store::KvStore;
-use crate::user_setting::UserSetting;
-use std::sync::{Arc, Mutex, RwLock};
-use std::time::Duration;
-
 mod file_doc;
 mod file_view;
 mod fs_watcher;

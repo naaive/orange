@@ -1,11 +1,10 @@
 use directories::ProjectDirs;
 #[cfg(windows)]
 use std::ffi::CString;
-use std::path::{Path, PathBuf};
 
 extern crate chrono;
 use chrono::Local;
-use convert_case::{Case, Casing};
+
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
@@ -189,49 +188,54 @@ pub unsafe fn get_win32_ready_drive_nos() -> Vec<String> {
 pub unsafe fn build_volume_path(str: &str) -> String {
   str::replace("\\\\?\\$:", "$", str)
 }
+#[cfg(test)]
+mod tests {
+  use super::*;
 
-#[cfg(windows)]
-#[test]
-fn t1() {
-  let str = "c";
-  let string = unsafe { build_volume_path(str) };
-  println!("{}", string);
-}
-#[test]
-fn t2() {
-  println!("{}", data_dir());
-}
+  use convert_case::{Case, Casing};
 
-#[test]
-fn t3() {
-  let chines = is_ascii_alphanumeric("j dsadal");
-  println!("{:?}", chines);
-}
+  #[cfg(windows)]
+  #[test]
+  fn t1() {
+    let str = "c";
+    let string = unsafe { build_volume_path(str) };
+    println!("{}", string);
+  }
+  #[test]
+  fn t2() {
+    println!("{}", data_dir());
+  }
 
-#[test]
-fn t4() {
-  open_file_path_in_terminal("/home/jeff/CLionProjects/orange")
-  // use std::process::Command;
-  // Command::new("cmd")
-  //     .args(&["/c", "start", "cmd"])
-  //     .spawn()
-  //     .unwrap();
-}
+  #[test]
+  fn t3() {
+    let chines = is_ascii_alphanumeric("j dsadal");
+    println!("{:?}", chines);
+  }
 
-#[test]
-fn t5() {
-  let ext = file_ext("java");
-  println!("{}", ext);
-}
+  #[test]
+  fn t4() {
+    open_file_path_in_terminal("/home/jeff/CLionProjects/orange")
+    // use std::process::Command;
+    // Command::new("cmd")
+    //     .args(&["/c", "start", "cmd"])
+    //     .spawn()
+    //     .unwrap();
+  }
 
-#[test]
-fn t6() {
-  let string = "FilterFieldNamesProvidingStoredFieldsVisitor.java".to_case(Case::Title);
-  println!("{}", string);
-}
-use webbrowser;
+  #[test]
+  fn t5() {
+    let ext = file_ext("java");
+    println!("{}", ext);
+  }
 
-#[test]
-fn t7() {
-  let result = webbrowser::open("https://github.com/naaive/orange/releases");
+  #[test]
+  fn t6() {
+    let string = "FilterFieldNamesProvidingStoredFieldsVisitor.java".to_case(Case::Title);
+    println!("{}", string);
+  }
+
+  #[test]
+  fn t7() {
+    let _result = webbrowser::open("https://github.com/naaive/orange/releases");
+  }
 }

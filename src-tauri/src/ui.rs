@@ -1,11 +1,10 @@
 use crate::file_view::FileView;
-use crate::idx_store::IdxStore;
+
 use crate::idx_store::IDX_STORE;
-use crate::kv_store::KvStore;
+
 use crate::walk_metrics::WalkMatrixView;
 use crate::{indexing, utils, walk_exec};
-use std::sync::{Arc, RwLock};
-use std::time::Duration;
+
 use tauri::{App, Manager};
 use tauri::{CustomMenuItem, SystemTrayMenu};
 use tauri::{SystemTray, SystemTrayEvent};
@@ -22,7 +21,7 @@ struct Payload {
 fn walk_metrics() -> WalkMatrixView {
   unsafe { walk_exec::get_walk_matrix() }
 }
-use crate::user_setting::{UserSettingError, USER_SETTING};
+use crate::user_setting::USER_SETTING;
 #[tauri::command]
 fn change_theme(theme: u8) {
   USER_SETTING.write().unwrap().set_theme(theme);
@@ -86,7 +85,7 @@ fn upgrade() {
 }
 #[tauri::command]
 async fn suggest(kw: String) -> Vec<FileView> {
-  unsafe { IDX_STORE.suggest(kw, 20) }
+  IDX_STORE.suggest(kw, 20)
 }
 
 #[tauri::command]
@@ -95,12 +94,10 @@ async fn search(
   is_dir_opt: Option<bool>,
   ext_opt: Option<String>,
 ) -> Vec<FileView> {
-  unsafe {
-    if kw.eq("") {
-      kw = "*".to_string();
-    }
-    IDX_STORE.search_with_filter(kw, 100, is_dir_opt, ext_opt, None)
+  if kw.eq("") {
+    kw = "*".to_string();
   }
+  IDX_STORE.search_with_filter(kw, 100, is_dir_opt, ext_opt)
 }
 
 #[tauri::command]

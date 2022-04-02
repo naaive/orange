@@ -1,8 +1,5 @@
-use std::sync::Arc;
-
 use crate::fs_watcher::FsWatcher;
-use crate::idx_store::IdxStore;
-use crate::utils;
+
 #[cfg(windows)]
 use crate::utils::get_win32_ready_drives;
 

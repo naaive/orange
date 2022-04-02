@@ -1,21 +1,16 @@
-use crate::file_doc::FileDoc;
-use crate::idx_store::IdxStore;
-use crate::kv_store::KvStore;
-use std::ops::Deref;
-
+use crate::utils;
 #[cfg(windows)]
 use crate::utils::get_win32_ready_drives;
-use crate::{indexing, utils};
 
 use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
-use crate::user_setting::UserSetting;
+
 use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
 use jwalk::{DirEntry, WalkDir};
 use log::info;
-use std::sync::{Arc, Mutex, RwLock};
-use std::thread;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::sync::{Arc, Mutex};
+
+use std::time::SystemTime;
 
 static mut WALK_METRICS: Option<Arc<Mutex<WalkMetrics>>> = None;
 
@@ -35,7 +30,8 @@ pub unsafe fn get_walk_matrix() -> WalkMatrixView {
     .unwrap()
     .view(move || IDX_STORE.num_docs())
 }
-use crate::user_setting::{UserSettingError, USER_SETTING};
+
+use crate::user_setting::USER_SETTING;
 pub fn run() {
   init_walk_matrix();
   let home = utils::norm(&home_dir());
@@ -74,14 +70,14 @@ fn need_skip_home(home: &String) -> bool {
 
 fn end_walk_home_matrix() {
   unsafe {
-    let mut walk_matrix0 = WALK_METRICS.clone().unwrap();
+    let walk_matrix0 = WALK_METRICS.clone().unwrap();
     walk_matrix0.lock().unwrap().end_home();
   }
 }
 
 fn start_walk_home_matrix() {
   unsafe {
-    let mut walk_matrix0 = WALK_METRICS.clone().unwrap();
+    let walk_matrix0 = WALK_METRICS.clone().unwrap();
     walk_matrix0.lock().unwrap().start_home();
   }
 }
@@ -227,36 +223,42 @@ fn walk(path: &String, skip_path_opt: Option<String>) {
     cnt
   );
 }
-use crate::utils::init_log;
 
-#[test]
-fn t1() {
-  let dir = utils::data_dir();
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::kv_store::KvStore;
+  use std::time::UNIX_EPOCH;
 
-  let string = format!("{}/orangecachedata", dir);
-  println!("{}", string);
-  let dir_all = std::fs::remove_dir_all(string);
-  init_log();
+  #[test]
+  fn t1() {
+    let dir = utils::data_dir();
 
-  let dir = utils::data_dir();
-  let conf_path = format!("{}{}", dir, "/orangecachedata/conf");
-  let idx_path = format!("{}{}", dir, "/orangecachedata/idx");
+    let string = format!("{}/orangecachedata", dir);
+    println!("{}", string);
+    let _dir_all = std::fs::remove_dir_all(string);
+    utils::init_log();
 
-  run();
-  IDX_STORE.commit();
-}
+    let dir = utils::data_dir();
+    let _conf_path = format!("{}{}", dir, "/orangecachedata/conf");
+    let _idx_path = format!("{}{}", dir, "/orangecachedata/idx");
 
-#[test]
-fn disable_walk() {
-  init_log();
+    run();
+    IDX_STORE.commit();
+  }
 
-  let dir = utils::data_dir();
-  let conf_path = format!("{}{}", dir, "/orangecachedata/conf");
-  let conf_store = Arc::new(KvStore::new(&conf_path));
-  let curr_ts = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .unwrap()
-    .as_secs();
-  conf_store.put_str("version".to_string(), "0.3.0".to_string());
-  conf_store.put_str("last_index_ts".to_string(), curr_ts.to_string());
+  #[test]
+  fn disable_walk() {
+    utils::init_log();
+
+    let dir = utils::data_dir();
+    let conf_path = format!("{}{}", dir, "/orangecachedata/conf");
+    let conf_store = Arc::new(KvStore::new(&conf_path));
+    let curr_ts = SystemTime::now()
+      .duration_since(UNIX_EPOCH)
+      .unwrap()
+      .as_secs();
+    conf_store.put_str("version".to_string(), "0.3.0".to_string());
+    conf_store.put_str("last_index_ts".to_string(), curr_ts.to_string());
+  }
 }

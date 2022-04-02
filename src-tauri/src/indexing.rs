@@ -1,25 +1,19 @@
 use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
 use crate::{utils, walk_exec, watch_exec};
-use log::{error, info};
+use log::info;
 #[cfg(windows)]
 use std::sync::mpsc;
 #[cfg(windows)]
 use std::sync::mpsc::Sender;
-use std::sync::Arc;
+
 #[cfg(windows)]
 use std::time::Duration;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
-use crate::kv_store::KvStore;
-
-use crate::idx_store::IdxStore;
-
 #[cfg(windows)]
 use crate::usn_journal_watcher::Watcher;
-
-const STORE_PATH: &'static str = "orangecachedata";
 
 #[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
@@ -65,9 +59,7 @@ fn win_watch() {
 }
 
 pub fn reindex() {
-  unsafe {
-    CONF_STORE.put_str("reindex".to_string(), "1".to_string());
-  }
+  CONF_STORE.put_str("reindex".to_string(), "1".to_string());
 }
 
 fn need_reindex() -> bool {

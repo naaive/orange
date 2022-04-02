@@ -1,6 +1,5 @@
 extern crate notify;
 
-use crate::idx_store::IdxStore;
 use crate::idx_store::IDX_STORE;
 use crate::utils;
 use crate::utils::subs;
@@ -13,9 +12,8 @@ use std::os::unix::fs::MetadataExt;
 #[cfg(target_os = "windows")]
 use std::os::windows::fs::MetadataExt;
 use std::path;
-use std::path::PathBuf;
+
 use std::sync::mpsc::channel;
-use std::sync::Arc;
 
 pub struct FsWatcher {
   path: String,
@@ -108,7 +106,9 @@ impl FsWatcher {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::idx_store::IdxStore;
   use notify::watcher;
+  use std::sync::Arc;
   use std::time::Duration;
 
   #[test]
@@ -162,8 +162,8 @@ mod tests {
       match rx.recv() {
         Ok(RawEvent {
           path: Some(path),
-          op: Ok(op),
-          cookie,
+          op: Ok(_op),
+          cookie: _,
         }) => {
           let x = path.to_str().unwrap();
           if x.contains("orangecachedata") {
@@ -181,10 +181,10 @@ mod tests {
 
 #[test]
 fn t4() {
-  let conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
+  let _conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
   let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
 
-  let idx_store = Arc::new(IdxStore::new(&idx_path));
+  let _idx_store = Arc::new(IdxStore::new(&idx_path));
   let mut watcher = FsWatcher::new("/".to_string());
   watcher.start();
 }

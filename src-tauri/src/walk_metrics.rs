@@ -1,8 +1,7 @@
-use crate::IdxStore;
 use serde::{Deserialize, Serialize};
-use std::ops::{Deref, DerefMut};
+
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
 

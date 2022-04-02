@@ -1,14 +1,10 @@
-use core::fmt;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::sync::RwLock;
 
-use log::set_logger_racy;
 use serde::{Deserialize, Serialize};
-use serde_json::{Result, Value};
 
-use crate::kv_store::KvStore;
 use crate::utils;
 
 lazy_static! {
@@ -146,7 +142,7 @@ mod tests {
 
   #[test]
   fn t1() {
-    let mut setting = UserSetting::default();
+    let setting = UserSetting::default();
     // let string = "zh".into();
     // setting.set_lang(string);
     // setting.set_theme("dark".to_string());
