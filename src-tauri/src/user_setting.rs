@@ -78,7 +78,12 @@ impl UserSetting {
     if std::fs::metadata(&path).is_err() {
       return Err(UserSettingError::new(path.to_string()));
     }
-    self.exclude_index_path.push(path);
+    if cfg!(target_os = "windows") {
+      let path = utils::win_norm4exclude_path(utils::norm(&path));
+      self.exclude_index_path.push(path);
+    } else {
+      self.exclude_index_path.push(path);
+    }
     self.store();
     Ok(())
   }
@@ -125,8 +130,8 @@ impl Default for UserSetting {
   fn default() -> Self {
     UserSetting::load().unwrap_or_else(|_| {
       let setting = UserSetting {
-        theme: 1,
-        lang: "en".to_string(),
+        theme: 0,
+        lang: "default".to_string(),
         exclude_index_path: vec![],
         ext: Default::default(),
       };

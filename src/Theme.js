@@ -83,9 +83,7 @@ const themes = [default_theme, light_purple,light_blue];
 const Theme = () => {
     let [theme,setTheme] = useState(0);
     useEffect(async ()=>{
-        let newVar = await get_theme();
-        console.log(newVar)
-        setTheme(newVar)
+        setTheme(await get_theme())
     },[])
     return (
         <div>

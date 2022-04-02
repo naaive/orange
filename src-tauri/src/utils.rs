@@ -183,6 +183,13 @@ pub unsafe fn get_win32_ready_drive_nos() -> Vec<String> {
   res.sort();
   res
 }
+#[cfg(windows)]
+pub fn win_norm4exclude_path(x: String) -> String {
+  let (x1, x2) = x.split_at(1);
+  let mut up = x1.to_uppercase();
+  up.push_str(x2);
+  up.replace("//", "/")
+}
 
 #[cfg(windows)]
 pub unsafe fn build_volume_path(str: &str) -> String {
@@ -237,5 +244,14 @@ mod tests {
   #[test]
   fn t7() {
     let _result = webbrowser::open("https://github.com/naaive/orange/releases");
+  }
+
+  #[test]
+  fn t8() {
+    let x = "c://".to_string();
+
+    let string = win_norm4exclude_path(x);
+
+    println!("{}", string);
   }
 }

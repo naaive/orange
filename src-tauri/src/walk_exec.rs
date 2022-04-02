@@ -190,7 +190,7 @@ fn walk(path: &String, skip_path_opt: Option<String>) {
 
           if curr_path.eq(skip_path.as_str())
             || curr_path.eq("/proc")
-            || exclude_path.iter().any(|x| x.starts_with(&curr_path))
+            || exclude_path.iter().any(|x| curr_path.starts_with(x))
             || curr_path.eq(&format!("/System/Volumes/Data/Users/{}", home_name))
           {
             info!("skip path {}", curr_path);

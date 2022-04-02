@@ -34,12 +34,13 @@ const App = ({setTheme,theme}) => {
         if (!init) {
 
             get_lang().then(lang => {
-                if (lang) {
-                    let _ = i18next.changeLanguage(lang, (err, t) => {
+                if (lang==="default") {
+                    let localeLang= navigator.language || navigator.userLanguage;
+                    let _ = i18next.changeLanguage(localeLang, (err, t) => {
                         if (err) return console.log('something went wrong loading', err);
                         t('key');
                     });
-                    setSelectedKey(lang)
+                    setSelectedKey(localeLang)
                 } else {
                     let en = "en";
                     setSelectedKey(en);

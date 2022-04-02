@@ -177,14 +177,14 @@ mod tests {
       }
     }
   }
-}
 
-#[test]
-fn t4() {
-  let _conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
-  let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
+  #[test]
+  fn t4() {
+    let _conf_path = format!("{}{}", utils::data_dir(), "/orangecachedata/conf");
+    let idx_path = format!("{}{}", utils::data_dir(), "/orangecachedata/idx");
 
-  let _idx_store = Arc::new(IdxStore::new(&idx_path));
-  let mut watcher = FsWatcher::new("/".to_string());
-  watcher.start();
+    let _idx_store = Arc::new(IdxStore::new(&idx_path));
+    let mut watcher = FsWatcher::new("/".to_string());
+    watcher.start();
+  }
 }

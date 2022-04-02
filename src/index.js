@@ -19,7 +19,6 @@ mergeStyles({
         height: '100vh',
     },
 });
-let lang= navigator.language || navigator.userLanguage;
 let _ = i18n
     .use(initReactI18next)
     .init({
@@ -84,7 +83,7 @@ let _ = i18n
                 }
             }
         },
-        lng: lang,
+        lng: "en",
         fallbackLng: "en",
         interpolation: {
             escapeValue: false
