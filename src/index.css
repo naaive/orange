@@ -110,10 +110,12 @@ body {
     display: flex;
 }
 .setting-item .add button{
-    margin: 0 0 20px 0;
+    margin: 0 0 10px 0;
 }
 .setting-item  .added{
     display: flex;
+    flex-wrap: wrap;
+
 }
 .setting-item  .added .added-item{
     display: flex;

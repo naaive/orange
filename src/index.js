@@ -39,8 +39,10 @@ let _ = i18n
                     "path":"Path",
                     "lang":"Language",
                     "reindex":"Reindex",
-                    "reindex-dialog":"Do you want to Reindex? It will take effect on next reboot.",
+                    "reindex-dialog":"Do you want to Reindex? It will take effect on next reboot!",
                     "remove":"Remove",
+                    "confirm":"Confirm",
+                    "cancel":"Cancel",
                     "add_exclude_path_err":"Invalid path",
 
                 }
@@ -61,8 +63,10 @@ let _ = i18n
                     "path":"路径",
                     "lang":"语言",
                     "reindex":"重索引",
-                    "reindex-dialog":"您确认要重新索引吗？它将在下一次重启时生效。",
+                    "reindex-dialog":"您确认要重新索引吗？它将在下一次重启时生效！",
                     "remove":"删除",
+                    "confirm":"确认",
+                    "cancel":"取消",
                     "add_exclude_path_err":"非法路径",
                 }
             }

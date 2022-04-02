@@ -2,10 +2,14 @@ import React, {useEffect, useState} from 'react';
 import {
     ContextualMenu,
     DefaultButton,
-    Dropdown, hiddenContentStyle,
+    Dialog,
+    DialogFooter,
+    DialogType,
+    Dropdown,
     IconButton,
-    Label, mergeStyles,
-    MessageBar, MessageBarType,
+    Label,
+    MessageBar,
+    MessageBarType,
     Panel,
     Pivot,
     PivotItem,
@@ -16,9 +20,8 @@ import {add_exclude_path, change_lang, get_exclude_paths, reindex, remove_exclud
 import {useBoolean, useId} from "@fluentui/react-hooks";
 import {useTranslation} from "react-i18next";
 import i18next from "i18next";
-import { Dialog, DialogType, DialogFooter, Toggle} from "@fluentui/react";
 
-const dialogStyles = { main: { maxWidth: 450 } };
+const dialogStyles = {main: {maxWidth: 450}};
 const dragOptions = {
     moveMenuItemText: 'Move',
     closeMenuItemText: 'Close',
@@ -36,8 +39,8 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
     let [toastText, setToastText] = useState('');
     let [excludePaths, setExcludePaths] = useState([]);
 
-    const [hideDialog, { toggle: toggleHideDialog }] = useBoolean(true);
-    const [isDraggable, { toggle: toggleIsDraggable }] = useBoolean(false);
+    const [hideDialog, {toggle: toggleHideDialog}] = useBoolean(true);
+    const [isDraggable, {toggle: toggleIsDraggable}] = useBoolean(false);
     const labelId = useId('dialogLabel');
     const subTextId = useId('subTextLabel');
 
@@ -66,7 +69,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
         dropdown: {width: 300},
     };
 
-    async function handleAddExcludePath(){
+    async function handleAddExcludePath() {
         if (await add_exclude_path(excludePath) === 1) {
             toast(t("add_exclude_path_err"));
 
@@ -75,7 +78,8 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
             setExcludePaths(await get_exclude_paths());
         }
     }
-    async function handleRemoveExcludePath(path){
+
+    async function handleRemoveExcludePath(path) {
         await remove_exclude_path(path)
         setExcludePaths(await get_exclude_paths());
     }
@@ -85,7 +89,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
         reindex();
     }
 
-    function handle_lang_change(_,item) {
+    function handle_lang_change(_, item) {
         let key = item.key;
         setSelectedKey(key);
         change_lang(key);
@@ -116,8 +120,8 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                 modalProps={modalProps}
             >
                 <DialogFooter>
-                    <PrimaryButton onClick={handle_reindex} text="Confirm" />
-                    <DefaultButton onClick={toggleHideDialog} text="NO" />
+                    <PrimaryButton onClick={handle_reindex} text={t("confirm")}/>
+                    <DefaultButton onClick={toggleHideDialog} text={t("cancel")}/>
                 </DialogFooter>
             </Dialog>
             <Panel
@@ -129,9 +133,9 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                 closeButtonAriaLabel="Close"
             >
                 {
-                    show?<MessageBar             messageBarType={MessageBarType.error}>
+                    show ? <MessageBar messageBarType={MessageBarType.error}>
                         {toastText}
-                    </MessageBar>:""
+                    </MessageBar> : ""
                 }
                 <div className="setting-item">
                     <Dropdown
@@ -144,12 +148,14 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems}) => {
                 </div>
                 <div className="setting-item">
 
-                    <TextField label={t("exclude-path-label")} value={excludePath} onChange={(e)=>setExcludePath(e.target.value)} />
+                    <TextField label={t("exclude-path-label")} value={excludePath} placeholder={t("path")}
+                               onChange={(e) => setExcludePath(e.target.value)}/>
                     <div className="added">
                         {
                             excludePaths.map(x => <div className="added-item">
                                 <Label>{x}</Label>
-                                <IconButton iconProps={{iconName: 'RemoveFilter'}} title={t("remove")} onClick={()=>handleRemoveExcludePath(x)}/>
+                                <IconButton iconProps={{iconName: 'RemoveFilter'}} title={t("remove")}
+                                            onClick={() => handleRemoveExcludePath(x)}/>
                             </div>)
                         }
 

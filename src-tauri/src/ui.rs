@@ -44,7 +44,19 @@ fn change_lang(lang: String) {
 }
 #[tauri::command]
 fn add_exclude_path(path: String) -> u8 {
-  println!("{}", path);
+  if path.eq("/") {
+    return 1;
+  }
+  if USER_SETTING
+    .read()
+    .unwrap()
+    .exclude_index_path()
+    .iter()
+    .any(|x| x.eq(&path))
+  {
+    return 1;
+  }
+
   match USER_SETTING.write().unwrap().add_exclude_index_path(path) {
     Ok(_) => 0,
     Err(_) => 1,

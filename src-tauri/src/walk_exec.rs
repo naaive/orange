@@ -9,6 +9,7 @@ use crate::{indexing, utils};
 
 use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
+use crate::user_setting::UserSetting;
 use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
 use jwalk::{DirEntry, WalkDir};
 use log::info;
@@ -34,15 +35,21 @@ pub unsafe fn get_walk_matrix() -> WalkMatrixView {
     .unwrap()
     .view(move || IDX_STORE.num_docs())
 }
-
+use crate::user_setting::{UserSettingError, USER_SETTING};
 pub fn run() {
   init_walk_matrix();
   let home = utils::norm(&home_dir());
 
   start_walk_home_matrix();
 
-  info!("start walk home {}", home);
-  walk_home(&home);
+  let need = need_skip_home(&home);
+
+  if need {
+    info!("skip walk home {}", home);
+  } else {
+    info!("start walk home {}", home);
+    walk_home(&home);
+  }
 
   end_walk_home_matrix();
 
@@ -52,6 +59,17 @@ pub fn run() {
 
   #[cfg(unix)]
   unix_walk_root(home);
+}
+
+fn need_skip_home(home: &String) -> bool {
+  let guard = USER_SETTING.read().unwrap();
+  let exclude_path = guard.exclude_index_path();
+  for path in exclude_path {
+    if home.starts_with(path) {
+      return true;
+    }
+  }
+  return false;
 }
 
 fn end_walk_home_matrix() {
@@ -170,10 +188,16 @@ fn walk(path: &String, skip_path_opt: Option<String>) {
       children.iter_mut().for_each(|dir_entry_result| {
         if let Ok(dir_entry) = dir_entry_result {
           let curr_path = utils::norm(dir_entry.path().to_str().unwrap_or(""));
+
+          let guard = USER_SETTING.read().unwrap();
+          let exclude_path = guard.exclude_index_path();
+
           if curr_path.eq(skip_path.as_str())
             || curr_path.eq("/proc")
+            || exclude_path.iter().any(|x| x.starts_with(&curr_path))
             || curr_path.eq(&format!("/System/Volumes/Data/Users/{}", home_name))
           {
+            info!("skip path {}", curr_path);
             dir_entry.read_children_path = None;
           }
         }
