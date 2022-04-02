@@ -93,6 +93,8 @@ body {
     display: flex;
     justify-content:space-between;
 }
+
+
 .tabs>.menu{
     display: flex;
     flex-direction: column-reverse;
@@ -108,6 +110,9 @@ body {
 .setting-item .add{
     margin: 10px 0 0 0 !important;
     display: flex;
+}
+.setting-item  .added label{
+    max-width: 260px;
 }
 .setting-item .add button{
     margin: 0 0 10px 0;

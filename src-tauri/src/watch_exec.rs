@@ -1,6 +1,6 @@
 use crate::fs_watcher::FsWatcher;
 #[cfg(target_os = "linux")]
-use crate::utils::subs;
+use crate::utils;
 
 #[cfg(windows)]
 use crate::utils::get_win32_ready_drives;
