@@ -45,9 +45,18 @@ fn do_run() {
   IDX_STORE.disable_full_indexing();
 
   info!("start fs watch");
-  #[cfg(windows)]
-  win_watch();
 
+  #[cfg(windows)]
+  if cfg!(target_os = "windows") {
+    if reindex {
+      info!("use watcher due to reindex");
+      watch_exec::run();
+    }else {
+      info!("try use usn");
+      win_watch();
+    }
+
+  }
   #[cfg(unix)]
   watch_exec::run();
 }

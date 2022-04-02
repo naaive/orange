@@ -37,7 +37,9 @@ fn linux_run() {
 fn win_run() {
   let drives = unsafe { get_win32_ready_drives() };
   for driv in drives {
-    let mut watcher = FsWatcher::new(driv);
-    watcher.start();
+    std::thread::spawn(move || {
+      let mut watcher = FsWatcher::new(driv);
+      watcher.start();
+    });
   }
 }
