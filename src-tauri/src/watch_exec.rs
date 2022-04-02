@@ -23,7 +23,7 @@ fn macos_run() {
 }
 
 #[cfg(target_os = "linux")]
-fn linux_run(idx_store: Arc<IdxStore>) {
+fn linux_run() {
   let sub_root = utils::subs("/");
   for sub in sub_root {
     let mut watcher = FsWatcher::new(sub);

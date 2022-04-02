@@ -2,6 +2,9 @@ use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
 use crate::{utils, walk_exec, watch_exec};
 use log::info;
+
+#[cfg(windows)]
+use log::error;
 #[cfg(windows)]
 use std::sync::mpsc;
 #[cfg(windows)]
@@ -15,6 +18,8 @@ use std::time::UNIX_EPOCH;
 #[cfg(windows)]
 use crate::usn_journal_watcher::Watcher;
 
+#[cfg(windows)]
+const STORE_PATH: &'static str = "orangecachedata";
 #[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
 const VERSION: &'static str = "0.4.0";
