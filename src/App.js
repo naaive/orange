@@ -28,9 +28,11 @@ const App = ({setTheme,theme}) => {
     const [selectedKey, setSelectedKey] = useState(0);
     const [hideDialog, {toggle: toggleHideDialog}] = useBoolean(true);
     let [init, setInit] = useState(false);
+    let [lang, setLang] = useState(false);
     const { t } = useTranslation();
 
     useEffect(() => {
+
         if (!init) {
 
             get_lang().then(lang => {
@@ -40,11 +42,13 @@ const App = ({setTheme,theme}) => {
                         if (err) return console.log('something went wrong loading', err);
                         t('key');
                     });
-                    setSelectedKey(localeLang)
+                    setLang(localeLang)
                 } else {
-                    let en = "en";
-                    setSelectedKey(en);
-                    change_lang(en)
+                    let _ = i18next.changeLanguage(lang, (err, t) => {
+                        if (err) return console.log('something went wrong loading', err);
+                        t('key');
+                    });
+                    setLang(lang);
                 }
             })
 
@@ -69,7 +73,7 @@ const App = ({setTheme,theme}) => {
                     {/*<DefaultButton onClick={toggleHideDialog} text="Don't send" />*/}
                 </DialogFooter>
             </Dialog>
-            <Tab setTheme={setTheme} theme={theme} selectedKey={selectedKey} kw={kw} setItems={setItems} setSelectedKey={setSelectedKey}/>
+            <Tab lang={lang} setLang={setLang} setTheme={setTheme} theme={theme} selectedKey={selectedKey} kw={kw} setItems={setItems} setSelectedKey={setSelectedKey}/>
             <div className="search-box">
                 <SearchBox kw={kw} setKw={setKw} setItems={setItems} selectedKey={selectedKey}/>
             </div>

@@ -40,7 +40,7 @@ const dragOptions = {
 };
 
 
-const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme}) => {
+const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme,lang,setLang}) => {
 
     const [isOpen, {setTrue: openPanel, setFalse: dismissPanel}] = useBoolean(false);
     const {t} = useTranslation();
@@ -72,7 +72,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme}) => {
         setExcludePaths(await get_exclude_paths());
         let version = await app.getVersion();
         setVersion(version);
-    }, [excludePaths])
+    }, [])
     const options = [
         {key: 'en', text: 'EN'},
         {key: 'zh-CN', text: '中文'},
@@ -119,7 +119,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme}) => {
     }
     function handle_lang_change(_, item) {
         let key = item.key;
-        setSelectedKey(key);
+        setLang(key);
         change_lang(key);
         i18next.changeLanguage(key, (err, t) => {
             if (err) return console.log('something went wrong loading', err);
@@ -169,7 +169,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme}) => {
                     <Dropdown
                         onChange={handle_lang_change}
                         label={t("lang")}
-                        selectedKey={selectedKey}
+                        selectedKey={lang}
                         options={options}
                         styles={dropdownStyles}
                     />
