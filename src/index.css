@@ -20,9 +20,9 @@ body {
 div.ms-SelectionZone {
 }
 
-/*div.ms-Callout-container > div {*/
-/*    width: 100% !important;*/
-/*}*/
+.search-box div.ms-Callout-container > div {
+    width: 100% !important;
+}
 
 .ms-BasePicker-text {
     border: 1px solid rgb(96, 94, 92);

@@ -168,7 +168,7 @@ function Items({kw,items, setItems}) {
         return [
             {
                 type: 'li',
-                text: 'Open',
+                text: t("rmenu-open"),
                 callback: () => {
                     open_file_location(row)
                 }
@@ -176,13 +176,13 @@ function Items({kw,items, setItems}) {
             //
             {
                 type: 'li',
-                text: 'Copy Path',
+                text: t("rmenu-copy-path"),
                 callback: () => copy(row.abs_path)
             },
 
             {
                 type: 'li',
-                text: 'Open in Terminal',
+                text: t("rmenu-open-in-terminal"),
                 callback: () => {
                     open_file_location_in_terminal(row)
                 }

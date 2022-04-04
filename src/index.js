@@ -49,7 +49,10 @@ let _ = i18n
                     "cancel":"Cancel",
                     "add_exclude_path_err":"Invalid path",
                     "upgrade":"Upgrade",
-                    "version":"Version V"
+                    "version":"Version V",
+                    "rmenu-open":"Open",
+                    "rmenu-copy-path":"Copy Path",
+                    "rmenu-open-in-terminal":"Open in Terminal",
 
                 }
             },
@@ -79,7 +82,10 @@ let _ = i18n
                     "cancel":"取消",
                     "add_exclude_path_err":"非法路径",
                     "upgrade":"升级",
-                    "version":"版本 V"
+                    "version":"版本 V",
+                    "rmenu-open":"打开",
+                    "rmenu-copy-path":"复制路径",
+                    "rmenu-open-in-terminal":"Terminal打开",
                 }
             }
         },
