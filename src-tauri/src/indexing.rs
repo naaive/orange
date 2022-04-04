@@ -2,6 +2,7 @@ use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
 use crate::{utils, walk_exec, watch_exec};
 use log::info;
+use crate::walk_metrics::WALK_METRICS;
 
 #[cfg(windows)]
 use log::error;
@@ -43,7 +44,7 @@ fn do_run() {
   };
 
   IDX_STORE.disable_full_indexing();
-
+  WALK_METRICS.write().unwrap().end_of_no_reindex();
   info!("start fs watch");
 
   #[cfg(windows)]
@@ -51,11 +52,10 @@ fn do_run() {
     if reindex {
       info!("use watcher due to reindex");
       watch_exec::run();
-    }else {
+    } else {
       info!("try use usn");
       win_watch();
     }
-
   }
   #[cfg(unix)]
   watch_exec::run();

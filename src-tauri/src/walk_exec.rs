@@ -10,9 +10,8 @@ use jwalk::{DirEntry, WalkDir};
 use log::info;
 use std::sync::{Arc, Mutex};
 
+use crate::walk_metrics::WALK_METRICS;
 use std::time::SystemTime;
-
-static mut WALK_METRICS: Option<Arc<Mutex<WalkMetrics>>> = None;
 
 pub fn home_dir() -> String {
   let option = dirs::home_dir();
@@ -20,20 +19,14 @@ pub fn home_dir() -> String {
 }
 
 pub unsafe fn get_walk_matrix() -> WalkMatrixView {
-  if WALK_METRICS.is_none() && !IDX_STORE.is_full_indexing() {
-    return WalkMatrixView::new(100, IDX_STORE.num_docs());
-  }
   WALK_METRICS
-    .clone()
-    .unwrap()
-    .lock()
+    .read()
     .unwrap()
     .view(move || IDX_STORE.num_docs())
 }
 
 use crate::user_setting::USER_SETTING;
 pub fn run() {
-  init_walk_matrix();
   let home = utils::norm(&home_dir());
 
   start_walk_home_matrix();
@@ -69,23 +62,11 @@ fn need_skip_home(home: &String) -> bool {
 }
 
 fn end_walk_home_matrix() {
-  unsafe {
-    let walk_matrix0 = WALK_METRICS.clone().unwrap();
-    walk_matrix0.lock().unwrap().end_home();
-  }
+  WALK_METRICS.read().unwrap().end_home();
 }
 
 fn start_walk_home_matrix() {
-  unsafe {
-    let walk_matrix0 = WALK_METRICS.clone().unwrap();
-    walk_matrix0.lock().unwrap().start_home();
-  }
-}
-
-fn init_walk_matrix() {
-  unsafe {
-    WALK_METRICS = Some(Arc::new(Mutex::new(WalkMetrics::default())));
-  }
+  WALK_METRICS.write().unwrap().start_home();
 }
 
 #[cfg(unix)]
@@ -107,14 +88,10 @@ fn unix_walk_root(home: String) {
 }
 
 fn inc_root_walk_metrics(sz: usize, i: usize) {
-  unsafe {
-    WALK_METRICS
-      .clone()
-      .unwrap()
-      .lock()
-      .unwrap()
-      .root_inc_percent((i + 1) as u32, sz as u32);
-  }
+  WALK_METRICS
+    .write()
+    .unwrap()
+    .root_inc_percent((i + 1) as u32, sz as u32);
 }
 
 #[cfg(windows)]

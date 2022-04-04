@@ -19,6 +19,7 @@ use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
 use crate::file_view::FileView;
 use crate::utils;
 use crate::utils::is_ascii_alphanumeric;
+use zhconv::{zhconv, Variant};
 
 lazy_static! {
   pub static ref IDX_STORE: IdxStore = {
@@ -48,6 +49,7 @@ impl IdxStore {
     }
     let space = " ";
     let hans = hans.replace("-", space).replace("_", space);
+    let hans = zhconv(&hans, Variant::ZhHans);
     let words = self.tokenizer.cut(&hans, false);
 
     let mut token_text: HashSet<String> = vec![].into_iter().collect();
@@ -56,6 +58,17 @@ impl IdxStore {
       token_text.insert(word.to_string());
     }
     token_text.insert(hans.clone());
+
+    let hans = zhconv(&hans, Variant::ZhHant);
+    let words = self.tokenizer.cut(&hans, false);
+
+    let mut token_text: HashSet<String> = vec![].into_iter().collect();
+
+    for word in words {
+      token_text.insert(word.to_string());
+    }
+    token_text.insert(hans.clone());
+
     token_text.into_iter().collect::<Vec<String>>().join(" ")
   }
 
