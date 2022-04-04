@@ -6,11 +6,13 @@ const fileType2ext = {
     3: "mp4 mov avi flv f4v mkv",
     2: "doc txt pdf ppt pptx docx xlsx xls",
 }
+
 export async function suggest(kw) {
     return await invoke('suggest', {
         kw: kw
     });
 }
+
 export async function search(kw, no) {
     let ext = fileType2ext[no];
     let dirOpt = undefined;
@@ -26,7 +28,6 @@ export async function search(kw, no) {
     });
 }
 
-
 export function open_file_location_in_terminal(row) {
     let _ = invoke('open_file_in_terminal', {
         kw: row.abs_path
@@ -38,9 +39,9 @@ export function open_file_location(row) {
         kw: row.abs_path
     });
 }
+
 export async function get_lang() {
-    return  await invoke('get_lang', {
-    });
+    return await invoke('get_lang', {});
 }
 
 export function change_lang(lang) {
@@ -50,9 +51,13 @@ export function change_lang(lang) {
 
 }
 
+export async function walk_metrics() {
+    return await invoke('walk_metrics', {});
+
+}
+
 export async function get_theme() {
-   return  await invoke('get_theme', {
-    });
+    return await invoke('get_theme', {});
 }
 
 export function change_theme(theme) {
@@ -60,6 +65,7 @@ export function change_theme(theme) {
         theme: theme
     });
 }
+
 export async function add_exclude_path(path) {
 
     return await invoke('add_exclude_path', {
@@ -68,19 +74,17 @@ export async function add_exclude_path(path) {
 }
 
 export async function remove_exclude_path(path) {
-    return await  invoke('remove_exclude_path', {
+    return await invoke('remove_exclude_path', {
         path: path
     });
 }
 
 export function upgrade() {
-    let _ = invoke('upgrade', {
-    });
+    let _ = invoke('upgrade', {});
 }
 
 export function reindex() {
-    let _ = invoke('reindex', {
-    });
+    let _ = invoke('reindex', {});
 }
 
 export async function get_exclude_paths() {

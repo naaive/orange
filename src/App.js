@@ -1,11 +1,10 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
-import './App.css';
 import Items from "./Items";
 import {Scrollbars} from 'react-custom-scrollbars';
 import SearchBox from "./SearchBox";
-import {Dialog, DialogFooter, DialogType, PrimaryButton} from "@fluentui/react";
-import {change_lang, get_lang} from "./utils";
+import {Dialog, DialogFooter, DialogType, PrimaryButton, ProgressIndicator} from "@fluentui/react";
+import {change_lang, get_lang, walk_metrics} from "./utils";
 import {appWindow} from '@tauri-apps/api/window'
 import {useBoolean} from '@fluentui/react-hooks';
 import Tab from "./Tab";
@@ -29,10 +28,11 @@ const App = ({setTheme,theme}) => {
     const [hideDialog, {toggle: toggleHideDialog}] = useBoolean(true);
     let [init, setInit] = useState(false);
     let [lang, setLang] = useState(false);
+    let [percent, setPercent] = useState(0);
+    let [totalFiles, setTotalFiles] = useState(0);
+
     const { t } = useTranslation();
-
     useEffect(() => {
-
         if (!init) {
 
             get_lang().then(lang => {
@@ -51,6 +51,14 @@ const App = ({setTheme,theme}) => {
                     setLang(lang);
                 }
             })
+
+            setInterval(()=>{
+                walk_metrics().then(({percent,total_files}) => {
+                    console.log(123)
+                    setPercent(percent);
+                    setTotalFiles(total_files);
+                })
+            },2000)
 
             appWindow.listen('reindex', ({event, payload}) => {
                 if (hideDialog) {
@@ -83,6 +91,23 @@ const App = ({setTheme,theme}) => {
                             autoHideDuration={200}>
                     <Items kw={kw} items={items} setItems={setItems}/>
                 </Scrollbars>
+            </div>
+            <div className="status-bar">
+
+                <div className="progress">
+                    <div className={"name"}>
+                        {t("progress")}
+                    </div>
+                    <div className={"cmpt"}>
+                        <ProgressIndicator percentComplete={percent/100} />
+                    </div>
+                </div>
+                <div className="files">
+                    {t("file-indexed")}{totalFiles.toLocaleString()}
+                </div>
+                {/*<div className="files">*/}
+                {/*    V{version}*/}
+                {/*</div>*/}
             </div>
         </div>
     );
