@@ -1,6 +1,6 @@
 use crate::file_view::{FileView, SearchResult};
-use log::info;
 use crate::idx_store::IDX_STORE;
+use log::info;
 
 use crate::walk_metrics::WalkMatrixView;
 use crate::{indexing, utils, walk_exec};
@@ -85,17 +85,13 @@ fn upgrade() {
 }
 #[tauri::command]
 async fn suggest(kw: String) -> Vec<FileView> {
-  info!("suggest kw :{}",kw);
+  info!("suggest kw :{}", kw);
   IDX_STORE.suggest(kw, 20)
 }
 
 #[tauri::command]
-async fn search(
-  mut kw: String,
-  is_dir_opt: Option<bool>,
-  ext_opt: Option<String>,
-) -> SearchResult {
-  info!("search kw :{}",kw);
+async fn search(mut kw: String, is_dir_opt: Option<bool>, ext_opt: Option<String>) -> SearchResult {
+  info!("search kw :{}", kw);
   if kw.eq("") {
     kw = "*".to_string();
   }

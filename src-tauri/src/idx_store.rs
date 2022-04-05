@@ -48,7 +48,10 @@ impl IdxStore {
       return self.ascii_tokenize(hans);
     }
     let space = " ";
-    let hans = hans.replace("-", space).replace("+",space).replace("_", space);
+    let hans = hans
+      .replace("-", space)
+      .replace("+", space)
+      .replace("_", space);
     let hans = zhconv(&hans, Variant::ZhHans);
     let words = self.tokenizer.cut(&hans, false);
 
@@ -145,11 +148,7 @@ impl IdxStore {
     let searcher = self.reader.searcher();
 
     let tokenized = self.search_tokenize(kw);
-    let kw_query = self
-      .query_parser
-      .parse_query(&tokenized)
-      .ok()
-      .unwrap();
+    let kw_query = self.query_parser.parse_query(&tokenized).ok().unwrap();
     let mut subqueries = vec![(Occur::Must, kw_query)];
 
     if let Some(is_dir) = is_dir_opt {
@@ -200,11 +199,10 @@ impl IdxStore {
     // }
     let file_views = self.parse_file_views(paths);
 
-    SearchResult{
+    SearchResult {
       file_view: file_views,
-      tokenized
+      tokenized,
     }
-
   }
 
   pub fn suggest(&self, kw: String, limit: usize) -> Vec<FileView> {

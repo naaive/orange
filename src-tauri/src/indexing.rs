@@ -1,8 +1,8 @@
 use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
+use crate::walk_metrics::WALK_METRICS;
 use crate::{utils, walk_exec, watch_exec};
 use log::info;
-use crate::walk_metrics::WALK_METRICS;
 
 #[cfg(windows)]
 use log::error;
