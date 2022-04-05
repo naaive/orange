@@ -293,6 +293,7 @@ impl IdxStore {
     let mut uniques: HashSet<String> = HashSet::new();
 
     for path in paths {
+      let path = utils::norm(&path);
       match fs::metadata(path.clone()) {
         Ok(meta) => {
           if !uniques.contains(&path) {
