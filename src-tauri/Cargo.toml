@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "0.1.0"
+version = "0.6.0"
 description = "A Tauri App"
 authors = ["you"]
 license = ""
@@ -54,5 +54,5 @@ default = [ "custom-protocol" ]
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
 
-#[profile.test]
-#opt-level=3
+[profile.test]
+opt-level=3

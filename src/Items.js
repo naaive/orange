@@ -12,7 +12,7 @@ import {useTranslation} from "react-i18next";
 initializeFileTypeIcons(undefined);
 
 
-function Items({kw,items, setItems}) {
+function Items({kw,items, tokenized,setItems}) {
 
     const { t } = useTranslation();
 
@@ -114,7 +114,7 @@ function Items({kw,items, setItems}) {
             isPadded: true,
             onRender: (item) => {
                 return <span>
-                <Marker mark={item.kw} options={{ className: "marker" }}>
+                <Marker mark={tokenized} options={{ className: "marker" }}>
        {item.name}
       </Marker>
                 </span>;
@@ -195,7 +195,6 @@ function Items({kw,items, setItems}) {
             <DetailsList
                 onRenderRow={(props, Row) => {
                     let row = props.item;
-                    row.kw = kw;
                     return <RightMenu theme="mac" options={options(row)} maxWidth={200} style={{cursor: "pointer"}}>
                         <div>
                             <Row persistMenu data-foo="bar" {...props} />

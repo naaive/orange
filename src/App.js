@@ -20,9 +20,10 @@ const dialogContentProps = {
 };
 
 
-const App = ({setTheme,theme}) => {
+const App = ({setTheme, theme}) => {
 
     const [items, setItems] = useState([]);
+    const [tokenized, setTokenized] = useState('');
     const [kw, setKw] = useState('');
     const [selectedKey, setSelectedKey] = useState(0);
     const [hideDialog, {toggle: toggleHideDialog}] = useBoolean(true);
@@ -31,13 +32,13 @@ const App = ({setTheme,theme}) => {
     let [percent, setPercent] = useState(0);
     let [totalFiles, setTotalFiles] = useState(0);
 
-    const { t } = useTranslation();
+    const {t} = useTranslation();
     useEffect(() => {
         if (!init) {
 
             get_lang().then(lang => {
-                if (lang==="default") {
-                    let localeLang= navigator.language || navigator.userLanguage;
+                if (lang === "default") {
+                    let localeLang = navigator.language || navigator.userLanguage;
                     let _ = i18next.changeLanguage(localeLang, (err, t) => {
                         if (err) return console.log('something went wrong loading', err);
                         t('key');
@@ -52,13 +53,13 @@ const App = ({setTheme,theme}) => {
                 }
             })
 
-            setInterval(()=>{
-                walk_metrics().then(({percent,total_files}) => {
-                    console.log(123)
+            setInterval(() => {
+                walk_metrics().then(({percent, total_files}) => {
+                    console.log("walk_metrics")
                     setPercent(percent);
                     setTotalFiles(total_files);
                 })
-            },2000)
+            }, 2000)
 
             appWindow.listen('reindex', ({event, payload}) => {
                 if (hideDialog) {
@@ -81,15 +82,16 @@ const App = ({setTheme,theme}) => {
                     {/*<DefaultButton onClick={toggleHideDialog} text="Don't send" />*/}
                 </DialogFooter>
             </Dialog>
-            <Tab lang={lang} setLang={setLang} setTheme={setTheme} theme={theme} selectedKey={selectedKey} kw={kw} setItems={setItems} setSelectedKey={setSelectedKey}/>
+            <Tab lang={lang} setLang={setLang} setTheme={setTheme} theme={theme} selectedKey={selectedKey} kw={kw}
+                 setItems={setItems} setSelectedKey={setSelectedKey} setTokenized={setTokenized}/>
             <div className="search-box">
-                <SearchBox kw={kw} setKw={setKw} setItems={setItems} selectedKey={selectedKey}/>
+                <SearchBox kw={kw} setKw={setKw} setTokenized={setTokenized} setItems={setItems} selectedKey={selectedKey}/>
             </div>
             <div className="items">
 
                 <Scrollbars autoHide autoHideTimeout={500}
                             autoHideDuration={200}>
-                    <Items kw={kw} items={items} setItems={setItems}/>
+                    <Items tokenized={tokenized} kw={kw} items={items} setItems={setItems}/>
                 </Scrollbars>
             </div>
             <div className="status-bar">
@@ -99,7 +101,7 @@ const App = ({setTheme,theme}) => {
                         {t("progress")}
                     </div>
                     <div className={"cmpt"}>
-                        <ProgressIndicator percentComplete={percent/100} />
+                        <ProgressIndicator percentComplete={percent / 100}/>
                     </div>
                 </div>
                 <div className="files">

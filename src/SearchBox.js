@@ -7,34 +7,20 @@ function top6(json) {
     return R.take(6)(json);
 }
 
-async function filterSuggestedTags(filter, selectedItems) {
-    let res = await suggest(filter);
 
-    let titles = R.map(x => ({name: x, key: x}))(R.uniq(R.map(
-        x => (x.name)
-    )(res)));
-
-    if (titles[0]) {
-        if (titles[0].name !== filter) {
-            titles.unshift({name: filter, key: filter})
-        }
-    }
-
-    return top6(titles);
-}
-
-const SearchBox = ({setItems, kw, setKw, selectedKey}) => {
+const SearchBox = ({setItems, kw, setKw, selectedKey,setTokenized}) => {
     let [init, setInit] = useState(false);
     let [handler, setHandler] = useState();
     useEffect(() => {
         let number = setInterval(async () => {
             if (!init) {
                 let kw0 = "*";
-                let items = await search(kw0, selectedKey);
-                if (R.isEmpty(items) || R.isNil(items)) {
+                let {file_view,tokenized} = await search(kw0, selectedKey);
+                if (R.isEmpty(file_view) || R.isNil(file_view)) {
                     return;
                 }
-                setItems(items);
+                setItems(file_view);
+                setTokenized(tokenized)
                 setKw(kw0);
                 setInit(true)
             }
@@ -48,14 +34,34 @@ const SearchBox = ({setItems, kw, setKw, selectedKey}) => {
             clearInterval(handler);
         }
     }, [init])
+
+    async function filterSuggestedTags(filter, selectedItems) {
+        let res = await suggest(kw);
+
+        let titles = R.map(x => ({name: x, key: x}))(R.uniq(R.map(
+            x => (x.name)
+        )(res)));
+
+        if (titles[0]) {
+            if (titles[0].name !== kw) {
+                titles.unshift({name: kw, key: kw})
+            }
+        }
+
+        return top6(titles);
+    }
+
     return (
         <div>
             <TagPicker
                 onItemSelected={function (e) {
                     let kw0 = e.name;
-                    setKw(kw0);
-                    search(kw0, selectedKey).then(items => {
-                        setItems(items);
+                    setTimeout(()=>{
+                        setKw(kw0);
+                    },100)
+                    search(kw0, selectedKey).then(({file_view,tokenized}) => {
+                        setItems(file_view);
+                        setTokenized(tokenized);
                     });
                     return e;
                 }}
@@ -71,8 +77,11 @@ const SearchBox = ({setItems, kw, setKw, selectedKey}) => {
                 pickerCalloutProps={{doNotLayer: true}}
                 inputProps={{
                     id: "pickerId",
-                    value: "",
+                    value: kw,
                     onKeyUp: onKeyUp
+                }}
+                onInputChange={(e)=>{
+                        setKw(e);
                 }}
             />
         </div>
@@ -80,12 +89,16 @@ const SearchBox = ({setItems, kw, setKw, selectedKey}) => {
 
     async function onKeyUp(event) {
         let keyCode = event.keyCode;
+        let kw0 = event.target.value;
+        console.log("keyCode: "+keyCode+", kw0:"+kw0)
+        setKw(kw0);
         if (keyCode === 13 || keyCode === 27) {
-            let kw = event.target.value;
+
             document.body.click();
-            setKw(kw);
-            let items = await search(kw, selectedKey);
-            setItems(items);
+            console.log("onKeyUp")
+            let {file_view,tokenized} = await search(kw0, selectedKey);
+            setItems(file_view);
+            setTokenized(tokenized);
         }
     }
 };
