@@ -16,9 +16,10 @@ use tantivy::query::{BooleanQuery, FuzzyTermQuery, Occur, QueryParser, TermQuery
 use tantivy::schema::*;
 use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
 
-use crate::file_view::FileView;
+use crate::file_view::{FileView, SearchResult};
 use crate::utils;
 use crate::utils::is_ascii_alphanumeric;
+use zhconv::{zhconv, Variant};
 
 lazy_static! {
   pub static ref IDX_STORE: IdxStore = {
@@ -47,7 +48,11 @@ impl IdxStore {
       return self.ascii_tokenize(hans);
     }
     let space = " ";
-    let hans = hans.replace("-", space).replace("_", space);
+    let hans = hans
+      .replace("-", space)
+      .replace("+", space)
+      .replace("_", space);
+    let hans = zhconv(&hans, Variant::ZhHans);
     let words = self.tokenizer.cut(&hans, false);
 
     let mut token_text: HashSet<String> = vec![].into_iter().collect();
@@ -56,12 +61,23 @@ impl IdxStore {
       token_text.insert(word.to_string());
     }
     token_text.insert(hans.clone());
+
     token_text.into_iter().collect::<Vec<String>>().join(" ")
   }
 
+  pub fn search_tokenized(&self, hans: String) -> String {
+    let s = self.search_tokenize(hans);
+    let t = zhconv(&s, Variant::ZhHant);
+    format!("{} {}", s, t)
+  }
+
   fn ascii_tokenize(&self, asc: String) -> String {
-    let string = asc.to_case(Case::Title).to_lowercase();
-    return format!("{} {}", string, asc.to_lowercase());
+    let title_lowercase = asc.to_case(Case::Title).to_lowercase();
+    let raw_lowercase = asc.to_lowercase();
+    // if title_lowercase.eq(&raw_lowercase) {
+    //   return title_lowercase;
+    // }
+    return format!("{} {}", title_lowercase, raw_lowercase);
   }
   pub fn tokenize(&self, hans: String) -> String {
     // return hans;
@@ -71,6 +87,8 @@ impl IdxStore {
     }
     let space = " ";
     let hans = hans.replace("-", space).replace("_", space);
+    let hans = zhconv(&hans, Variant::ZhHans);
+
     let words = self.tokenizer.cut(&hans, false);
 
     let mut token_text: HashSet<String> = vec![].into_iter().collect();
@@ -132,14 +150,11 @@ impl IdxStore {
     limit: usize,
     is_dir_opt: Option<bool>,
     ext_opt: Option<String>,
-  ) -> Vec<FileView> {
+  ) -> SearchResult {
     let searcher = self.reader.searcher();
 
-    let kw_query = self
-      .query_parser
-      .parse_query(&self.search_tokenize(kw))
-      .ok()
-      .unwrap();
+    let tokens = self.search_tokenize(kw.clone());
+    let kw_query = self.query_parser.parse_query(&tokens).ok().unwrap();
     let mut subqueries = vec![(Occur::Must, kw_query)];
 
     if let Some(is_dir) = is_dir_opt {
@@ -190,7 +205,10 @@ impl IdxStore {
     // }
     let file_views = self.parse_file_views(paths);
 
-    file_views
+    SearchResult {
+      file_view: file_views,
+      tokenized: self.search_tokenized(kw),
+    }
   }
 
   pub fn suggest(&self, kw: String, limit: usize) -> Vec<FileView> {
@@ -487,5 +505,13 @@ mod tests {
     let idx_store = Arc::new(IdxStore::new(&idx_path));
     let string = idx_store.tokenize("DataPatchController.java".to_string());
     println!("{}", string);
+  }
+
+  #[test]
+  fn t6() {
+    let hans = zhconv("安全浏览器", Variant::ZhHans);
+    println!("{}", hans);
+    let hans = zhconv("安全瀏覽器", Variant::ZhHans);
+    println!("{}", hans);
   }
 }

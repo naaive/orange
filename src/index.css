@@ -6,7 +6,7 @@ body {
     user-select: none;
 }
 .body {
-    padding: 10px 10px;
+    padding: 10px 10px 0 10px;
 }
 
 .ms-FocusZone {
@@ -20,9 +20,9 @@ body {
 div.ms-SelectionZone {
 }
 
-/*div.ms-Callout-container > div {*/
-/*    width: 100% !important;*/
-/*}*/
+.search-box div.ms-Callout-container > div {
+    width: 100% !important;
+}
 
 .ms-BasePicker-text {
     border: 1px solid rgb(96, 94, 92);
@@ -51,7 +51,7 @@ div.ms-SelectionZone {
 }
 
 .items {
-    height: calc(100vh - 125px);
+    height: calc(100vh - 142px);
 }
 
 .items .ms-DetailsList{
@@ -140,4 +140,34 @@ body {
 }
 .ms-Dropdown{
     width: 290px !important;
+}
+
+
+.status-bar{
+    padding: 3px 0 ;
+    display: flex;
+    flex-direction: row-reverse;
+    height: 20px;
+    border-top: 1px solid #eee;
+    font-size: 13px;
+    /*justify-content: space-between;*/
+}
+.status-bar .progress{
+    width: 160px;
+    display: flex;
+}
+.status-bar .progress>.name{
+    margin-right: 5px;
+    white-space: nowrap;
+}
+.status-bar .progress>.cmpt{
+    width: 160px !important;
+    display: flex;
+    /*display: flex;*/
+}
+.status-bar .progress .ms-ProgressIndicator{
+    width: 100% !important;
+}
+.status-bar .files{
+    margin-right: 20px;
 }

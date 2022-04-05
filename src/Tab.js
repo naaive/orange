@@ -40,7 +40,7 @@ const dragOptions = {
 };
 
 
-const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme,lang,setLang}) => {
+const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme,lang,setLang,setTokenized}) => {
 
     const [isOpen, {setTrue: openPanel, setFalse: dismissPanel}] = useBoolean(false);
     const {t} = useTranslation();
@@ -213,8 +213,11 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme,lang,setL
             <Pivot aria-label="Count and Icon Pivot Example" selectedKey={String(selectedKey)} onLinkClick={(event) => {
                 let key = event.key.substr(1);
                 setSelectedKey(key)
-                search(kw, key).then(value => {
-                    setItems(value)
+                console.log("change tablL:: "+kw)
+                search(kw, key).then(({file_view,tokenized}) => {
+                    setItems(file_view);
+                    setTokenized(tokenized);
+
                 })
             }}>
                 {/*https://uifabricicons.azurewebsites.net/?help*/}

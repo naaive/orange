@@ -12,7 +12,7 @@ import {useTranslation} from "react-i18next";
 initializeFileTypeIcons(undefined);
 
 
-function Items({kw,items, setItems}) {
+function Items({kw,items, tokenized,setItems}) {
 
     const { t } = useTranslation();
 
@@ -114,7 +114,7 @@ function Items({kw,items, setItems}) {
             isPadded: true,
             onRender: (item) => {
                 return <span>
-                <Marker mark={item.kw} options={{ className: "marker" }}>
+                <Marker mark={tokenized} options={{ className: "marker" }}>
        {item.name}
       </Marker>
                 </span>;
@@ -168,7 +168,7 @@ function Items({kw,items, setItems}) {
         return [
             {
                 type: 'li',
-                text: 'Open',
+                text: t("rmenu-open"),
                 callback: () => {
                     open_file_location(row)
                 }
@@ -176,13 +176,13 @@ function Items({kw,items, setItems}) {
             //
             {
                 type: 'li',
-                text: 'Copy Path',
+                text: t("rmenu-copy-path"),
                 callback: () => copy(row.abs_path)
             },
 
             {
                 type: 'li',
-                text: 'Open in Terminal',
+                text: t("rmenu-open-in-terminal"),
                 callback: () => {
                     open_file_location_in_terminal(row)
                 }
@@ -195,7 +195,6 @@ function Items({kw,items, setItems}) {
             <DetailsList
                 onRenderRow={(props, Row) => {
                     let row = props.item;
-                    row.kw = kw;
                     return <RightMenu theme="mac" options={options(row)} maxWidth={200} style={{cursor: "pointer"}}>
                         <div>
                             <Row persistMenu data-foo="bar" {...props} />

@@ -9,7 +9,11 @@ pub struct FileView {
   pub size: u64,
   pub is_dir: bool,
 }
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SearchResult {
+  pub file_view: Vec<FileView>,
+  pub tokenized: String,
+}
 #[test]
 fn t1() {
   let file = FileView {

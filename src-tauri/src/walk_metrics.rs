@@ -5,6 +5,10 @@ use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
 
+lazy_static! {
+  pub static ref WALK_METRICS: RwLock<WalkMetrics> = RwLock::new(WalkMetrics::default());
+}
+
 #[derive(Debug)]
 pub struct WalkMetrics {
   percent: Arc<RwLock<u32>>,
@@ -68,6 +72,11 @@ impl WalkMetrics {
 
   pub fn end_home(&self) {
     self.home_over.store(true, Ordering::Relaxed);
+  }
+
+  pub fn end_of_no_reindex(&self) {
+    self.home_over.store(true, Ordering::Relaxed);
+    *self.percent.write().unwrap() = 100;
   }
 
   pub fn root_inc_percent(&mut self, walked_dir: u32, total_dir: u32) {

@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "0.1.0"
+version = "0.6.0"
 description = "A Tauri App"
 authors = ["you"]
 license = ""
@@ -45,7 +45,7 @@ jwalk = "0.6.0"
 convert_case = "0.1.0"
 lazy_static = "1.4.0"
 webbrowser = "0.6.0"
-
+zhconv = "0.1.0-beta.2"
 [features]
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
@@ -54,5 +54,5 @@ default = [ "custom-protocol" ]
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
 
-#[profile.test]
-#opt-level=3
+[profile.test]
+opt-level=3

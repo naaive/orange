@@ -1,5 +1,6 @@
 use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
+use crate::walk_metrics::WALK_METRICS;
 use crate::{utils, walk_exec, watch_exec};
 use log::info;
 
@@ -22,7 +23,7 @@ use crate::usn_journal_watcher::Watcher;
 const STORE_PATH: &'static str = "orangecachedata";
 #[cfg(windows)]
 const RECYCLE_PATH: &'static str = "$RECYCLE.BIN";
-const VERSION: &'static str = "0.4.0";
+const VERSION: &'static str = "0.6.0";
 const LAST_INDEX_TS: &'static str = "last_index_ts";
 
 pub fn run() {
@@ -43,7 +44,7 @@ fn do_run() {
   };
 
   IDX_STORE.disable_full_indexing();
-
+  WALK_METRICS.write().unwrap().end_of_no_reindex();
   info!("start fs watch");
 
   #[cfg(windows)]
@@ -51,11 +52,10 @@ fn do_run() {
     if reindex {
       info!("use watcher due to reindex");
       watch_exec::run();
-    }else {
+    } else {
       info!("try use usn");
       win_watch();
     }
-
   }
   #[cfg(unix)]
   watch_exec::run();
