@@ -14,7 +14,7 @@ const SearchBox = ({setItems, kw, setKw, selectedKey,setTokenized}) => {
     useEffect(() => {
         let number = setInterval(async () => {
             if (!init) {
-                let kw0 = "*";
+                let kw0 = "";
                 let {file_view,tokenized} = await search(kw0, selectedKey);
                 if (R.isEmpty(file_view) || R.isNil(file_view)) {
                     return;
