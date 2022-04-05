@@ -65,12 +65,18 @@ impl IdxStore {
     token_text.into_iter().collect::<Vec<String>>().join(" ")
   }
 
+  pub fn search_tokenized(&self, hans: String) -> String {
+    let s = self.search_tokenize(hans);
+    let t = zhconv(&s, Variant::ZhHant);
+    format!("{} {}", s, t)
+  }
+
   fn ascii_tokenize(&self, asc: String) -> String {
     let title_lowercase = asc.to_case(Case::Title).to_lowercase();
     let raw_lowercase = asc.to_lowercase();
-    if title_lowercase.eq(&raw_lowercase) {
-      return title_lowercase;
-    }
+    // if title_lowercase.eq(&raw_lowercase) {
+    //   return title_lowercase;
+    // }
     return format!("{} {}", title_lowercase, raw_lowercase);
   }
   pub fn tokenize(&self, hans: String) -> String {
@@ -147,8 +153,8 @@ impl IdxStore {
   ) -> SearchResult {
     let searcher = self.reader.searcher();
 
-    let tokenized = self.search_tokenize(kw);
-    let kw_query = self.query_parser.parse_query(&tokenized).ok().unwrap();
+    let tokens = self.search_tokenize(kw.clone());
+    let kw_query = self.query_parser.parse_query(&tokens).ok().unwrap();
     let mut subqueries = vec![(Occur::Must, kw_query)];
 
     if let Some(is_dir) = is_dir_opt {
@@ -201,7 +207,7 @@ impl IdxStore {
 
     SearchResult {
       file_view: file_views,
-      tokenized,
+      tokenized: self.search_tokenized(kw),
     }
   }
 
