@@ -51,6 +51,8 @@ impl IdxStore {
     let hans = hans
       .replace("-", space)
       .replace("+", space)
+      .replace(",", space)
+      .replace(".", space)
       .replace("_", space);
     let hans = zhconv(&hans, Variant::ZhHans);
     let words = self.tokenizer.cut(&hans, false);
@@ -340,10 +342,13 @@ impl IdxStore {
   pub fn new(path: &str) -> IdxStore {
     let index_path = std::path::Path::new(path);
     let mut schema_builder = Schema::builder();
-    let name_field = schema_builder.add_text_field("name", TEXT);
+    let text_field_indexing =
+      TextFieldIndexing::default().set_index_option(IndexRecordOption::WithFreqs);
+    let text_options = TextOptions::default().set_indexing_options(text_field_indexing);
+    let name_field = schema_builder.add_text_field("name", text_options.clone());
     let path_field = schema_builder.add_bytes_field("path", INDEXED | STORED);
     let is_dir_field = schema_builder.add_bytes_field("is_dir_field", INDEXED);
-    let ext_field = schema_builder.add_text_field("ext", TEXT);
+    let ext_field = schema_builder.add_text_field("ext", text_options);
     // let parent_dirs_field = schema_builder.add_text_field("parent_dirs", TEXT );
     let schema = schema_builder.build();
 
@@ -371,7 +376,7 @@ impl IdxStore {
         if IS_FULL_INDEXING {
           std::thread::sleep(Duration::from_secs(5));
         } else {
-          std::thread::sleep(Duration::from_secs(1));
+          std::thread::sleep(Duration::from_secs(2));
         }
       }
     });
