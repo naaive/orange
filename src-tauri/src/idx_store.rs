@@ -365,10 +365,6 @@ impl IdxStore {
     let writer = Arc::new(Mutex::new(
       index.writer_with_num_threads(2, 140_000_000).unwrap(),
     ));
-    writer
-      .lock()
-      .unwrap()
-      .set_merge_policy(Box::new(NoMergePolicy::default()));
     let writer_bro = writer.clone();
     std::thread::spawn(move || loop {
       let _ = writer_bro.lock().unwrap().commit();
