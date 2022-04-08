@@ -55,7 +55,6 @@ const App = ({setTheme, theme}) => {
 
             setInterval(() => {
                 walk_metrics().then(({percent, total_files}) => {
-                    console.log("walk_metrics")
                     setPercent(percent);
                     setTotalFiles(total_files);
                 })

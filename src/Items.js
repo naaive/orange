@@ -217,4 +217,18 @@ function Items({kw,items, tokenized,setItems}) {
     );
 }
 
-export default Items;
+let cnt = 0;
+export default React.memo(Items, (props, nextProps)=> {
+    let items0 = props.items;
+    let items1 = nextProps.items;
+
+    let eq = R.equals(items0)(items1);
+    if (eq) {
+        cnt++;
+        if (cnt === 500) {
+            cnt = 0;
+            window.location.reload();
+        }
+    }
+    return eq;
+});
