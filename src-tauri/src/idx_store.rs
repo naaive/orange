@@ -44,16 +44,20 @@ static mut IS_FULL_INDEXING: bool = true;
 
 impl IdxStore {
   pub fn search_tokenize(&self, hans: String) -> String {
+    let space = " ";
+    let hans = hans
+        .replace("-", space)
+        .replace("+", space)
+        .replace(",", space)
+        .replace(".", space)
+        .replace(":", space)
+        .replace("/", space)
+        .replace("\\", space)
+        .replace("_", space);
+
     if is_ascii_alphanumeric(hans.as_str()) {
       return self.ascii_tokenize(hans);
     }
-    let space = " ";
-    let hans = hans
-      .replace("-", space)
-      .replace("+", space)
-      .replace(",", space)
-      .replace(".", space)
-      .replace("_", space);
     let hans = zhconv(&hans, Variant::ZhHans);
     let words = self.tokenizer.cut(&hans, false);
 
