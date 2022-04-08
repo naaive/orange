@@ -1,20 +1,23 @@
-import React from 'react';
-import {DetailsList, DetailsListLayoutMode, mergeStyleSets, SelectionMode, TooltipHost} from "@fluentui/react";
+import React, {useState} from 'react';
+import {ContextualMenu, DetailsList, DetailsListLayoutMode, mergeStyleSets, SelectionMode} from "@fluentui/react";
 import * as R from "ramda";
 import {FileIconType, getFileTypeIconProps, initializeFileTypeIcons} from '@fluentui/react-file-type-icons';
 import {Icon} from "office-ui-fabric-react";
 import moment from "moment";
 import copy from "copy-to-clipboard";
 import {open_file_location, open_file_location_in_terminal} from "./utils";
-import RightMenu from '@right-menu/react'
-import { Marker } from "react-mark.js";
+import {Marker} from "react-mark.js";
 import {useTranslation} from "react-i18next";
+
 initializeFileTypeIcons(undefined);
 
+let cnt = 0;
 
 function Items({kw,items, tokenized,setItems}) {
 
-    const { t } = useTranslation();
+    const {t} = useTranslation();
+
+    let [contextualMenuProps, setContextualMenuProps] = useState();
 
     function bytesToSize(bytes) {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -29,6 +32,43 @@ function Items({kw,items, tokenized,setItems}) {
 
     function _getKey(item, index) {
         return item.key;
+    }
+
+    function _onItemContextMenu(item, index, ev) {
+        const p = {
+            target: ev,
+            items: [
+                {
+                    key: t("rmenu-open"),
+                    name: t("rmenu-open"),
+                    onClick: () => {
+                        open_file_location(item)
+                    }
+                },
+                {
+                    key: t("rmenu-copy-path"),
+                    name: t("rmenu-copy-path"),
+                    onClick: () => copy(item.abs_path)
+                },
+
+                {
+                    key: t("rmenu-open-in-terminal"),
+                    name: t("rmenu-open-in-terminal"),
+                    onClick: () => {
+                        open_file_location_in_terminal(item)
+                    }
+                },
+            ],
+            onDismiss: () => {
+                setContextualMenuProps(undefined)
+            }
+        };
+
+        if (index > -1) {
+            setContextualMenuProps(p)
+        }
+
+        return false;
     }
 
     const classNames = mergeStyleSets({
@@ -163,45 +203,11 @@ function Items({kw,items, tokenized,setItems}) {
         }
     ];
 
-    function options(row) {
-
-        return [
-            {
-                type: 'li',
-                text: t("rmenu-open"),
-                callback: () => {
-                    open_file_location(row)
-                }
-            },
-            //
-            {
-                type: 'li',
-                text: t("rmenu-copy-path"),
-                callback: () => copy(row.abs_path)
-            },
-
-            {
-                type: 'li',
-                text: t("rmenu-open-in-terminal"),
-                callback: () => {
-                    open_file_location_in_terminal(row)
-                }
-            },
-        ]
-    }
 
     return (
         <div>
             <DetailsList
-                onRenderRow={(props, Row) => {
-                    let row = props.item;
-                    return <RightMenu theme="mac" options={options(row)} maxWidth={200} style={{cursor: "pointer"}}>
-                        <div>
-                            <Row persistMenu data-foo="bar" {...props} />
-                        </div>
-                    </RightMenu>;
-                }}
-
+                onItemContextMenu={_onItemContextMenu}
                 items={items}
                 compact={true}
                 columns={columns}
@@ -212,23 +218,10 @@ function Items({kw,items, tokenized,setItems}) {
                 isHeaderVisible={true}
             />
 
-
+            <ContextualMenu {...contextualMenuProps} />
         </div>
     );
 }
 
-let cnt = 0;
-export default React.memo(Items, (props, nextProps)=> {
-    let items0 = props.items;
-    let items1 = nextProps.items;
 
-    let eq = R.equals(items0)(items1);
-    if (eq) {
-        cnt++;
-        if (cnt === 500) {
-            cnt = 0;
-            window.location.reload();
-        }
-    }
-    return eq;
-});
+export default Items;
