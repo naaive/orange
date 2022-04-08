@@ -11,7 +11,6 @@ import {useTranslation} from "react-i18next";
 
 initializeFileTypeIcons(undefined);
 
-let cnt = 0;
 
 function Items({kw,items, tokenized,setItems}) {
 
