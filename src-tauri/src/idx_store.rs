@@ -297,9 +297,8 @@ impl IdxStore {
     let mut file_views = Vec::new();
 
     let mut uniques: HashSet<String> = HashSet::new();
-
-    for path in paths {
-      let path = utils::norm(&path);
+    for path0 in paths {
+      let path = utils::norm(&path0);
       match fs::metadata(path.clone()) {
         Ok(meta) => {
           if !uniques.contains(&path) {
@@ -331,7 +330,9 @@ impl IdxStore {
             is_dir: meta.is_dir(),
           });
         }
-        Err(_) => {}
+        Err(_) => {
+          self._del(path0.clone());
+        }
       }
     }
 
