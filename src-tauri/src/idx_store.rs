@@ -331,7 +331,7 @@ impl IdxStore {
           });
         }
         Err(_) => {
-          self._del(path0.clone());
+          self._del(path0);
         }
       }
     }
