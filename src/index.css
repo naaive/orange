@@ -171,3 +171,7 @@ body {
 .status-bar .files{
     margin-right: 20px;
 }
+
+div.ms-Suggestions-container>div:first-child{
+    display: none;
+}
