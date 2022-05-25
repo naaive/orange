@@ -165,7 +165,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme,lang,setL
                         {toastText}
                     </MessageBar> : ""
                 }
-                <div className="setting-item">
+                <div className="setting-item" >
                     <Dropdown
                         onChange={handle_lang_change}
                         label={t("lang")}
@@ -193,7 +193,7 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme,lang,setL
                                onChange={(e) => setExcludePath(e.target.value)}/>
                     <div className="added">
                         {
-                            excludePaths.map(x => <div className="added-item">
+                            excludePaths.map(x => <div className="added-item" key={x}>
                                 <Label>{x}</Label>
                                 <IconButton iconProps={{iconName: 'RemoveFilter'}} title={t("remove")}
                                             onClick={() => handleRemoveExcludePath(x)}/>
@@ -213,7 +213,6 @@ const Tab = ({setSelectedKey, selectedKey, kw, setItems,setTheme,theme,lang,setL
             <Pivot aria-label="Count and Icon Pivot Example" selectedKey={String(selectedKey)} onLinkClick={(event) => {
                 let key = event.key.substr(1);
                 setSelectedKey(key)
-                console.log("change tablL:: "+kw)
                 search(kw, key).then(({file_view,tokenized}) => {
                     setItems(file_view);
                     setTokenized(tokenized);

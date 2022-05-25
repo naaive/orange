@@ -9,7 +9,7 @@ use tauri::{App, Manager};
 use tauri::{CustomMenuItem, SystemTrayMenu};
 use tauri::{SystemTray, SystemTrayEvent};
 use tauri::{Window, Wry};
-
+use crate::user_setting::USER_SETTING;
 static mut WINDOW: Option<Window<Wry>> = None;
 
 #[derive(Clone, serde::Serialize)]
@@ -18,31 +18,31 @@ struct Payload {
 }
 
 #[tauri::command]
-fn walk_metrics() -> WalkMatrixView {
+async fn walk_metrics() -> WalkMatrixView {
   unsafe { walk_exec::get_walk_matrix() }
 }
-use crate::user_setting::USER_SETTING;
+
 #[tauri::command]
-fn change_theme(theme: u8) {
+async fn change_theme(theme: u8) {
   USER_SETTING.write().unwrap().set_theme(theme);
 }
 
 #[tauri::command]
-fn get_theme() -> u8 {
+async fn get_theme() -> u8 {
   USER_SETTING.read().unwrap().theme()
 }
 
 #[tauri::command]
-fn get_lang() -> String {
+async fn get_lang() -> String {
   USER_SETTING.write().unwrap().lang().to_string()
 }
 
 #[tauri::command]
-fn change_lang(lang: String) {
+async fn change_lang(lang: String) {
   USER_SETTING.write().unwrap().set_lang(lang);
 }
 #[tauri::command]
-fn add_exclude_path(path: String) -> u8 {
+async fn add_exclude_path(path: String) -> u8 {
   if path.eq("/") {
     return 1;
   }
@@ -63,7 +63,7 @@ fn add_exclude_path(path: String) -> u8 {
 }
 
 #[tauri::command]
-fn get_exclude_paths() -> Vec<String> {
+async fn get_exclude_paths() -> Vec<String> {
   USER_SETTING
     .read()
     .unwrap()
@@ -73,14 +73,14 @@ fn get_exclude_paths() -> Vec<String> {
     .collect()
 }
 #[tauri::command]
-fn remove_exclude_path(path: String) {
+async fn remove_exclude_path(path: String) {
   USER_SETTING
     .write()
     .unwrap()
     .remove_exclude_index_path(path);
 }
 #[tauri::command]
-fn upgrade() {
+async fn upgrade() {
   let _ = webbrowser::open("https://github.com/naaive/orange/releases");
 }
 #[tauri::command]
@@ -99,16 +99,16 @@ async fn search(mut kw: String, is_dir_opt: Option<bool>, ext_opt: Option<String
 }
 
 #[tauri::command]
-fn open_file_in_terminal(kw: String) {
+async fn open_file_in_terminal(kw: String) {
   utils::open_file_path_in_terminal(kw.as_str());
 }
 
 #[tauri::command]
-fn open_file_path(kw: String) {
+async fn open_file_path(kw: String) {
   utils::open_file_path(kw.as_str());
 }
 #[tauri::command]
-fn reindex() {
+async fn reindex() {
   indexing::reindex();
 }
 

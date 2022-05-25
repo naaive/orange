@@ -43,39 +43,18 @@ impl FsWatcher {
           cookie: _,
         }) => {
           let path_str = path.to_str().unwrap();
+          let abs_path = path_str.to_string();
           if path_str.contains("orangecachedata") {
             continue;
           }
           if Op::REMOVE & op == Op::REMOVE {
-            IDX_STORE._del(path_str.to_string())
-          };
-          let result = path.metadata();
-          match result {
-            Ok(meta) => {
-              let abs_path = path.to_str().unwrap_or("").to_string();
-              let name = utils::path2name(abs_path.clone());
+            IDX_STORE._del(abs_path)
+          } else {
+            let name = utils::path2name(abs_path.clone());
+            let name0 = name.clone();
+            let ext = utils::file_ext(name0.as_str());
 
-              #[cfg(windows)]
-              let _size = meta.file_size();
-              #[cfg(unix)]
-              let _size = meta.size();
-
-              let is_dir = meta.is_dir();
-              if is_dir {
-                if let Some(path_str) = path.to_str() {
-                  self.save_subs(path_str);
-                }
-              }
-              if let Some(p) = path.parent() {
-                if let Some(parent_str) = p.to_str() {
-                  self.save_subs(parent_str);
-                }
-              }
-              let name0 = name.clone();
-              let ext = utils::file_ext(&name0);
-              IDX_STORE.add(name, abs_path, meta.is_dir(), ext.to_string())
-            }
-            Err(_) => {}
+            IDX_STORE.add(name, abs_path, path.is_dir(), ext.to_string())
           }
         }
         Ok(event) => error!("broken event: {:?}", event),

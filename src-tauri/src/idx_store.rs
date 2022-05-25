@@ -44,14 +44,20 @@ static mut IS_FULL_INDEXING: bool = true;
 
 impl IdxStore {
   pub fn search_tokenize(&self, hans: String) -> String {
+    let space = " ";
+    let hans = hans
+        .replace("-", space)
+        .replace("+", space)
+        .replace(",", space)
+        .replace(".", space)
+        .replace(":", space)
+        .replace("/", space)
+        .replace("\\", space)
+        .replace("_", space);
+
     if is_ascii_alphanumeric(hans.as_str()) {
       return self.ascii_tokenize(hans);
     }
-    let space = " ";
-    let hans = hans
-      .replace("-", space)
-      .replace("+", space)
-      .replace("_", space);
     let hans = zhconv(&hans, Variant::ZhHans);
     let words = self.tokenizer.cut(&hans, false);
 
@@ -291,9 +297,8 @@ impl IdxStore {
     let mut file_views = Vec::new();
 
     let mut uniques: HashSet<String> = HashSet::new();
-
-    for path in paths {
-      let path = utils::norm(&path);
+    for path0 in paths {
+      let path = utils::norm(&path0);
       match fs::metadata(path.clone()) {
         Ok(meta) => {
           if !uniques.contains(&path) {
@@ -325,7 +330,9 @@ impl IdxStore {
             is_dir: meta.is_dir(),
           });
         }
-        Err(_) => {}
+        Err(_) => {
+          self._del(path0);
+        }
       }
     }
 
@@ -340,10 +347,13 @@ impl IdxStore {
   pub fn new(path: &str) -> IdxStore {
     let index_path = std::path::Path::new(path);
     let mut schema_builder = Schema::builder();
-    let name_field = schema_builder.add_text_field("name", TEXT);
+    let text_field_indexing =
+      TextFieldIndexing::default().set_index_option(IndexRecordOption::WithFreqs);
+    let text_options = TextOptions::default().set_indexing_options(text_field_indexing);
+    let name_field = schema_builder.add_text_field("name", text_options.clone());
     let path_field = schema_builder.add_bytes_field("path", INDEXED | STORED);
     let is_dir_field = schema_builder.add_bytes_field("is_dir_field", INDEXED);
-    let ext_field = schema_builder.add_text_field("ext", TEXT);
+    let ext_field = schema_builder.add_text_field("ext", text_options);
     // let parent_dirs_field = schema_builder.add_text_field("parent_dirs", TEXT );
     let schema = schema_builder.build();
 
@@ -360,10 +370,6 @@ impl IdxStore {
     let writer = Arc::new(Mutex::new(
       index.writer_with_num_threads(2, 140_000_000).unwrap(),
     ));
-    writer
-      .lock()
-      .unwrap()
-      .set_merge_policy(Box::new(NoMergePolicy::default()));
     let writer_bro = writer.clone();
     std::thread::spawn(move || loop {
       let _ = writer_bro.lock().unwrap().commit();
@@ -371,7 +377,7 @@ impl IdxStore {
         if IS_FULL_INDEXING {
           std::thread::sleep(Duration::from_secs(5));
         } else {
-          std::thread::sleep(Duration::from_secs(1));
+          std::thread::sleep(Duration::from_secs(2));
         }
       }
     });
