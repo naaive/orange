@@ -169,6 +169,12 @@ fn walk(path: &String, skip_path_opt: Option<String>) {
             || curr_path.eq("/proc")
             || exclude_path.iter().any(|x| curr_path.starts_with(x))
             || curr_path.eq(&format!("/System/Volumes/Data/Users/{}", home_name))
+            || curr_path.eq(&format!("/Users/{}/Library/Calendars", home_name))
+            || curr_path.eq(&format!("/Users/{}/Library/Reminders", home_name))
+            || curr_path.eq(&format!(
+              "/Users/{}/Library/Application Support/AddressBook",
+              home_name
+            ))
           {
             info!("skip path {}", curr_path);
             dir_entry.read_children_path = None;
