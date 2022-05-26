@@ -46,14 +46,14 @@ impl IdxStore {
   pub fn search_tokenize(&self, hans: String) -> String {
     let space = " ";
     let hans = hans
-        .replace("-", space)
-        .replace("+", space)
-        .replace(",", space)
-        .replace(".", space)
-        .replace(":", space)
-        .replace("/", space)
-        .replace("\\", space)
-        .replace("_", space);
+      .replace("-", space)
+      .replace("+", space)
+      .replace(",", space)
+      .replace(".", space)
+      .replace(":", space)
+      .replace("/", space)
+      .replace("\\", space)
+      .replace("_", space);
 
     if is_ascii_alphanumeric(hans.as_str()) {
       return self.ascii_tokenize(hans);

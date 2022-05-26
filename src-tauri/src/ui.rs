@@ -5,11 +5,11 @@ use log::info;
 use crate::walk_metrics::WalkMatrixView;
 use crate::{indexing, utils, walk_exec};
 
+use crate::user_setting::USER_SETTING;
 use tauri::{App, Manager};
 use tauri::{CustomMenuItem, SystemTrayMenu};
 use tauri::{SystemTray, SystemTrayEvent};
 use tauri::{Window, Wry};
-use crate::user_setting::USER_SETTING;
 static mut WINDOW: Option<Window<Wry>> = None;
 
 #[derive(Clone, serde::Serialize)]
