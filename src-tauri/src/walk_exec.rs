@@ -6,7 +6,7 @@ use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
 
 use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
-use jwalk::{DirEntry, WalkDir};
+use jwalk::{DirEntry, WalkDir, WalkDirGeneric};
 use log::info;
 use std::sync::{Arc, Mutex};
 
@@ -26,6 +26,8 @@ pub unsafe fn get_walk_matrix() -> WalkMatrixView {
 }
 
 use crate::user_setting::USER_SETTING;
+use crate::utils::path2name;
+
 pub fn run() {
   let home = utils::norm(&home_dir());
 
@@ -82,7 +84,17 @@ fn unix_walk_root(home: String) {
       info!("{} walked", sub);
       continue;
     }
-    walk(&sub, Some(home.to_string()));
+
+    let home_name = path2name(home_dir());
+    walk(
+      &sub,
+      vec![
+        home_dir(),
+        "/proc".to_string(),
+        format!("/System/Volumes/Data/Users/{}", home_name),
+      ],
+    );
+
     CONF_STORE.put_str(key, "1".to_string());
   }
 }
@@ -116,7 +128,7 @@ fn win_walk_root(home: String) {
         continue;
       }
 
-      walk(&sub, Some(home.to_string()));
+      walk(&sub, vec![home_dir()]);
       CONF_STORE.put_str(key, "1".to_string());
     }
   }
@@ -143,46 +155,32 @@ fn walk_home(home: &String) {
   }
 
   let home_name = utils::path2name(home.to_string());
-  IDX_STORE.add(home_name, home.clone().to_string(), true, "".to_string());
-  walk(&home, None);
+  IDX_STORE.add(
+    home_name.clone(),
+    home.clone().to_string(),
+    true,
+    "".to_string(),
+  );
+
+  walk(
+    &home,
+    vec![
+      format!("/Users/{}/Library/Calendars", home_name),
+      format!("/Users/{}/Library/Reminders", home_name),
+      format!(
+        "/Users/{}/Library/Application Support/AddressBook",
+        home_name
+      ),
+    ],
+  );
   CONF_STORE.put_str(key, "1".to_string());
 }
 
-fn walk(path: &String, skip_path_opt: Option<String>) {
+fn walk(path: &String, skip_path: Vec<String>) {
   let start = SystemTime::now();
   info!("start travel {}", path);
   let mut cnt = 0;
-
-  let mut generic = WalkDir::new(&path);
-  if skip_path_opt.is_some() {
-    let skip_path = skip_path_opt.unwrap();
-    let home_name = utils::path2name(skip_path.clone());
-    generic = generic.process_read_dir(move |_depth, _path, _read_dir_state, children| {
-      children.iter_mut().for_each(|dir_entry_result| {
-        if let Ok(dir_entry) = dir_entry_result {
-          let curr_path = utils::norm(dir_entry.path().to_str().unwrap_or(""));
-
-          let guard = USER_SETTING.read().unwrap();
-          let exclude_path = guard.exclude_index_path();
-
-          if curr_path.eq(skip_path.as_str())
-            || curr_path.eq("/proc")
-            || exclude_path.iter().any(|x| curr_path.starts_with(x))
-            || curr_path.eq(&format!("/System/Volumes/Data/Users/{}", home_name))
-            || curr_path.eq(&format!("/Users/{}/Library/Calendars", home_name))
-            || curr_path.eq(&format!("/Users/{}/Library/Reminders", home_name))
-            || curr_path.eq(&format!(
-              "/Users/{}/Library/Application Support/AddressBook",
-              home_name
-            ))
-          {
-            info!("skip path {}", curr_path);
-            dir_entry.read_children_path = None;
-          }
-        }
-      });
-    });
-  }
+  let generic = build_walk_dir(&path, skip_path);
 
   for entry in generic {
     cnt += 1;
@@ -205,6 +203,26 @@ fn walk(path: &String, skip_path_opt: Option<String>) {
     end.duration_since(start).unwrap().as_secs(),
     cnt
   );
+}
+
+fn build_walk_dir(path: &String, skip_path: Vec<String>) -> WalkDirGeneric<((), ())> {
+  WalkDir::new(path).process_read_dir(move |_, _, _, children| {
+    children.iter_mut().for_each(|dir_entry_result| {
+      if let Ok(dir_entry) = dir_entry_result {
+        let curr_path = utils::norm(dir_entry.path().to_str().unwrap_or(""));
+
+        let guard = USER_SETTING.read().unwrap();
+        let exclude_path = guard.exclude_index_path();
+
+        if exclude_path.iter().any(|x| curr_path.starts_with(x))
+            || skip_path.iter().any(|x| curr_path.starts_with(x))
+        {
+          info!("skip path {}", curr_path);
+          dir_entry.read_children_path = None;
+        }
+      }
+    });
+  })
 }
 
 #[cfg(test)]
