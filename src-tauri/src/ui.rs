@@ -5,12 +5,10 @@ use log::info;
 use crate::walk_metrics::WalkMatrixView;
 use crate::{indexing, utils, walk_exec};
 
-use tauri::{App, Manager};
+use crate::user_setting::USER_SETTING;
+use tauri::{AppHandle, Manager};
 use tauri::{CustomMenuItem, SystemTrayMenu};
 use tauri::{SystemTray, SystemTrayEvent};
-use tauri::{Window, Wry};
-use crate::user_setting::USER_SETTING;
-static mut WINDOW: Option<Window<Wry>> = None;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
@@ -112,35 +110,36 @@ async fn reindex() {
   indexing::reindex();
 }
 
-fn init_window(x: &mut App<Wry>) {
-  let option = x.get_window("main");
-  unsafe {
-    WINDOW = option;
-  }
-}
-
-fn handle_tray_event(event: SystemTrayEvent) {
+fn handle_tray_event(app: &AppHandle, event: SystemTrayEvent) {
   match event {
     SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
       "quit" => {
         std::process::exit(0);
       }
       "reindex" => {
-        unsafe {
-          let _ = WINDOW.clone().unwrap().emit(
+        app
+          .get_window("main")
+          .unwrap()
+          .emit(
             "reindex",
             Payload {
               message: "".to_string(),
             },
-          );
-        }
+          )
+          .unwrap();
         indexing::reindex();
       }
       "upgrade" => {
         let _ = webbrowser::open("https://github.com/naaive/orange/releases");
       }
+      "hide" => {
+        app.get_window("main").unwrap().hide().unwrap();
+      }
       _ => {}
     },
+    SystemTrayEvent::DoubleClick { .. } => {
+      app.get_window("main").unwrap().show().unwrap();
+    }
     _ => {}
   }
 }
@@ -149,20 +148,17 @@ fn build_tray() -> SystemTray {
   let quit = CustomMenuItem::new("quit".to_string(), "Quit");
   // let reindex = CustomMenuItem::new("reindex".to_string(), "Reindex");
   let upgrade = CustomMenuItem::new("upgrade".to_string(), "Upgrade");
+  let hide = CustomMenuItem::new("hide".to_string(), "Hide Window");
   let tray_menu = SystemTrayMenu::new()
     .add_item(upgrade)
     // .add_item(reindex)
+    .add_item(hide)
     .add_item(quit);
-  let tray = SystemTray::new().with_menu(tray_menu);
-  tray
+  SystemTray::new().with_menu(tray_menu)
 }
 
 pub fn show() {
   tauri::Builder::default()
-    .setup(|x| {
-      init_window(x);
-      Ok(())
-    })
     .invoke_handler(tauri::generate_handler![
       open_file_path,
       open_file_in_terminal,
@@ -180,7 +176,14 @@ pub fn show() {
       get_exclude_paths
     ])
     .system_tray(build_tray())
-    .on_system_tray_event(|_, event| handle_tray_event(event))
+    .on_system_tray_event(|app, event| handle_tray_event(app, event))
+    .on_window_event(|event| match event.event() {
+      tauri::WindowEvent::CloseRequested { api, .. } => {
+        event.window().hide().unwrap();
+        api.prevent_close();
+      }
+      _ => {}
+    })
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
