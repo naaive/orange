@@ -65,6 +65,9 @@ const App = ({setTheme, theme}) => {
                     toggleHideDialog();
                 }
             })
+            document
+                .getElementById('titlebar-close')
+                .addEventListener('click', () => appWindow.hide())
             setInit(true);
         }
     }, [init, hideDialog]);
