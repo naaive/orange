@@ -5,12 +5,11 @@ use log::info;
 use crate::walk_metrics::WalkMatrixView;
 use crate::{indexing, utils, walk_exec};
 
-use tauri::{App, Manager};
+use crate::user_setting::USER_SETTING;
+use tauri::{App, AppHandle, Manager};
 use tauri::{CustomMenuItem, SystemTrayMenu};
 use tauri::{SystemTray, SystemTrayEvent};
 use tauri::{Window, Wry};
-use crate::user_setting::USER_SETTING;
-static mut WINDOW: Option<Window<Wry>> = None;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
@@ -112,28 +111,23 @@ async fn reindex() {
   indexing::reindex();
 }
 
-fn init_window(x: &mut App<Wry>) {
-  let option = x.get_window("main");
-  unsafe {
-    WINDOW = option;
-  }
-}
-
-fn handle_tray_event(event: SystemTrayEvent) {
+fn handle_tray_event(app: &AppHandle, event: SystemTrayEvent) {
   match event {
     SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
       "quit" => {
         std::process::exit(0);
       }
       "reindex" => {
-        unsafe {
-          let _ = WINDOW.clone().unwrap().emit(
+        app
+          .get_window("main")
+          .unwrap()
+          .emit(
             "reindex",
             Payload {
               message: "".to_string(),
             },
-          );
-        }
+          )
+          .unwrap();
         indexing::reindex();
       }
       "upgrade" => {
@@ -159,10 +153,6 @@ fn build_tray() -> SystemTray {
 
 pub fn show() {
   tauri::Builder::default()
-    .setup(|x| {
-      init_window(x);
-      Ok(())
-    })
     .invoke_handler(tauri::generate_handler![
       open_file_path,
       open_file_in_terminal,
@@ -180,7 +170,7 @@ pub fn show() {
       get_exclude_paths
     ])
     .system_tray(build_tray())
-    .on_system_tray_event(|_, event| handle_tray_event(event))
+    .on_system_tray_event(|app, event| handle_tray_event(app, event))
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
