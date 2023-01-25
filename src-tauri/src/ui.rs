@@ -6,10 +6,9 @@ use crate::walk_metrics::WalkMatrixView;
 use crate::{indexing, utils, walk_exec};
 
 use crate::user_setting::USER_SETTING;
-use tauri::{App, AppHandle, Manager};
+use tauri::{AppHandle, Manager};
 use tauri::{CustomMenuItem, SystemTrayMenu};
 use tauri::{SystemTray, SystemTrayEvent};
-use tauri::{Window, Wry};
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {

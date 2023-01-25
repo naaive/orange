@@ -5,10 +5,9 @@ use crate::utils::get_win32_ready_drives;
 use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
 
-use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
+use crate::walk_metrics::WalkMatrixView;
 use jwalk::{DirEntry, WalkDir};
 use log::info;
-use std::sync::{Arc, Mutex};
 
 use crate::walk_metrics::WALK_METRICS;
 use std::time::SystemTime;
@@ -226,6 +225,8 @@ mod tests {
 
   #[test]
   fn disable_walk() {
+    use std::sync::Arc;
+
     utils::init_log();
 
     let dir = utils::data_dir();
