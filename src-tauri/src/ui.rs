@@ -9,6 +9,8 @@ use crate::user_setting::USER_SETTING;
 use tauri::{AppHandle, Manager};
 use tauri::{CustomMenuItem, SystemTrayMenu};
 use tauri::{SystemTray, SystemTrayEvent};
+use tauri::{Window, Wry};
+static mut WINDOW: Option<Window<Wry>> = None;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
