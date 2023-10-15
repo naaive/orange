@@ -112,6 +112,18 @@ async fn reindex() {
   indexing::reindex();
 }
 
+fn toggle_window_visibility(app: &AppHandle) {
+  let item_handle = app.tray_handle().get_item("hide");
+  let lookup_window = app.get_window("main").unwrap();
+  if lookup_window.is_visible().unwrap() {
+      lookup_window.hide().unwrap();
+      item_handle.set_title("Show window").unwrap();
+  } else {
+      lookup_window.show().unwrap();
+      item_handle.set_title("Hide windows").unwrap();
+  }
+}
+
 fn handle_tray_event(app: &AppHandle, event: SystemTrayEvent) {
   match event {
     SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
@@ -135,7 +147,7 @@ fn handle_tray_event(app: &AppHandle, event: SystemTrayEvent) {
         let _ = webbrowser::open("https://github.com/naaive/orange/releases");
       }
       "hide" => {
-        app.get_window("main").unwrap().hide().unwrap();
+        toggle_window_visibility(app)
       }
       _ => {}
     },
@@ -181,8 +193,11 @@ pub fn show() {
     .on_system_tray_event(|app, event| handle_tray_event(app, event))
     .on_window_event(|event| match event.event() {
       tauri::WindowEvent::CloseRequested { api, .. } => {
+        let win = event.window();
         event.window().hide().unwrap();
         api.prevent_close();
+        let app = win.app_handle();
+        toggle_window_visibility(&app);
       }
       _ => {}
     })
