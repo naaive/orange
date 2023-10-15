@@ -11,7 +11,6 @@ use convert_case::{Case, Casing};
 use jieba_rs::Jieba;
 use pinyin::ToPinyin;
 use tantivy::collector::TopDocs;
-use tantivy::merge_policy::NoMergePolicy;
 use tantivy::query::{BooleanQuery, FuzzyTermQuery, Occur, QueryParser, TermQuery};
 use tantivy::schema::*;
 use tantivy::{doc, Index, IndexReader, IndexWriter, ReloadPolicy};
