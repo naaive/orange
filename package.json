@@ -6,7 +6,7 @@
     "@fluentui/react": "^8.0.0",
     "@fluentui/react-file-type-icons": "^8.6.6",
     "@fluentui/react-hooks": "^8.5.3",
-    "@tauri-apps/api": "^1.0.0-rc.2",
+    "@tauri-apps/api": "^1.5",
     "af-virtual-scroll": "2.7.9",
     "copy-to-clipboard": "^3.3.1",
     "i18next": "^21.6.14",
@@ -47,7 +47,7 @@
     ]
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.0.0-rc.7",
+    "@tauri-apps/cli": "^1.5",
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "cross-env": "^7.0.3"
   }

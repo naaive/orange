@@ -8,7 +8,6 @@ use crate::kv_store::CONF_STORE;
 use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
 use jwalk::{DirEntry, WalkDir, WalkDirGeneric};
 use log::info;
-use std::sync::{Arc, Mutex};
 
 use crate::walk_metrics::WALK_METRICS;
 use std::time::SystemTime;
@@ -250,6 +249,8 @@ mod tests {
 
   #[test]
   fn disable_walk() {
+    use std::sync::Arc;
+
     utils::init_log();
 
     let dir = utils::data_dir();
