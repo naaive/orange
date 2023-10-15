@@ -9,9 +9,6 @@ use crate::user_setting::USER_SETTING;
 use tauri::{AppHandle, Manager};
 use tauri::{CustomMenuItem, SystemTrayMenu};
 use tauri::{SystemTray, SystemTrayEvent};
-use tauri::{Window, Wry};
-static mut WINDOW: Option<Window<Wry>> = None;
-
 #[derive(Clone, serde::Serialize)]
 struct Payload {
   message: String,
@@ -116,11 +113,11 @@ fn toggle_window_visibility(app: &AppHandle) {
   let item_handle = app.tray_handle().get_item("hide");
   let lookup_window = app.get_window("main").unwrap();
   if lookup_window.is_visible().unwrap() {
-      lookup_window.hide().unwrap();
-      item_handle.set_title("Show window").unwrap();
+    lookup_window.hide().unwrap();
+    item_handle.set_title("Show window").unwrap();
   } else {
-      lookup_window.show().unwrap();
-      item_handle.set_title("Hide windows").unwrap();
+    lookup_window.show().unwrap();
+    item_handle.set_title("Hide windows").unwrap();
   }
 }
 
@@ -146,9 +143,7 @@ fn handle_tray_event(app: &AppHandle, event: SystemTrayEvent) {
       "upgrade" => {
         let _ = webbrowser::open("https://github.com/naaive/orange/releases");
       }
-      "hide" => {
-        toggle_window_visibility(app)
-      }
+      "hide" => toggle_window_visibility(app),
       _ => {}
     },
     SystemTrayEvent::DoubleClick { .. } => {
@@ -197,7 +192,8 @@ pub fn show() {
         event.window().hide().unwrap();
         api.prevent_close();
         let app = win.app_handle();
-        toggle_window_visibility(&app);
+        let item_handle = app.tray_handle().get_item("hide");
+        item_handle.set_title("Show window").unwrap();
       }
       _ => {}
     })

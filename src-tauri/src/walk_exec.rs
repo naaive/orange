@@ -5,7 +5,7 @@ use crate::utils::get_win32_ready_drives;
 use crate::idx_store::IDX_STORE;
 use crate::kv_store::CONF_STORE;
 
-use crate::walk_metrics::{WalkMatrixView, WalkMetrics};
+use crate::walk_metrics::WalkMatrixView;
 use jwalk::{DirEntry, WalkDir, WalkDirGeneric};
 use log::info;
 
@@ -214,7 +214,7 @@ fn build_walk_dir(path: &String, skip_path: Vec<String>) -> WalkDirGeneric<((), 
         let exclude_path = guard.exclude_index_path();
 
         if exclude_path.iter().any(|x| curr_path.starts_with(x))
-            || skip_path.iter().any(|x| curr_path.starts_with(x))
+          || skip_path.iter().any(|x| curr_path.starts_with(x))
         {
           info!("skip path {}", curr_path);
           dir_entry.read_children_path = None;
