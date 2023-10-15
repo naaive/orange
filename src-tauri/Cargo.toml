@@ -14,7 +14,7 @@ rust-version = "1.59"
 [build-dependencies]
 tauri-build = { version = "1.5", features = [] }
 winres = "0.1"
-
+embed-resource = "2.3"
 [dependencies]
 log4rs = "0.10.0"
 log = { version = "0.4", features = ["std", "serde"] }
@@ -30,7 +30,7 @@ tantivy = "0.17.0"
 jieba-rs = "0.6"
 kv = { version = "0.22.0" ,features = ["json-value"] }
 walkdir = "2"
-windows = { version = "0.29.0", features = [
+windows = { version = "^0.29.0", features = [
     "alloc",
     "Win32_Foundation",
     "Win32_System_Time",
@@ -45,7 +45,7 @@ jwalk = "0.6.0"
 convert_case = "0.1.0"
 lazy_static = "1.4.0"
 webbrowser = "0.6.0"
-zhconv = "0.1.0-beta.2"
+zhconv = "0.3.0"
 [features]
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL

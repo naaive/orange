@@ -192,7 +192,8 @@ pub fn show() {
         event.window().hide().unwrap();
         api.prevent_close();
         let app = win.app_handle();
-        toggle_window_visibility(&app);
+        let item_handle = app.tray_handle().get_item("hide");
+        item_handle.set_title("Show window").unwrap();
       }
       _ => {}
     })
